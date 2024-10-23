@@ -23,7 +23,7 @@
 #include "particle_variables.h"
 
 /**
- * @namespace vars::interaction
+ * @namespace vars
  * @brief Namespace for organizing generic variables which act on interactions.
  * @details This namespace is intended to be used for organizing variables which
  * act on interactions. Each variable is implemented as a function which takes
@@ -31,10 +31,10 @@
  * should be templated on the type of interaction object if the variable is
  * intended to be used on both true and reconstructed interactions.
  * @note The namespace is intended to be used in conjunction with the
- * vars::particle namespace, which is used for organizing variables which act on
- * single particles.
+ * pvars namespace, which is used for organizing variables which act on single
+ * particles.
  */
-namespace vars::interaction
+namespace vars
 {
     /**
      * @brief Variable for the true neutrino energy.

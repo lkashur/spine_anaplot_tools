@@ -17,7 +17,7 @@
 #include "particle_variables.h"
 
 /**
- * @namespace cuts::interactions
+ * @namespace cuts
  * @brief Namespace for organizing generic cuts which act on interactions.
  * @details This namespace is intended to be used for organizing cuts which act
  * on interactions. Each cut is implemented as a function which takes an
@@ -25,7 +25,7 @@
  * be templated on the type of interaction object if the cut is intended to be
  * used on both true and reconstructed interactions.
  */
-namespace cuts::interactions
+namespace cuts
 {
     /**
      * @brief Check if the particle meets final state signal requirements.
