@@ -1,6 +1,11 @@
 /**
  * @file variables.h
  * @brief Header file for definitions of analysis variables.
+ * @details This file contains definitions of analysis variables which can be
+ * used to extract information from interactions. Each variable is implemented
+ * as a function which takes an interaction object as an argument and returns a
+ * double. These are the building blocks for producing high-level plots of the
+ * selected interactions.
  * @author mueller@fnal.gov
 */
 #ifndef VARIABLES_H
