@@ -17,13 +17,25 @@
 
 #include "particle_variables.h"
 
-namespace vars
+/**
+ * @namespace vars::interaction
+ * @brief Namespace for organizing generic variables which act on interactions.
+ * @details This namespace is intended to be used for organizing variables which
+ * act on interactions. Each variable is implemented as a function which takes
+ * an interaction object as an argument and returns a double. The function
+ * should be templated on the type of interaction object if the variable is
+ * intended to be used on both true and reconstructed interactions.
+ * @note The namespace is intended to be used in conjunction with the
+ * vars::particle namespace, which is used for organizing variables which act on
+ * single particles.
+ */
+namespace vars::interaction
 {
     /**
      * @brief Variable for the true neutrino energy.
      * @units GeV
      * @tparam T the type of object.
-     * @param interaction to apply the variable on.
+     * @param obj the interaction to apply the variable on.
      * @return the true neutrino energy.
     */
     template<class T>
@@ -34,7 +46,7 @@ namespace vars
      * distance is not available, the value is set to 585.0 meters.
      * @units meters
      * @tparam T the type of object.
-     * @param interaction to apply the variable on.
+     * @param obj interaction to apply the variable on.
      * @return the true neutrino baseline.
     */
     template<class T>
@@ -44,7 +56,7 @@ namespace vars
      * @brief Variable for the true neutrino PDG code.
      * @units none
      * @tparam T the type of object.
-     * @param interaction to apply the variable on.
+     * @param obj interaction to apply the variable on.
      * @return the true neutrino PDG code.
     */
     template<class T>
@@ -54,7 +66,7 @@ namespace vars
      * @brief Variable for the true neutrino current value.
      * @units none
      * @tparam T the type of object.
-     * @param interaction to apply the variable on.
+     * @param obj interaction to apply the variable on.
      * @return the true neutrino current value.
     */
     template<class T>
@@ -64,7 +76,7 @@ namespace vars
      * @brief Variable for total visible energy of interaction.
      * @units GeV
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to apply the variable on.
+     * @param obj interaction to apply the variable on.
      * @return the total visible energy of the interaction.
     */
     template<class T>
