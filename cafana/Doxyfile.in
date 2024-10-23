@@ -1,0 +1,20 @@
+# Doxyfile
+
+# Project name
+PROJECT_NAME = SPINE Analysis Tools
+PROJECT_BRIEF = "Tools for streamlining and consolidating selection development for analyses using the SPINE reconstruction toolkit."
+RECURSIVE = YES
+
+# Project version
+PROJECT_VERSION = 1.0
+
+# Source code directory
+INPUT = @CMAKE_CURRENT_SOURCE_DIR@/
+
+# Output directory for generated documentation
+OUTPUT_DIRECTORY = @CMAKE_CURRENT_BINARY_DIR@/docs/
+
+FILE_PATTERN = *.C *.h
+
+INPUT += README.md
+USE_MDFILE_AS_MAINPAGE = README.md
