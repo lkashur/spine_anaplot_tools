@@ -14,8 +14,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include "particle_variables.h"
-
 /**
  * @namespace cuts
  * @brief Namespace for organizing generic cuts which act on interactions.
@@ -26,222 +24,150 @@
  * used on both true and reconstructed interactions.
  */
 namespace cuts
-{
-    /**
-     * @brief Check if the particle meets final state signal requirements.
-     * Particles must be primary and have an energy above threshold.
-     * Muons must have a length of at least 50 cm (143.425 MeV), protons
-     * must have an energy above 50 MeV, and all other particles must have
-     * an energy above 25 MeV.
-     * @tparam T the type of particle (true or reco).
-     * @param particle to check.
-     * @return true if the particle is a final state signal particle.
-    */
-    template<class T>
-        bool final_state_signal(const T & p)
-        {
-            bool passes(false);
-            if(p.is_primary)
-            {
-                double energy(vars::particle::energy(p));
-                if((p.pid == 2 && energy > 143.425) || (p.pid != 2 && p.pid < 4 && energy > 25) || (p.pid == 4 && energy > 50))
-                    passes = true;
-            }
-            return passes;
-        }
-
-    /**
-     * @brief Count the primaries of the interaction with cuts applied to each particle.
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to find the topology of.
-     * @return the count of primaries of each particle type within the
-     * interaction.
-    */
-    template<class T>
-        std::vector<uint32_t> count_primaries(const T & interaction)
-        {
-            std::vector<uint32_t> counts(5, 0);
-            for(auto &p : interaction.particles)
-            {
-                if(final_state_signal(p))
-                    ++counts[p.pid];
-            }
-            return counts;
-        }
-    
+{   
     /**
      * @brief Apply a cut on the validity of the flash match.
+     * @details A "valid" flash match is defined as a flash-interaction
+     * association with a flash time that is not NaN and a flash match
+     * status of 1. The upstream flash matching algorithm (OpT0Finder) has a
+     * flash filter that restricts candidate flashes to near the beam window,
+     * which means that the majority of cosmogenic interactions are not
+     * flash matched. If no flash match is found, the flash time is NaN. This
+     * cut is intended to be applied as a preselection cut to reduce comparisons
+     * to NaN values, which tend to be noisy on stderr.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction on which to place the flash validity cut.
+     * @param obj the interaction on which to place the flash validity cut.
      * @return true if the interaction is flash matched and the time is valid.
-    */
+     */
     template<class T>
-        bool valid_flashmatch(const T & interaction) { return !std::isnan(interaction.flash_time) && interaction.fmatched == 1; }
+        bool valid_flashmatch(const T & obj) { return !std::isnan(obj.flash_time) && obj.fmatched == 1; }
 
     /**
-     * @brief Apply no cut (all interactions/particles passed).
-     * @tparam T the type of object (true or reco, interaction or particle).
-     * @param interaction/particle to select on.
+     * @brief Apply no cut; all interactions passed.
+     * @details This is a placeholder function for a cut which does not apply
+     * any selection criteria. It is intended to be used in cases where a cut
+     * function is required, but no selection is desired.
+     * @tparam T the type of object (true or reco).
+     * @param obj the interaction to select on.
      * @return true (always).
-    */
+     */
     template<class T>
         bool no_cut(const T & obj) { return true; }
 
     /**
-     * @brief Apply a fiducial volume cut. Interaction vertex must be within 25 cm of
-     * x and y detector faces, 50 cm of downstream (+) z face, and 30 cm of
-     * upstream (-) z face.
+     * @brief Apply a fiducial volume cut; the interaction vertex must be
+     * reconstructed within the fiducial volume.
+     * @details The fiducial volume cut is applied on the reconstructed
+     * interaction vertex upstream in SPINE. The fiducial volume is defined
+     * (in a SPINE post-processor) as a 25 cm border around the x and y
+     * detector faces, a 50 cm border around the downstream (+) z face, and a
+     * 30 cm border around the upstream (-) z face. The fiducial volume is
+     * intended to reduce the impact of detector edge effects on the analysis.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
+     * @param obj the interaction to select on.
      * @return true if the vertex is in the fiducial volume.
-    */
+     */
     template<class T>
-        bool fiducial_cut(const T & interaction)
+        bool fiducial_cut(const T & obj)
         {
-            return interaction.is_fiducial && !(interaction.vertex[0] > 210.215 && interaction.vertex[1] > 60 && (interaction.vertex[2] > 290 && interaction.vertex[2] < 390));
+            return obj.is_fiducial && !(obj.vertex[0] > 210.215 && obj.vertex[1] > 60 && (obj.vertex[2] > 290 && obj.vertex[2] < 390));
         }
     
     /**
-     * @brief Apply a containment volume cut. All points within the interaction must be
-     * at least 5 cm from the detector boundaries.
+     * @brief Apply a containment cut on the entire interaction.
+     * @details The containment cut is applied on the entire interaction. The
+     * interaction is considered contained if all particles and all spacepoints
+     * are contained within 5cm of the detector edges (configured in a SPINE 
+     * post-processor). Additionally, no spacepoints are allowed to be
+     * reconstructed in a TPC that did not create it. This is an unphysical
+     * condition that can occur when a cosmic muon is moved according to an
+     * assumed t0 that is very out-of-time.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
+     * @param obj the interaction to select on.
      * @return true if the vertex is contained.
-    */
+     */
     template<class T>
-        bool containment_cut(const T & interaction) { return interaction.is_contained; }
+        bool containment_cut(const T & obj) { return obj.is_contained; }
 
     /**
-     * @brief Apply a 1mu1p topological cut. The interaction must have a topology
-     * matching 1mu1p as defined by the conditions in the topology() function.
+     * @brief Apply a flash time cut on the interaction.
+     * @details The flash time cut is applied on the interaction. The flash time
+     * is required to be within the beam window, which is defined as 0 to 1.6
+     * microseconds. This cut is intended to reduce the impact of cosmogenic
+     * interactions on analyses.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction has a 1mu1p topology.
-    */
-    template<class T>
-        bool topological_1mu1p_cut(const T & interaction)
-        {
-            std::vector<uint32_t> c(count_primaries(interaction));
-            return c[0] == 0 && c[1] == 0 && c[2] == 1 && c[3] == 0 && c[4] == 1;
-        }
-    
-    /**
-     * @brief Apply a 1muNp topological cut. The interaction must have a topology
-     * matching 1muNp as defined by the conditions in the count_primaries()
-     * function.
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction has a 1muNp topology.
-    */
-    template<class T>
-        bool topological_1muNp_cut(const T & interaction)
-        {
-            std::vector<uint32_t> c(count_primaries(interaction));
-            return c[0] == 0 && c[1] == 0 && c[2] == 1 && c[3] == 0 && c[4] >= 1;
-        }
-
-    /**
-     * @brief Apply a 1muX topological cut. The interaction must have a topology
-     * matching 1muX as defined by the conditions in the count_primaries()
-     * function.
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction has a 1muX topology.
-    */
-    template<class T>
-        bool topological_1muX_cut(const T & interaction)
-        {
-            std::vector<uint32_t> c(count_primaries(interaction));
-            return c[2] == 1;
-        }
-    
-    /**
-     * @brief Apply a flash time cut. The interaction must be matched to an in-time
-     * flash. The in-time definition is valid for BNB simulation.
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
+     * @param obj the interaction to select on.
      * @return true if the interaction has been matched to an in-time flash.
-    */
+     * @note This cut is intended to be used for BNB analyses.
+     */
     template<class T>
-        bool flash_cut(const T & interaction)
+        bool flash_cut_bnb(const T & obj)
         {
-            if(!valid_flashmatch(interaction))
+            if(!valid_flashmatch(obj))
                 return false;
             else
-                return (interaction.flash_time >= 0) && (interaction.flash_time <= 1.6);
+                return (obj.flash_time >= 0) && (obj.flash_time <= 1.6);
+        }
+    
+    /**
+     * @brief Apply a flash time cut on the interaction.
+     * @details The flash time cut is applied on the interaction. The flash time
+     * is required to be within the beam window, which is defined as 0 to 9.6
+     * microseconds. This cut is intended to reduce the impact of cosmogenic
+     * interactions on analyses.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to select on.
+     * @return true if the interaction has been matched to an in-time flash.
+     * @note This cut is intended to be used for NuMI analyses.
+     */
+    template<class T>
+        bool flash_cut_numi(const T & obj)
+        {
+            if(!valid_flashmatch(obj))
+                return false;
+            else
+                return (obj.flash_time >= 0) && (obj.flash_time <= 9.6);
         }
 
     /**
      * @brief Apply a fiducial and containment cut (logical "and" of both).
+     * @details This function applies a fiducial and containment cut on the
+     * interaction using the logical "and" of both previously defined cuts.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
+     * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial and containment cut.
-    */
+     */
     template<class T>
-        bool fiducial_containment_cut(const T & interaction) { return fiducial_cut<T>(interaction) && containment_cut<T>(interaction); }
+        bool fiducial_containment_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj); }
 
     /**
-     * @brief Apply a fiducial, containment, and topological (1mu1p) cut (logical
+     * @brief Apply a fiducial, containment, and flash time cut (BNB) (logical
      * "and" of each).
+     * @details This function applies a fiducial, containment, and flash time cut
+     * (BNB) on the interaction using the logical "and" of each previously
+     * defined cut.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
+     * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial, containment, and
-     * topological cut.
-    */
+     * flash time cut.
+     * @note This cut is intended to be used for BNB analyses.
+     */
     template<class T>
-        bool fiducial_containment_topological_1mu1p_cut(const T & interaction) { return fiducial_cut<T>(interaction) && containment_cut<T>(interaction) && topological_1mu1p_cut<T>(interaction); }
+        bool fiducial_containment_flash_cut_bnb(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_bnb<T>(obj); }
 
     /**
-     * @brief Apply a fiducial, containment, and topological (1muNp) cut (logical
+     * @brief Apply a fiducial, containment, and flash time cut (NuMI) (logical
      * "and" of each).
+     * @details This function applies a fiducial, containment, and flash time cut
+     * (NuMI) on the interaction using the logical "and" of each previously
+     * defined cut.
      * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
+     * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial, containment, and
-     * topological cut.
-    */
+     * flash time cut.
+     * @note This cut is intended to be used for NuMI analyses.
+     */
     template<class T>
-        bool fiducial_containment_topological_1muNp_cut(const T & interaction) { return fiducial_cut<T>(interaction) && containment_cut<T>(interaction) && topological_1muNp_cut<T>(interaction); }
-
-    /**
-     * @brief Apply a fiducial, containment, and topological (1muX) cut (logical
-     * "and" of each).
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction passes the fiducial, containment, and
-     * topological cut.
-    */
-    template<class T>
-        bool fiducial_containment_topological_1muX_cut(const T & interaction) { return fiducial_cut<T>(interaction) && containment_cut<T>(interaction) && topological_1muX_cut<T>(interaction); }
-
-    /**
-     * @brief Apply a fiducial, containment, topological (1mu1p), and flash time cut
-     * (logical "and" of each).
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction passes the fiducial, containment,
-     * topological, and flash time cut.
-    */
-    template<class T>
-        bool all_1mu1p_cut(const T & interaction) { return topological_1mu1p_cut<T>(interaction) && fiducial_cut<T>(interaction) && flash_cut<T>(interaction) && containment_cut<T>(interaction); }
-
-    /**
-     * @brief Apply a fiducial, containment, topological (1muNp), and flash time cut
-     * (logical "and" of each).
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction passes the fiducial, containment,
-     * topological, and flash time cut.
-    */
-    template<class T>
-        bool all_1muNp_cut(const T & interaction) { return topological_1muNp_cut<T>(interaction) && fiducial_cut<T>(interaction) && flash_cut<T>(interaction) && containment_cut<T>(interaction); }
-    
-    /**
-     * @brief Apply a fiducial, containment, topological (1muX), and flash time cut
-     * (logical "and" of each).
-     * @tparam T the type of interaction (true or reco).
-     * @param interaction to select on.
-     * @return true if the interaction passes the fiducial, containment,
-     * topological, and flash time cut.
-    */
+        bool fiducial_containment_flash_cut_numi(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_numi<T>(obj); }
 }
 #endif

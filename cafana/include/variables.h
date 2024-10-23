@@ -20,7 +20,9 @@
 #include "sbnanaobj/StandardRecord/SRInteractionTruthDLP.h"
 #include "sbnanaobj/StandardRecord/Proxy/EpilogFwd.h"
 
-#include "particle_variables.h"
+#include "include/particle_variables.h"
+#include "include/particle_cuts.h"
+#include "include/utilities.h"
 
 /**
  * @namespace vars
@@ -42,7 +44,7 @@ namespace vars
      * @tparam T the type of object.
      * @param obj the interaction to apply the variable on.
      * @return the true neutrino energy.
-    */
+     */
     template<class T>
         double true_neutrino_energy(const T & obj) { return obj.nu_energy_init; }
 
@@ -53,7 +55,7 @@ namespace vars
      * @tparam T the type of object.
      * @param obj interaction to apply the variable on.
      * @return the true neutrino baseline.
-    */
+     */
     template<class T>
         double true_neutrino_baseline(const T & obj) { return obj.nu_distance_travel > 0 ? double(obj.nu_distance_travel) : 585.0; }
 
@@ -63,7 +65,7 @@ namespace vars
      * @tparam T the type of object.
      * @param obj interaction to apply the variable on.
      * @return the true neutrino PDG code.
-    */
+     */
     template<class T>
         double true_neutrino_pdg(const T & obj) { return obj.nu_pdg_code; }
 
@@ -73,7 +75,7 @@ namespace vars
      * @tparam T the type of object.
      * @param obj interaction to apply the variable on.
      * @return the true neutrino current value.
-    */
+     */
     template<class T>
         double true_neutrino_cc(const T & obj) { return obj.nu_current_type; }
 
@@ -83,12 +85,12 @@ namespace vars
      * @tparam T the type of interaction (true or reco).
      * @param obj interaction to apply the variable on.
      * @return the total visible energy of the interaction.
-    */
+     */
     template<class T>
-        double visible_energy(const T & interaction)
+        double visible_energy(const T & obj)
         {
             double energy(0);
-            for(const auto & p : interaction.particles)
+            for(const auto & p : obj.particles)
             {
                 if(p.is_primary)
                 {
@@ -98,6 +100,263 @@ namespace vars
                 }
             }
 	        return energy/1000.0;
+        }
+
+    /**
+     * @brief Variable for the softmax score of the leading muon.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle identification.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the softmax score of the leading muon.
+     */
+    template<class T>
+        double leading_muon_softmax(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.pid_scores[2];
+        }
+
+    /**
+     * @brief Variable for the softmax score of the leading proton.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle identification.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the softmax score of the leading proton.
+     */
+    template<class T>
+        double leading_proton_softmax(const T & obj)
+        {
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
+            return p.pid_scores[4];
+        }
+
+    /**
+     * @brief Variable for finding the leading muon kinetic energy.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. If the interaction is a true interaction, the initial
+     * kinetic energy is used instead of the CSDA kinetic energy.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the kinetic energy of the leading muon.
+     */
+    template<class T>
+        double leading_muon_ke(const T & obj)
+        {
+            size_t i(leading_particle_index(obj, 2));
+            double energy(csda_ke(obj.particles[i]));
+            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                energy = ke_init(obj.particles[i]);
+            return energy;
+        }
+
+    /**
+     * @brief Variable for finding the leading proton kinetic energy.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. If the interaction is a true interaction, the initial
+     * kinetic energy is used instead of the CSDA kinetic energy.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the kinetic energy of the leading proton.
+     */
+    template<class T>
+        double leading_proton_ke(const T & obj)
+        {
+            size_t i(leading_particle_index(obj, 4));
+            double energy(csda_ke(obj.particles[i]));
+            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                energy = ke_init(obj.particles[i]);
+            return energy;
+        }
+    
+    /**
+     * @brief Variable for the transverse momentum of the leading muon.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The transverse momentum is defined as the square root
+     * of the sum of the squares of the x and y components of the momentum.
+     * This variable is useful for identifying muons which are produced in a
+     * transverse direction to the beam.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the transverse momentum of the leading muon.
+     */
+    template<class T>
+        double leading_muon_pt(const T & obj)
+        {
+            size_t i(leading_particle_index(obj, 2));
+            return transverse_momentum(obj.particles[i]);
+        }
+
+    /**
+     * @brief Variable for the transverse momentum of the leading proton.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The transverse momentum is defined as the square root
+     * of the sum of the squares of the x and y components of the momentum.
+     * This variable is useful for identifying protons which are produced in a
+     * transverse direction to the beam.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the transverse momentum of the leading proton.
+     */
+    template<class T>
+        double leading_proton_pt(const T & obj)
+        {
+            size_t i(leading_particle_index(obj, 4));
+            return transverse_momentum(obj.particles[i]);
+        }
+
+    /**
+     * @brief Variable for the muon polar angle.
+     * @details The polar angle is defined as the arccosine of the z-component
+     * of the momentum vector. This variable is useful for identifying muons
+     * which are produced transversely to the beam.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the polar angle of the leading muon.
+     */
+    template<class T>
+        double muon_polar_angle(const T & obj)
+        {
+            size_t i(leading_particle_index(obj, 2));
+            return polar_angle(obj.particles[i]);
+        }
+
+    /**
+     * @brief Variable for the muon azimuthal angle.
+     * @details The azimuthal angle is defined as the arccosine of the x-component
+     * of the momentum vector divided by the square root of the sum of the squares
+     * of the x and y components of the momentum vector.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the azimuthal angle of the leading muon.
+     */
+    template<class T>
+        double muon_azimuthal_angle(const T & obj)
+        {
+            size_t i(leading_particle_index(obj, 2));
+            return azimuthal_angle(obj.particles[i]);
+        }
+
+    /**
+     * @brief Variable for the transverse momentum of the interaction.
+     * @details The transverse momentum is defined as the square root of the
+     * sum of the squares of the x and y components of the momentum. This
+     * variable is useful for identifying interactions that have a significant
+     * transverse component (e.g. missing momentum).
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the transverse momentum of the primary particles.
+     */
+    template<class T>
+        double interaction_pt(const T & obj)
+        {
+            double px(0), py(0);
+            for(const auto & p : obj.particles)
+                if(p.is_primary)
+                {
+                    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                    {
+                        px += p.truth_momentum[0];
+                        py += p.truth_momentum[1];
+                    }
+                    else
+                    {
+                        px += p.momentum[0];
+                        py += p.momentum[1];
+                    }
+                }
+            return std::sqrt(std::pow(px, 2) + std::pow(py, 2));
+        }
+
+    /**
+     * @brief Variable for phi_T of the interaction.
+     * @details phi_T is a transverse kinematic imbalance variable defined
+     * using the transverse momentum of the leading muon and the total hadronic
+     * system. This variable is sensitive to the presence of F.S.I.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the phi_T of the interaction.
+     */
+    template<class T>
+        double phiT(const T & obj)
+        {
+            double lpx(0), lpy(0), hpx(0), hpy(0);
+            for(const auto & p : obj.particles)
+                if(pcuts::final_state_signal(p))
+                {
+                    if(p.pid > 2)
+                    {
+                        if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                        {
+                            hpx += p.truth_momentum[0];
+                            hpy += p.truth_momentum[1];
+                        }
+                        else
+                        {
+                            hpx += p.momentum[0];
+                            hpy += p.momentum[1];
+                        }
+                    }
+                    else if(p.pid == 2)
+                    {
+                        if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                        {
+                            lpx += p.truth_momentum[0];
+                            lpy += p.truth_momentum[1];
+                        }
+                        else
+                        {
+                            lpx += p.momentum[0];
+                            lpy += p.momentum[1];
+                        }
+                    }
+                }
+            return std::acos((-hpx * lpx - hpy * lpy) / (std::sqrt(std::pow(hpx, 2) + std::pow(hpy, 2)) * std::sqrt(std::pow(lpx, 2) + std::pow(lpy, 2))));
+        }
+
+    /**
+     * @brief Variable for alpha_T of the interaction.
+     * @details alpha_T is a transverse kinematic imbalance variable defined
+     * using the transverse momentum of the total hadronic system and the muon.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the alpha_T of the interaction.
+     */
+    template<class T>
+        double alphaT(const T & obj)
+        {
+            double lpx(0), lpy(0), px(0), py(0);
+            for(const auto & p : obj.particles)
+                if(pcuts::final_state_signal(p))
+                {
+                    if(p.pid <= 2)
+                    {
+                        if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                        {
+                            lpx += p.truth_momentum[0];
+                            lpy += p.truth_momentum[1];
+                        }
+                        else
+                        {
+                            lpx += p.momentum[0];
+                            lpy += p.momentum[1];
+                        }
+                    }
+                    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                    {
+                        px += p.truth_momentum[0];
+                        py += p.truth_momentum[1];
+                    }
+                    else
+                    {
+                        px += p.momentum[0];
+                        py += p.momentum[1];
+                    }
+                }
+            return std::acos((-px * lpx - py * lpy) / (std::sqrt(std::pow(px, 2) + std::pow(py, 2)) * std::sqrt(std::pow(lpx, 2) + std::pow(lpy, 2))));
         }
 }
 #endif // VARIABLES_H

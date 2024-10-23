@@ -4,8 +4,9 @@
  * @author mueller@fnal.gov
 */
 #include "include/variables.h"
-#include "include/numu_variables.h"
+#include "include/muon2024/variables_muon2024.h"
 #include "include/cuts.h"
+#include "include/muon2024/cuts_muon2024.h"
 #include "include/preprocessor.h"
 
 #include "sbnana/CAFAna/Core/SpectrumLoader.h"
@@ -19,13 +20,13 @@
 
 namespace ana
 { 
-    VARDLP_RECO_TRUE(kTrueE, vars::true_neutrino_energy, cuts::all_1mu1p_cut);
-    VARDLP_RECO_TRUE(kTrueL, vars::true_neutrino_baseline, cuts::all_1mu1p_cut);
-    VARDLP_RECO_TRUE(kTruePDG, vars::true_neutrino_pdg, cuts::all_1mu1p_cut);
-    VARDLP_RECO_TRUE(kTrueCC, vars::true_neutrino_cc, cuts::all_1mu1p_cut);
-    VARDLP_RECO_RECO(kRecoE, vars::visible_energy, cuts::all_1mu1p_cut);
-    VARDLP_RECO_RECO(kMuonSoftmax, vars::muon_softmax, cuts::all_1mu1p_cut);
-    VARDLP_RECO_RECO(kProtonSoftmax, vars::proton_softmax, cuts::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTrueE, vars::true_neutrino_energy, cuts::muon2024::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTrueL, vars::true_neutrino_baseline, cuts::muon2024::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTruePDG, vars::true_neutrino_pdg, cuts::muon2024::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTrueCC, vars::true_neutrino_cc, cuts::muon2024::all_1mu1p_cut);
+    VARDLP_RECO_RECO(kRecoE, vars::visible_energy, cuts::muon2024::all_1mu1p_cut);
+    VARDLP_RECO_RECO(kMuonSoftmax, vars::leading_muon_softmax, cuts::muon2024::all_1mu1p_cut);
+    VARDLP_RECO_RECO(kProtonSoftmax, vars::leading_proton_softmax, cuts::muon2024::all_1mu1p_cut);
 }
 
 void analysis()
