@@ -1,6 +1,10 @@
 /**
  * @file cuts.h
  * @brief Header file for definitions of analysis cuts.
+ * @details This file contains definitions of analysis cuts which can be used
+ * to select interactions. Each cut is implemented as a function which takes an
+ * interaction object as an argument and returns a boolean. These are the
+ * building blocks for defining more complex selections.
  * @author mueller@fnal.gov
 */
 #ifndef CUTS_H
@@ -12,7 +16,16 @@
 
 #include "particle_variables.h"
 
-namespace cuts
+/**
+ * @namespace cuts::interactions
+ * @brief Namespace for organizing generic cuts which act on interactions.
+ * @details This namespace is intended to be used for organizing cuts which act
+ * on interactions. Each cut is implemented as a function which takes an
+ * interaction object as an argument and returns a boolean. The function should
+ * be templated on the type of interaction object if the cut is intended to be
+ * used on both true and reconstructed interactions.
+ */
+namespace cuts::interactions
 {
     /**
      * @brief Check if the particle meets final state signal requirements.
