@@ -19,13 +19,13 @@
 
 namespace ana
 { 
-    VARDLP_RECO_TRUE(kTrueE, vars::true_neutrino_energy, cuts::all_1mu1p_cut);
-    VARDLP_RECO_TRUE(kTrueL, vars::true_neutrino_baseline, cuts::all_1mu1p_cut);
-    VARDLP_RECO_TRUE(kTruePDG, vars::true_neutrino_pdg, cuts::all_1mu1p_cut);
-    VARDLP_RECO_TRUE(kTrueCC, vars::true_neutrino_cc, cuts::all_1mu1p_cut);
-    VARDLP_RECO_RECO(kRecoE, vars::visible_energy, cuts::all_1mu1p_cut);
-    VARDLP_RECO_RECO(kMuonSoftmax, vars::muon_softmax, cuts::all_1mu1p_cut);
-    VARDLP_RECO_RECO(kProtonSoftmax, vars::proton_softmax, cuts::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTrueE, vars::interaction::true_neutrino_energy, cuts::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTrueL, vars::interaction::true_neutrino_baseline, cuts::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTruePDG, vars::interaction::true_neutrino_pdg, cuts::all_1mu1p_cut);
+    VARDLP_RECO_TRUE(kTrueCC, vars::interaction::true_neutrino_cc, cuts::all_1mu1p_cut);
+    VARDLP_RECO_RECO(kRecoE, vars:interaction::visible_energy, cuts::all_1mu1p_cut);
+    VARDLP_RECO_RECO(kMuonSoftmax, vars::interaction::muon_softmax, cuts::all_1mu1p_cut);
+    VARDLP_RECO_RECO(kProtonSoftmax, vars::interaction::proton_softmax, cuts::all_1mu1p_cut);
 }
 
 void analysis()
