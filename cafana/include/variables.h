@@ -103,13 +103,13 @@ namespace vars
         }
 
     /**
-     * @brief Variable for the softmax score of the leading muon.
+     * @brief Variable for the muon softmax score of the leading muon.
      * @details The leading muon is defined as the muon with the highest
      * kinetic energy. The softmax score can be thought of as a "confidence"
      * value for the particle identification.
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to apply the variable on.
-     * @return the softmax score of the leading muon.
+     * @return the muon softmax score of the leading muon.
      */
     template<class T>
         double leading_muon_softmax(const T & obj)
@@ -119,19 +119,36 @@ namespace vars
         }
 
     /**
-     * @brief Variable for the softmax score of the leading proton.
+     * @brief Variable for the proton softmax score of the leading proton.
      * @details The leading proton is defined as the proton with the highest
      * kinetic energy. The softmax score can be thought of as a "confidence"
      * value for the particle identification.
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to apply the variable on.
-     * @return the softmax score of the leading proton.
+     * @return the proton softmax score of the leading proton.
      */
     template<class T>
         double leading_proton_softmax(const T & obj)
         {
             auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
             return p.pid_scores[4];
+        }
+
+    /**
+     * @brief Variable for the "MIP" softmax score of the leading muon.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle identification. In this case, the "MIP" score
+     * is calculated as the sum of the softmax scores for the muon and pion.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the "MIP" softmax score of the leading muon.
+     */
+    template<class T>
+        double leading_muon_mip_softmax(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.pid_scores[2] + m.pid_scores[3];
         }
 
     /**
