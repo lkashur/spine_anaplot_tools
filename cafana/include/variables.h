@@ -94,12 +94,12 @@ namespace vars
             {
                 if(p.is_primary)
                 {
-                    energy = particle::energy(p);
+                    energy += particle::energy(p);
                     if(p.pid == 2) energy += MUON_MASS;
                     else if(p.pid == 3) energy += PION_MASS;
                 }
             }
-	        return energy/1000.0;
+            return energy/1000.0;
         }
 
     /**
