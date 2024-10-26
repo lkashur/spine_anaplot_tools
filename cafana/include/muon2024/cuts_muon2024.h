@@ -57,8 +57,8 @@ namespace cuts::muon2024
     template<class T>
         bool topological_1muNp_cut(const T & obj)
         {
-            std::vector<uint32_t> c(count_primaries(obj));
-            return c[0] == 0 && c[1] == 0 && c[2] == 1 && c[3] == 0 && c[4] > 1;
+            std::vector<uint32_t> c(utilities::count_primaries(obj));
+            return c[0] == 0 && c[1] == 0 && c[2] == 1 && c[3] == 0 && c[4] >= 1;
         }
     
     /**
@@ -73,8 +73,8 @@ namespace cuts::muon2024
     template<class T>
         bool topological_1muX_cut(const T & obj)
         {
-            std::vector<uint32_t> c(count_primaries(obj));
-            return c[0] == 0 && c[1] == 0 && c[2] == 1 && c[3] == 0 && c[4] > 0;
+            std::vector<uint32_t> c(utilities::count_primaries(obj));
+            return c[2] == 1;
         }
 
     /**
