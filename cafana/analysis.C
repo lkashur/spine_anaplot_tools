@@ -1,6 +1,10 @@
 /**
- * @file profit.C
- * @brief ROOT macro to be used with CAFAna to run the selection and produce sBruce trees.
+ * @file analysis.C
+ * @brief The main analysis macro for the muon2024 analysis.
+ * @details This macro drives the analysis by configuring the variables, cuts,
+ * and samples to be used in the analysis. This is accomplished through the use
+ * of the Analysis class, which containerizes the configuration of the analysis
+ * and reduces the amount of boilerplate code needed to run the analysis.
  * @author mueller@fnal.gov
 */
 #include "include/variables.h"
