@@ -103,6 +103,102 @@ namespace vars
         }
 
     /**
+     * @brief Variable for the x-coordinate of the leading muon end point.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The end point is predicted upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the x-coordinate of the leading muon end point.
+     */
+    template<class T>
+        double leading_muon_end_x(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.end_point[0];
+        }
+
+    /**
+     * @brief Variable for the y-coordinate of the leading muon end point.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The end point is predicted upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the y-coordinate of the leading muon end point.
+     */
+    template<class T>
+        double leading_muon_end_y(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.end_point[1];
+        }
+
+    /**
+     * @brief Variable for the z-coordinate of the leading muon end point.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The end point is predicted upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the z-coordinate of the leading muon end point.
+     */
+    template<class T>
+        double leading_muon_end_z(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.end_point[2];
+        }
+
+    /**
+     * @brief Variable for the x-coordinate of the leading proton end point.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The end point is predicted upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the x-coordinate of the leading proton end point.
+     */
+    template<class T>
+        double leading_proton_end_x(const T & obj)
+        {
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
+            return p.end_point[0];
+        }
+
+    /**
+     * @brief Variable for the y-coordinate of the leading proton end point.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The end point is predicted upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the y-coordinate of the leading proton end point.
+     */
+    template<class T>
+        double leading_proton_end_y(const T & obj)
+        {
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
+            return p.end_point[1];
+        }
+    
+    /**
+     * @brief Variable for the z-coordinate of the leading proton end point.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The end point is predicted upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the z-coordinate of the leading proton end point.
+     */
+    template<class T>
+        double leading_proton_end_z(const T & obj)
+        {
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
+            return p.end_point[2];
+        }
+
+    /**
      * @brief Variable for the muon softmax score of the leading muon.
      * @details The leading muon is defined as the muon with the highest
      * kinetic energy. The softmax score can be thought of as a "confidence"
