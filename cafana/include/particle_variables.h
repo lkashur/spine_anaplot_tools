@@ -60,6 +60,38 @@ namespace pvars
             }
             return energy;
         }
+
+    /**
+     * @brief Variable for true particle starting kinetic energy.
+     * @details The starting kinetic energy is defined as the total energy
+     * minus the rest mass energy of the particle.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the starting kinetic energy of the particle.
+     */
+    template<class T>
+        double ke_init(const T & p)
+        {
+            double energy(p.energy_init);
+            switch(p.pid)
+            {
+                case 1:
+                    energy -= ELECTRON_MASS;
+                    break;
+                case 2:
+                    energy -= MUON_MASS;
+                    break;
+                case 3:
+                    energy -= PION_MASS;
+                    break;
+                case 4:
+                    energy -= PROTON_MASS;
+                    break;
+                default:
+                    break;
+            }
+            return energy;
+        }
     
     /**
      * @brief Variable for the transverse momentum of a particle.
