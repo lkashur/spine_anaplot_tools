@@ -11,7 +11,20 @@
 #define PION_MASS 139.57039
 #define PROTON_MASS 938.2720813
 
-namespace vars::particle
+/**
+ * @namespace pvars
+ * @brief Namespace for organizing generic variables which act on single
+ * particles.
+ * @details This namespace is intended to be used for organizing variables which
+ * act on single particles. Each variable is implemented as a function which
+ * takes a particle object as an argument and returns a double. The function
+ * should be templated on the type of particle object if the variable is
+ * intended to be used on both true and reconstructed particles.
+ * @note The namespace is intended to be used in conjunction with the
+ * vars namespace, which is used for organizing variables which act on
+ * interactions.
+ */
+namespace pvars
 {
     /**
      * @brief Variable for the best estimate of the particle energy. At the

@@ -14,6 +14,7 @@
 
 #include <vector>
 
+#include "include/particle_variables.h"
 #include "include/particle_cuts.h"
 
 /**
@@ -71,7 +72,7 @@ namespace utilities
                 const auto & p = obj.particles[i];
                 double energy(p.csda_ke);
                 if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                    energy = ke_init(p);
+                    energy = pvars::ke_init(p);
                 if(p.pid == pid && energy > leading_ke)
                 {
                     leading_ke = energy;

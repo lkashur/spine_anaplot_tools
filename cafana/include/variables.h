@@ -94,7 +94,7 @@ namespace vars
             {
                 if(p.is_primary)
                 {
-                    energy += particle::energy(p);
+                    energy += pvars::energy(p);
                     if(p.pid == 2) energy += MUON_MASS;
                     else if(p.pid == 3) energy += PION_MASS;
                 }
@@ -163,10 +163,10 @@ namespace vars
     template<class T>
         double leading_muon_ke(const T & obj)
         {
-            size_t i(leading_particle_index(obj, 2));
-            double energy(csda_ke(obj.particles[i]));
+            size_t i(utilities::leading_particle_index(obj, 2));
+            double energy(pvars::energy(obj.particles[i]));
             if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                energy = ke_init(obj.particles[i]);
+                energy = pvars::ke_init(obj.particles[i]);
             return energy;
         }
 
@@ -182,10 +182,10 @@ namespace vars
     template<class T>
         double leading_proton_ke(const T & obj)
         {
-            size_t i(leading_particle_index(obj, 4));
-            double energy(csda_ke(obj.particles[i]));
+            size_t i(utilities::leading_particle_index(obj, 4));
+            double energy(pvars::energy(obj.particles[i]));
             if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                energy = ke_init(obj.particles[i]);
+                energy = pvars::ke_init(obj.particles[i]);
             return energy;
         }
     
@@ -203,8 +203,8 @@ namespace vars
     template<class T>
         double leading_muon_pt(const T & obj)
         {
-            size_t i(leading_particle_index(obj, 2));
-            return transverse_momentum(obj.particles[i]);
+            size_t i(utilities::leading_particle_index(obj, 2));
+            return pvars::transverse_momentum(obj.particles[i]);
         }
 
     /**
@@ -221,8 +221,8 @@ namespace vars
     template<class T>
         double leading_proton_pt(const T & obj)
         {
-            size_t i(leading_particle_index(obj, 4));
-            return transverse_momentum(obj.particles[i]);
+            size_t i(utilities::leading_particle_index(obj, 4));
+            return pvars::transverse_momentum(obj.particles[i]);
         }
 
     /**
@@ -237,8 +237,8 @@ namespace vars
     template<class T>
         double muon_polar_angle(const T & obj)
         {
-            size_t i(leading_particle_index(obj, 2));
-            return polar_angle(obj.particles[i]);
+            size_t i(utilities::leading_particle_index(obj, 2));
+            return pvars::polar_angle(obj.particles[i]);
         }
 
     /**
@@ -253,8 +253,8 @@ namespace vars
     template<class T>
         double muon_azimuthal_angle(const T & obj)
         {
-            size_t i(leading_particle_index(obj, 2));
-            return azimuthal_angle(obj.particles[i]);
+            size_t i(utilities::leading_particle_index(obj, 2));
+            return pvars::azimuthal_angle(obj.particles[i]);
         }
 
     /**

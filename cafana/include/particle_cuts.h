@@ -43,7 +43,7 @@ namespace pcuts
             bool passes(false);
             if(p.is_primary)
             {
-                double energy(vars::particle::energy(p));
+                double energy(pvars::energy(p));
                 if((p.pid == 2 && energy > 143.425) || (p.pid != 2 && p.pid < 4 && energy > 25) || (p.pid == 4 && energy > 50))
                     passes = true;
             }

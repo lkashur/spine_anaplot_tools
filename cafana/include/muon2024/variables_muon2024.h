@@ -46,8 +46,8 @@ namespace vars::muon2024
     template<class T>
         double opening_angle(const T & obj)
         {
-            auto & m(obj.particles[leading_particle_index(obj, 2)]);
-            auto & p(obj.particles[leading_particle_index(obj, 4)]);
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
             if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
                 return std::acos(m.truth_start_dir[0] * p.truth_start_dir[0] + m.truth_start_dir[1] * p.truth_start_dir[1] + m.truth_start_dir[2] * p.truth_start_dir[2]);
             else
