@@ -2,6 +2,10 @@
  * @file particle_variables.h
  * @brief Header file for definitions of variables which act on single
  * particles.
+ * @details This file contains definitions of variables which act on single
+ * particles. Each variable is implemented as a function which takes a particle
+ * object as an argument and returns a double. These variables are intended to
+ * be used to define more complex variables which act on interactions.
  * @author mueller@fnal.gov
 */
 #ifndef PARTICLE_VARIABLES_H
@@ -27,11 +31,11 @@
 namespace pvars
 {
     /**
-     * @brief Variable for the best estimate of the particle energy. At the
-     * most basic decision level, this is based on the shower/track
-     * designation. Showers can only be reconstructed calorimetrically, while
-     * tracks can be reconstructed calorimetrically, by range (if contained),
-     * or by multiple scattering (if exiting).
+     * @brief Variable for the best estimate of the particle energy.
+     * @details At the most basic decision level, this is based on the
+     * shower/track designation. Showers can only be reconstructed
+     * calorimetrically, while tracks can be reconstructed calorimetrically,
+     * by range (if contained), or by multiple scattering (if exiting).
      * @tparam T the type of particle.
      * @param p the particle to apply the variable on.
      * @return the best estimate of the particle energy.
