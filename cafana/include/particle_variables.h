@@ -44,7 +44,7 @@ namespace pvars
         double energy(const T & p)
         {
             double energy = 0;
-            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+            if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
             {
                 energy += p.energy_deposit;
             }
