@@ -37,6 +37,42 @@
 namespace ana
 {
     /**
+     * @struct Sample
+     * @brief Struct to store information about a sample in the analysis.
+     * @details This struct is used to store information about a sample in the
+     * analysis, including the name of the sample, the SpectrumLoader object
+     * representing the sample, and a boolean indicating whether the sample is
+     * a simulation sample. The simulation flag is used to determine if truth
+     * information is available for the sample.
+     */
+    struct Sample
+    {
+        std::string name;
+        ana::SpectrumLoader * loader;
+        bool is_sim;
+    };
+
+    /**
+     * @struct TreeSet
+     * @brief Struct to store information about a set of variables that comprise
+     * a Tree in the analysis.
+     * @details This struct is used to store information about a set of variables
+     * that comprise a Tree in the analysis. The Tree is used to store the results
+     * of the analysis in a TTree in the output ROOT file. The struct contains the
+     * name of the Tree, the names of the variables, the SpillMultiVars that
+     * implement the variables, and a boolean indicating whether the Tree
+     * represents a simulation sample. The simulation flag is used to determine
+     * if truth information is present in the Tree.
+     */
+    struct TreeSet
+    {
+        std::string name;
+        std::vector<std::string> names;
+        std::vector<ana::SpillMultiVar> vars;
+        bool is_sim;
+    };
+
+    /**
      * @class Analysis
      * @brief Class designed to streamline the running of multiple samples
      * through CAFAna.
@@ -54,15 +90,13 @@ namespace ana
     {
         public:
             Analysis(std::string name);
-            void AddLoader(std::string name, ana::SpectrumLoader * loader);
-            void AddVars(std::vector<std::string> names, std::vector<ana::SpillMultiVar> & vars);
+            void AddLoader(std::string name, ana::SpectrumLoader * loader, bool is_sim);
+            void AddTree(std::string name, std::map<std::string, ana::SpillMultiVar> & vars, bool is_sim);
             void Go();
         private:
             std::string name;
-            std::vector<std::string> lnames;
-            std::vector<ana::SpectrumLoader*> loaders;
-            std::vector<std::string> names;
-            std::vector<ana::SpillMultiVar> vars;
+            std::vector<Sample> samples;
+            std::vector<TreeSet> trees;
     };
 
     /**
@@ -87,38 +121,51 @@ namespace ana
      * @param name The name of the SpectrumLoader to be added to the Analysis
      * class.
      * @param loader The SpectrumLoader to be added to the Analysis class.
+     * @param is_sim A boolean indicating whether the SpectrumLoader represents
+     * a simulation sample, which is principally used to determine if truth
+     * information is available.
      * @return void
      */
-    void Analysis::AddLoader(std::string name, ana::SpectrumLoader * loader)
+    void Analysis::AddLoader(std::string name, ana::SpectrumLoader * loader, bool is_sim)
     {
-        lnames.push_back(name);
-        loaders.push_back(loader);
+        samples.push_back({name, loader, is_sim});
     }
 
     /**
-     * @brief Add a set of variables to the Analysis class.
-     * @details This function allows the user to add a set of variables to the
-     * Analysis class. The variables are represented by a vector of SpillMultiVar
-     * objects, which contain the names of the variables and the cuts to be
-     * applied to the data.
-     * @param names A vector of strings containing the names of the variables to
-     * be added to the Analysis class.
-     * @param vars A vector of SpillMultiVar objects containing the variables and
-     * cuts to be added to the Analysis class.
+     * @brief Add a Tree to the Analysis class (set of variables and names).
+     * @details This function allows the user to add a new Tree to the Analysis
+     * class. A Tree is a set of variables with associated names that are
+     * applied to the data in the SpectrumLoader. The Tree is used to store the
+     * results of the analysis in a TTree in the output ROOT file.
+     * @param names A vector of strings containing the names of the variables
+     * to use in the Tree.
+     * @param vars A vector of SpillMultiVar objects implementing the variables
+     * to use in the Tree.
+     * @param is_sim A boolean indicating whether the Tree represents a
+     * simulation sample, which is principally used to determine if truth
+     * information is available.
      * @return void
      */
-    void Analysis::AddVars(std::vector<std::string> names, std::vector<ana::SpillMultiVar> & vars)
+    void Analysis::AddTree(std::string name, std::map<std::string, ana::SpillMultiVar> & vars, bool is_sim)
     {
-        this->names.insert(this->names.end(), names.begin(), names.end());
-        this->vars.insert(this->vars.end(), vars.begin(), vars.end());
+        std::vector<std::string> n;
+        std::vector<ana::SpillMultiVar> v;
+        for(const auto & [name, var] : vars)
+        {
+            n.push_back(name);
+            v.push_back(var);
+        }
+        trees.push_back({name, n, v, is_sim});
     }
 
     /**
      * @brief Run the analysis on the specified samples.
-     * @details This function runs the analysis on the samples specified by the
-     * SpectrumLoaders and variables added to the Analysis class. It loops over
-     * each sample, applies the cuts and variables to the data, and stores the
-     * results in a TFile.
+     * @details This function runs the analysis on the configured samples by
+     * looping over each sample, creating the Trees for each sample, then
+     * running the analysis on the sample to populate the Trees with the
+     * results of the analysis. The results are stored in a TFile in the output
+     * ROOT file in a parent directory named "events" and a subdirectory for
+     * each sample.
      * @return void
      */
     void Analysis::Go()
@@ -127,17 +174,24 @@ namespace ana
         TDirectory * dir = f->mkdir("events");
         dir->cd();
 
-        for(size_t i(0); i < loaders.size(); ++i)
+        for(const Sample & s : samples)
         {
-            TDirectory * subdir = dir->mkdir(lnames[i].c_str());
+            TDirectory * subdir = dir->mkdir(s.name.c_str());
             subdir->cd();
-            ana::Tree tree = ana::Tree("selectedNu", names, *loaders[i], vars, ana::kNoSpillCut, true);
-            loaders[i]->Go();
-            tree.SaveTo(subdir);
+            std::vector<ana::Tree*> sbruce_trees;
+            for(const TreeSet & t : trees)
+            {
+                sbruce_trees.push_back(new ana::Tree(t.name, t.names, *s.loader, t.vars, ana::kNoSpillCut, true));
+            }
+            s.loader->Go();
+            for(const ana::Tree * t : sbruce_trees)
+            {
+                t->SaveTo(subdir);
+                delete t;
+            }
             dir->cd();
         }
         f->Close();
     }
 }
-
 #endif // ANALYSIS_H

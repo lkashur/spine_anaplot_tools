@@ -21,18 +21,6 @@
 #include "TDirectory.h"
 #include "TFile.h"
 
-#include <algorithm>
-
-namespace ana
-{ 
-    #define CUTNAME cuts::fiducial_containment_flash_cut_bnb
-    VARDLP_RECO_TRUE(kTrueE, vars::true_neutrino_energy, CUTNAME);
-    VARDLP_RECO_TRUE(kTrueL, vars::true_neutrino_baseline, CUTNAME);
-    VARDLP_RECO_TRUE(kTruePDG, vars::true_neutrino_pdg, CUTNAME);
-    VARDLP_RECO_TRUE(kTrueCC, vars::true_neutrino_cc, CUTNAME);
-    VARDLP_RECO_RECO(kRecoE, vars::visible_energy, CUTNAME);
-}
-
 void example()
 {
     /**
@@ -54,19 +42,35 @@ void example()
      * to store the results of the analysis.
      */
     ana::SpectrumLoader var00("/pnfs/icarus/persistent/users/mueller/spinereco2024/allplanes/detsys_v09_89_01_01/var00_nominal.flat.root");
-    analysis.AddLoader("nominal", &var00);
+    analysis.AddLoader("nominal", &var00, true);
     
     /**
-     * @brief Add a set of variables to the analysis.
+     * @brief Add a set of variables for selected interactions to the analysis.
      * @details This adds a set of variables to the analysis by creating a
-     * vector of variable names and a vector with the corresponding
-     * SpillMultiVars that produce the variables. These names are used in the
-     * TTree that is created by the Tree class to store the results of the
-     * analysis.
+     * map of variable names and SpillMultiVars that provide the functionality
+     * to calculate the variables. These names are used in the TTree that is
+     * created by the Tree class to store the results of the analysis.
      */
-    std::vector<std::string> names({"trueE", "trueL", "truePDG", "CC", "recoE"});
-    std::vector<ana::SpillMultiVar> vars({ana::kTrueE, ana::kTrueL, ana::kTruePDG, ana::kTrueCC, ana::kRecoE});
-    analysis.AddVars(names, vars);
+    std::map<std::string, ana::SpillMultiVar> vars_selected;
+    vars_selected.insert({"trueE", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_energy, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"trueL", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_baseline, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"truePDG", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_pdg, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"trueCC", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_cc, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_interaction_mode, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"recoE", ana::SpillMultiVar(SPINEVAR_RR(vars::visible_energy, cuts::fiducial_containment_flash_cut_bnb))});
+
+    analysis.AddTree("selectedNu", vars_selected, true);
+
+    /**
+     * @brief Add a set of variables for signal interactions to the analysis.
+     * @details This adds a set of variables to the analysis by creating a
+     * map of variable names and SpillMultiVars that provide the functionality
+     * to calculate the variables. These names are used in the TTree that is
+     * created by the Tree class to store the results of the analysis.
+     */
+    std::map<std::string, ana::SpillMultiVar> vars_signal;
+    vars_signal.insert({"category", ana::SpillMultiVar(SPINEVAR_TT(vars::neutrino_interaction_mode, cuts::fiducial_containment_neutrino_cut))});
+    analysis.AddTree("signalNu", vars_signal, true);
 
     /**
      * @brief Run the analysis.
