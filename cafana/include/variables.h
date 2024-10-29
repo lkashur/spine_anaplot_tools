@@ -22,6 +22,7 @@
 
 #include "include/particle_variables.h"
 #include "include/particle_cuts.h"
+#include "include/cuts.h"
 #include "include/utilities.h"
 
 /**
@@ -38,6 +39,22 @@
  */
 namespace vars
 {
+    /**
+     * @brief Variable for a basic enumeration of interaction categories by
+     * the interaction mode.
+     * @details This variable is based on the interaction mode and is intended
+     * to provide a simple classification of interactions. 
+     * @param obj the interaction to apply the variable on.
+     * @return the interaction category.
+     */
+    double neutrino_interaction_mode(const caf::SRInteractionTruthDLPProxy & obj)
+    {
+        double cat(-1);
+        if(cuts::neutrino(obj))
+            cat = obj.nu_interaction_mode;
+        return cat;
+    }
+
     /**
      * @brief Variable for the true neutrino energy.
      * @units GeV
