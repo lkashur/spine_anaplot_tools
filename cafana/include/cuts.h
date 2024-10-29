@@ -55,6 +55,18 @@ namespace cuts
         bool no_cut(const T & obj) { return true; }
 
     /**
+     * @brief Apply a cut to select neutrinos.
+     * @details This function applies a cut to select neutrinos. This cut
+     * makes use of the is_neutrino flag in the true interaction object and is
+     * intended to be used to identify signal neutrinos.
+     * @param obj the interaction to select on.
+     * @return true if the interaction is a neutrino.
+     * @note This cut is intended to be used for identifying neutrinos in
+     * truth, which is useful for making signal definitions.
+     */
+    bool neutrino(const caf::SRInteractionTruthDLPProxy & obj) { return obj.is_neutrino; }
+
+    /**
      * @brief Apply a fiducial volume cut; the interaction vertex must be
      * reconstructed within the fiducial volume.
      * @details The fiducial volume cut is applied on the reconstructed
