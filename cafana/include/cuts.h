@@ -111,6 +111,8 @@ namespace cuts
      * @param obj the interaction to select on.
      * @return true if the interaction has been matched to an in-time flash.
      * @note This cut is intended to be used for BNB analyses.
+     * @note The cut window has been widened to reconcile the beam window as
+     * observed in data and simulation.
      */
     template<class T>
         bool flash_cut_bnb(const T & obj)
@@ -118,7 +120,7 @@ namespace cuts
             if(!valid_flashmatch(obj))
                 return false;
             else
-                return (obj.flash_time >= 0) && (obj.flash_time <= 1.6);
+                return (obj.flash_time >= -0.5) && (obj.flash_time <= 1.6);
         }
     
     /**
