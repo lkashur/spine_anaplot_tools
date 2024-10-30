@@ -59,6 +59,9 @@ void example()
     vars_selected.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_interaction_mode, cuts::fiducial_containment_flash_cut_bnb))});
     vars_selected.insert({"true_edep", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_energy, cuts::fiducial_containment_flash_cut_bnb))});
     vars_selected.insert({"reco_edep", ana::SpillMultiVar(SPINEVAR_RR(vars::visible_energy, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_time, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_total_pe, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_hypothesis, cuts::fiducial_containment_flash_cut_bnb))});
 
     analysis.AddTree("selectedNu", vars_selected, true);
 

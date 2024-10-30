@@ -132,6 +132,44 @@ namespace vars
         }
 
     /**
+     * @brief Variable for the flash time of the interaction.
+     * @details The flash time is the time of the flash observed in the PMTs
+     * and associated with the charge deposition in the interaction using the
+     * OpT0Finder likelihood method.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the flash time of the interaction.
+     */
+    template<class T>
+        double flash_time(const T & obj) { return obj.flash_time; }
+
+    /**
+     * @brief Variable for the flash total photoelectron count of the
+     * interaction.
+     * @details The flash total photoelectron count is the total number of
+     * photoelectrons observed in the PMTs and associated with the charge
+     * deposition in the interaction using the OpT0Finder likelihood method.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the flash total photoelectron count of the interaction.
+     */
+    template<class T>
+        double flash_total_pe(const T & obj) { return obj.flash_total_pe; }
+
+    /**
+     * @brief Variable for the flash hypothesis total photoelectron count of
+     * the interaction.
+     * @details The flash hypothesis total photoelectron count is the total
+     * number of photoelectrons predicted by OpT0Finder for the interaction in
+     * the flash associated with the charge deposition in the interaction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the flash hypothesis total photoelectron count of the interaction.
+     */
+    template<class T>
+        double flash_hypothesis(const T & obj) { return obj.flash_hypothesis; }
+
+    /**
      * @brief Variable for the x-coordinate of the leading muon end point.
      * @details The leading muon is defined as the muon with the highest
      * kinetic energy. The end point is predicted upstream in the SPINE
