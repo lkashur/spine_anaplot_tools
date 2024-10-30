@@ -170,6 +170,57 @@ namespace vars
         double flash_hypothesis(const T & obj) { return obj.flash_hypothesis; }
 
     /**
+     * @brief Variable for the x-coordinate of the interaction vertex.
+     * @details The interaction vertex is 3D point in space where the neutrino
+     * interacted to produce the primary particles in the interaction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the x-coordinate of the interaction vertex.
+     */
+    template<class T>
+        double vertex_x(const T & obj)
+        {
+            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                return obj.truth_vertex[0];
+            else
+                return obj.vertex[0];
+        }
+
+    /**
+     * @brief Variable for the y-coordinate of the interaction vertex.
+     * @details The interaction vertex is 3D point in space where the neutrino
+     * interacted to produce the primary particles in the interaction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the y-coordinate of the interaction vertex.
+     */
+    template<class T>
+        double vertex_y(const T & obj)
+        {
+            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                return obj.truth_vertex[1];
+            else
+                return obj.vertex[1];
+        }
+
+    /**
+     * @brief Variable for the z-coordinate of the interaction vertex.
+     * @details The interaction vertex is 3D point in space where the neutrino
+     * interacted to produce the primary particles in the interaction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the z-coordinate of the interaction vertex.
+     */
+    template<class T>
+        double vertex_z(const T & obj)
+        {
+            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                return obj.truth_vertex[2];
+            else
+                return obj.vertex[2];
+        }
+
+    /**
      * @brief Variable for the x-coordinate of the leading muon end point.
      * @details The leading muon is defined as the muon with the highest
      * kinetic energy. The end point is predicted upstream in the SPINE
