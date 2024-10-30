@@ -17,6 +17,8 @@
 #include "sbnanaobj/StandardRecord/SRInteractionTruthDLP.h"
 
 #include "include/utilities.h"
+#include "include/cuts.h"
+#include "include/muon2024/cuts_muon2024.h"
 
 /**
  * @namespace vars::muon2024
@@ -33,6 +35,35 @@
  */
 namespace vars::muon2024
 {
+    /**
+     * @brief Variable for enumerating interaction categories.
+     * @details This variable provides a basic categorization of interactions
+     * using only signal, neutrino background, and cosmic background as the
+     * three categories.
+     * 0: 1mu1p (contained and fiducial)
+     * 1: 1mu1p (not contained or not fiducial)
+     * 2: 1muNp (N > 1, contained and fiducial)
+     * 3: 1muNp (N > 1, not contained or fiducial)
+     * 4: 1muX (not 1muNp, contained and fiducial)
+     * 5: 1muX (not 1muNp, not contained or fiducial)
+     * 6: Other nu
+     * 7: cosmic
+     * @param obj The interaction to apply the variable on.
+     * @return the enumerated category of the interaction.
+    */
+    double category(const caf::SRInteractionTruthDLPProxy & obj)
+    {
+        double cat(7);
+        if(cuts::muon2024::signal_1mu1p(obj)) cat = 0;
+        else if(cuts::muon2024::nonsignal_1mu1p(obj)) cat = 1;
+        else if(cuts::muon2024::signal_1muNp(obj)) cat = 2;
+        else if(cuts::muon2024::nonsignal_1muNp(obj)) cat = 3;
+        else if(cuts::muon2024::signal_1muX(obj)) cat = 4;
+        else if(cuts::muon2024::nonsignal_1muX(obj)) cat = 5;
+        else if(cuts::neutrino(obj)) cat = 6;
+        return cat;
+    }
+
     /**
      * @brief Variable for the opening angle between leading muon and proton.
      * @details The leading muon and proton are defined as the particles with the

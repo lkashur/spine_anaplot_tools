@@ -125,8 +125,7 @@ namespace cuts::muon2024
     /**
      * @brief Apply a cut to select the 1mu1p signal.
      * @details This function applies a cut on the final state, fiducial volume,
-     * and containment of the interaction. When applied using truth information,
-     * this becomes the "true" 1mu1p signal definition.
+     * and containment of the interaction. This is the "true" 1mu1p signal.
      * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial volume, containment,
      * and 1mu1p topological cut.
@@ -136,10 +135,22 @@ namespace cuts::muon2024
     bool signal_1mu1p(const caf::SRInteractionTruthDLPProxy & obj) { return neutrino(obj) && fiducial_cut(obj) && containment_cut(obj) && topological_1mu1p_cut(obj); }
 
     /**
+     * @brief Apply a cut to select the 1mu1p non-signal.
+     * @details This function applies a cut on the final state, fiducial volume,
+     * and containment of the interaction. This is the "true" 1mu1p non-signal 
+     * (1mu1p topology, but not signal).
+     * @param obj the interaction to select on.
+     * @return true if the interaction passes the fiducial volume, containment,
+     * and 1mu1p topological cut.
+     * @note This cut is intended to be used for the muon2024 analysis for
+     * defining a complement to the signal.
+     */
+    bool nonsignal_1mu1p(const caf::SRInteractionTruthDLPProxy & obj) { return neutrino(obj) && !(fiducial_cut(obj) && containment_cut(obj)) && topological_1mu1p_cut(obj); }
+
+    /**
      * @brief Apply a cut to select the 1muNp signal.
      * @details This function applies a cut on the final state, fiducial volume,
-     * and containment of the interaction. When applied using truth information,
-     * this becomes the "true" 1muNp signal definition.
+     * and containment of the interaction. This is the "true" 1muNp signal.
      * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial volume, containment,
      * and 1muNp topological cut.
@@ -149,10 +160,23 @@ namespace cuts::muon2024
     bool signal_1muNp(const caf::SRInteractionTruthDLPProxy & obj) { return neutrino(obj) && fiducial_cut(obj) && containment_cut(obj) && topological_1muNp_cut(obj); }
 
     /**
+     * @brief Apply a cut to select the 1muNp non-signal.
+     * @details This function applies a cut on the final state, fiducial volume,
+     * and containment of the interaction. This is the "true" 1muNp non-signal
+     * (1muNp topology, but not signal).
+     * @param obj the interaction to select on.
+     * @return true if the interaction passes the fiducial volume, containment,
+     * and 1muNp topological cut.
+     * @note This cut is intended to be used for the muon2024 analysis for
+     * defining a complement to the signal.
+     */
+    bool nonsignal_1muNp(const caf::SRInteractionTruthDLPProxy & obj) { return neutrino(obj) && !(fiducial_cut(obj) && containment_cut(obj)) && topological_1muNp_cut(obj); }
+
+    /**
      * @brief Apply a cut to select the 1muX signal.
      * @details This function applies a cut on the final state, fiducial volume,
-     * and containment of the interaction. When applied using truth information,
-     * this becomes the "true" 1muX signal definition.
+     * and containment of the interaction. This is the "true" 1muX signal
+     * definition.
      * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial volume, containment,
      * and 1muX topological cut.
@@ -160,5 +184,18 @@ namespace cuts::muon2024
      * defining the signal.
      */
     bool signal_1muX(const caf::SRInteractionTruthDLPProxy & obj) { return neutrino(obj) && fiducial_cut(obj) && containment_cut(obj) && topological_1muX_cut(obj); }
+
+    /**
+     * @brief Apply a cut to select the 1muX non-signal.
+     * @details This function applies a cut on the final state, fiducial volume,
+     * and containment of the interaction. This is the "true" 1muX non-signal
+     * (1muX topology, but not signal).
+     * @param obj the interaction to select on.
+     * @return true if the interaction passes the fiducial volume, containment,
+     * and 1muX topological cut.
+     * @note This cut is intended to be used for the muon2024 analysis for
+     * defining a complement to the signal.
+     */
+    bool nonsignal_1muX(const caf::SRInteractionTruthDLPProxy & obj) { return neutrino(obj) && !(fiducial_cut(obj) && containment_cut(obj)) && topological_1muX_cut(obj); }
 }
 #endif // CUTS_MUON2024_H
