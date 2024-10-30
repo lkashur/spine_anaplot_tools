@@ -40,6 +40,18 @@
 namespace vars
 {
     /**
+     * @brief Variable for the neutrino ID of the interaction.
+     * @details This variable is intended to provide a unique identifier for
+     * each parent neutrino within the event record. This number is assigned
+     * starting at 0 for the first neutrino in the event and is incremented
+     * for each subsequent neutrino. Non-neutrino interactions are assigned
+     * a value of -1.
+     * @param obj the interaction to apply the variable on.
+     * @return the neutrino ID.
+     */
+    double neutrino_id(const caf::SRInteractionTruthDLPProxy & obj) { return obj.nu_id; }
+
+    /**
      * @brief Variable for a basic enumeration of interaction categories by
      * the interaction mode.
      * @details This variable is based on the interaction mode and is intended

@@ -52,12 +52,13 @@ void example()
      * created by the Tree class to store the results of the analysis.
      */
     std::map<std::string, ana::SpillMultiVar> vars_selected;
-    vars_selected.insert({"trueE", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_energy, cuts::fiducial_containment_flash_cut_bnb))});
-    vars_selected.insert({"trueL", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_baseline, cuts::fiducial_containment_flash_cut_bnb))});
-    vars_selected.insert({"truePDG", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_pdg, cuts::fiducial_containment_flash_cut_bnb))});
-    vars_selected.insert({"trueCC", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_cc, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_id, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"baseline", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_baseline, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"pdg", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_pdg, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"cc", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_cc, cuts::fiducial_containment_flash_cut_bnb))});
     vars_selected.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_interaction_mode, cuts::fiducial_containment_flash_cut_bnb))});
-    vars_selected.insert({"recoE", ana::SpillMultiVar(SPINEVAR_RR(vars::visible_energy, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"true_edep", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_energy, cuts::fiducial_containment_flash_cut_bnb))});
+    vars_selected.insert({"reco_edep", ana::SpillMultiVar(SPINEVAR_RR(vars::visible_energy, cuts::fiducial_containment_flash_cut_bnb))});
 
     analysis.AddTree("selectedNu", vars_selected, true);
 
@@ -69,6 +70,7 @@ void example()
      * created by the Tree class to store the results of the analysis.
      */
     std::map<std::string, ana::SpillMultiVar> vars_signal;
+    vars_signal.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_TT(vars::neutrino_id, cuts::fiducial_containment_neutrino_cut))});
     vars_signal.insert({"category", ana::SpillMultiVar(SPINEVAR_TT(vars::neutrino_interaction_mode, cuts::fiducial_containment_neutrino_cut))});
     analysis.AddTree("signalNu", vars_signal, true);
 
