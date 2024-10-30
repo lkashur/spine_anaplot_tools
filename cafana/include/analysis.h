@@ -181,6 +181,8 @@ namespace ana
             std::vector<ana::Tree*> sbruce_trees;
             for(const TreeSet & t : trees)
             {
+                if(t.is_sim && !s.is_sim)
+                    continue;
                 sbruce_trees.push_back(new ana::Tree(t.name, t.names, *s.loader, t.vars, ana::kNoSpillCut, true));
             }
             s.loader->Go();
