@@ -122,6 +122,12 @@ void analysis()
     vars_selected.insert({"reco_dphiT", ana::SpillMultiVar(SPINEVAR_RR(vars::phiT, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"true_edalphaT", ana::SpillMultiVar(SPINEVAR_RT(vars::alphaT, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"reco_edalphaT", ana::SpillMultiVar(SPINEVAR_RR(vars::alphaT, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"true_vertex_x", ana::SpillMultiVar(SPINEVAR_RT(vars::vertex_x, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"reco_vertex_x", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_x, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"true_vertex_y", ana::SpillMultiVar(SPINEVAR_RT(vars::vertex_y, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"reco_vertex_y", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_y, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"true_vertex_z", ana::SpillMultiVar(SPINEVAR_RT(vars::vertex_z, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"reco_vertex_z", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_z, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_softmax, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_softmax, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_mip_softmax, cuts::muon2024::all_1muNp_cut))});
@@ -158,6 +164,9 @@ void analysis()
     vars_signal.insert({"true_dpT", ana::SpillMultiVar(SPINEVAR_TT(vars::interaction_pt, cuts::muon2024::signal_1muNp))});
     vars_signal.insert({"true_dphiT", ana::SpillMultiVar(SPINEVAR_TT(vars::phiT, cuts::muon2024::signal_1muNp))});
     vars_signal.insert({"true_edalphaT", ana::SpillMultiVar(SPINEVAR_TT(vars::alphaT, cuts::muon2024::signal_1muNp))});
+    vars_signal.insert({"true_vertex_x", ana::SpillMultiVar(SPINEVAR_TT(vars::vertex_x, cuts::muon2024::signal_1muNp))});
+    vars_signal.insert({"true_vertex_y", ana::SpillMultiVar(SPINEVAR_TT(vars::vertex_y, cuts::muon2024::signal_1muNp))});
+    vars_signal.insert({"true_vertex_z", ana::SpillMultiVar(SPINEVAR_TT(vars::vertex_z, cuts::muon2024::signal_1muNp))});
     
     analysis.AddTree("signalNu", vars_signal, true);
 
