@@ -27,8 +27,8 @@ void example()
      * @brief Create an instance of the Analysis class.
      * @details This creates an instance of the Analysis class, which is used
      * to run the analysis on the specified samples. The name of the analysis,
-     * and therefor the name of the output file, is specified as an argument to
-     * the constructor.
+     * and therefore the name of the output file, is specified as an argument
+     * to the constructor.
      */
     ana::Analysis analysis("nuexample");
 
