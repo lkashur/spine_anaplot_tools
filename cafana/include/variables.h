@@ -109,6 +109,27 @@ namespace vars
         double true_neutrino_cc(const T & obj) { return obj.nu_current_type; }
 
     /**
+     * @brief Variable for the containment status of the interaction.
+     * @details The containment status is determined upstream in the SPINE
+     * reconstruction and is based on the set of all points in the interaction,
+     * which must be contained within the volume of the TPC that created them.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the containment status of the interaction.
+     */
+    template<class T>
+        double containment(const T & obj) { return obj.is_contained; }
+
+    /**
+     * @brief Variable for the fiducial volume status of the interaction.
+     * @details The fiducial volume status is determined upstream in the SPINE
+     * reconstruction and is a requirement that the interaction vertex is within
+     * the fiducial volume of the TPC.
+     */
+    template<class T>
+        double fiducial(const T & obj) { return obj.is_fiducial; }
+
+    /**
      * @brief Variable for total visible energy of interaction.
      * @units GeV
      * @tparam T the type of interaction (true or reco).
