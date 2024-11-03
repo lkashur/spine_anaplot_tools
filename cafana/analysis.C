@@ -83,6 +83,7 @@ void analysis()
      * created by the Tree class to store the results of the analysis.
      */
     std::map<std::string, ana::SpillMultiVar> vars_selected;
+    vars_selected.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_id, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"baseline", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_baseline, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"pdg", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_pdg, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"cc", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_cc, cuts::muon2024::all_1muNp_cut))});
@@ -131,6 +132,9 @@ void analysis()
     vars_selected.insert({"muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_softmax, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_softmax, cuts::muon2024::all_1muNp_cut))});
     vars_selected.insert({"mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_mip_softmax, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_time, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_total_pe, cuts::muon2024::all_1muNp_cut))});
+    vars_selected.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_hypothesis, cuts::muon2024::all_1muNp_cut))});
 
     analysis.AddTree("selectedNu", vars_selected, false);    
 
@@ -142,6 +146,7 @@ void analysis()
      * created by the Tree class to store the results of the analysis.
      */
     std::map<std::string, ana::SpillMultiVar> vars_signal;
+    vars_signal.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_TT(vars::neutrino_id, cuts::muon2024::signal_1muNp))});
     vars_signal.insert({"baseline", ana::SpillMultiVar(SPINEVAR_TT(vars::true_neutrino_baseline, cuts::muon2024::signal_1muNp))});
     vars_signal.insert({"pdg", ana::SpillMultiVar(SPINEVAR_TT(vars::true_neutrino_pdg, cuts::muon2024::signal_1muNp))});
     vars_signal.insert({"cc", ana::SpillMultiVar(SPINEVAR_TT(vars::true_neutrino_cc, cuts::muon2024::signal_1muNp))});
