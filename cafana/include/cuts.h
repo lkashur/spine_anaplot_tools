@@ -185,6 +185,17 @@ namespace cuts
         bool fiducial_containment_flash_cut_numi(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_numi<T>(obj); }
 
     /**
+     * @brief Apply a fiducial and neutrino cut (logical "and" of each).
+     * @details This function applies a fiducial and neutrino cut on the
+     * interaction using the logical "and" of each previously defined cut.
+     * @param obj the interaction to select on.
+     * @return true if the interaction passes the fiducial and neutrino cut.
+     * @note This cut is intended to be used to select signal interactions
+     * (neutrinos) that occur within the fiducial volume.
+     */
+    bool fiducial_neutrino_cut(const caf::SRInteractionTruthDLPProxy & obj) { return fiducial_cut(obj) && neutrino(obj); }
+
+    /**
      * @brief Apply a fiducial, containment, and neutrino cut (logical "and" of
      * each).
      * @details This function applies a fiducial, containment, and neutrino cut
