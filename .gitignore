@@ -2,5 +2,9 @@
 *.so
 *.pcm
 *.root
+*.png
+*ACLiC*
+*.log
+*.cpython*
 
 build/
