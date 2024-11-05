@@ -75,6 +75,7 @@ class SpineSpectra:
         self._colors = colors
         self._category_types = category_types
         self._plotdata = None
+        self._binedges = None
 
     def add_sample(self, sample) -> None:
         """
@@ -95,13 +96,16 @@ class SpineSpectra:
 
         if self._plotdata is None:
             self._plotdata = {}
+            self._binedges = {}
         data, weights = sample.get_data(self._variable._key)
         for category, values in data.items():
             if category not in self._categories.keys():
                 continue
             if self._categories[category] not in self._plotdata:
                 self._plotdata[self._categories[category]] = np.zeros(self._variable._nbins)
-            self._plotdata[self._categories[category]] += np.histogram(values, bins=self._variable._nbins, range=self._variable._range, weights=weights[category])[0]
+            h = np.histogram(values, bins=self._variable._nbins, range=self._variable._range, weights=weights[category])
+            self._plotdata[self._categories[category]] += h[0]
+            self._binedges[self._categories[category]] = h[1]
 
     def plot(self, style) -> None:
         """
@@ -125,7 +129,7 @@ class SpineSpectra:
         if self._plotdata is not None:
             labels, data = zip(*self._plotdata.items())
             colors = [self._colors[label] for label in labels]
-            bincenters = [np.linspace(self._variable._range[0], self._variable._range[1], self._variable._nbins) for x in range(len(labels))]
+            bincenters = [self._binedges[l][:-1] + np.diff(self._binedges[l]) / 2 for l in labels]
 
             histogram_mask = [li for li, label in enumerate(labels) if self._category_types[label] == 'histogram']
             scatter_mask = [li for li, label in enumerate(labels) if self._category_types[label] == 'scatter']
