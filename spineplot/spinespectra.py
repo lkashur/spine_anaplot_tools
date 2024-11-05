@@ -130,12 +130,15 @@ class SpineSpectra:
             histogram_mask = [li for li, label in enumerate(labels) if self._category_types[label] == 'histogram']
             scatter_mask = [li for li, label in enumerate(labels) if self._category_types[label] == 'scatter']
 
+            denominator = np.sum([data[i] for i in histogram_mask])
             if style.get_show_component_number() and style.get_show_component_percentage():
-                labels = [f'{label} ({np.sum(d):.1f}, {np.sum(d)/np.sum(data):.2%})' for label, d in zip(labels, data)]
+                hlabel = lambda x : f'{np.sum(x):.1f}, {np.sum(x)/denominator:.2%}'
+                slabel = lambda x : f'{np.sum(x):.1f}'
+                labels = [f'{label} ({hlabel(d) if li in histogram_mask else slabel(d)})' for li, (label, d) in enumerate(zip(labels, data))]
             elif style.get_show_component_number():
                 labels = [f'{label} ({np.sum(d):.1f})' for label, d in zip(labels, data)]
             elif style.get_show_component_percentage():
-                labels = [f'{label} ({np.sum(d)/np.sum(data):.2%})' for label, d in zip(labels, data)]
+                labels = [f'{label} ({np.sum(d)/denominator:.2%})' if li in histogram_mask else label for li, (label, d) in enumerate(zip(labels, data))]
 
             reduce = lambda x : [x[i] for i in histogram_mask]
             self._ax.hist(reduce(bincenters), weights=reduce(data), bins=self._variable._nbins, range=self._variable._range, histtype='barstacked', label=reduce(labels), color=reduce(colors), stacked=True)
