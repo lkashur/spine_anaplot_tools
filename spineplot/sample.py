@@ -100,10 +100,10 @@ class Sample:
             self._data['weight'] = 1
         elif self._scaling_type == 'pot':
             self._data['weight'] = (target._exposure_pot / self._exposure_pot)
-            print(f"Setting weight for {self._name} to {target._exposure_pot / self._exposure_pot}")
+            print(f"Setting weight for {self._name} to {target._exposure_pot / self._exposure_pot:.2e}")
         else:
             self._data['weight'] = (target._exposure_livetime / self._exposure_livetime)
-            print(f"Setting weight for {self._name} to {target._exposure_livetime / self._exposure_livetime}")
+            print(f"Setting weight for {self._name} to {target._exposure_livetime / self._exposure_livetime:.2e}")
 
     def get_data(self, variable) -> dict:
         """
