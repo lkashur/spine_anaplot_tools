@@ -16,23 +16,27 @@
  * function.
  * @param VAR function to broadcast over the interactions.
  * @param SEL function to select interactions.
+ * @param CAT function broadcast over the true interactions matched to by the
+ * reco interactions to select only reco interactions belonging to a certain
+ * truth category.
  * @return a vector with the result of VAR called on each reco interaction
- * passing the cut SEL.
+ * passing the cut SEL and which belongs to the truth category established by
+ * CAT.
  */
-#define SPINEVAR_RR(VAR,SEL)                             \
-    [](const caf::SRSpillProxy* sr)                      \
-    {                                                    \
-        std::vector<double> var;                         \
-        bool is_mc(sr->ndlp_true != 0);                  \
-        for(auto const& i : sr->dlp)                     \
-        {                                                \
-            if(SEL(i) && (i.match.size() > 0 || !is_mc)) \
-                var.push_back(VAR(i));                   \
-        }                                                \
-        return var;                                      \
+#define SPINEVAR_RR(VAR,SEL,CAT)                                                            \
+    [](const caf::SRSpillProxy* sr)                                                         \
+    {                                                                                       \
+        std::vector<double> var;                                                            \
+        bool is_mc(sr->ndlp_true != 0);                                                     \
+        for(auto const& i : sr->dlp)                                                        \
+        {                                                                                   \
+            if(SEL(i) && ((i.match.size() > 0 && CAT(sr->dlp_true[i.match[0]])) || !is_mc)) \
+                var.push_back(VAR(i));                                                      \
+        }                                                                                   \
+        return var;                                                                         \
     }
 
-/**
+ /**
  * @brief Preprocessor wrapper for looping over reco interactions and
  * broadcasting a function over the matching true interactions.
  * @details This macro declares a lambda function that broadcasts a function
@@ -40,20 +44,24 @@
  * function for each true interaction.
  * @param VAR function to broadcast over the interactions.
  * @param SEL function to select interactions.
+ * @param CAT function broadcast over the true interactions matched to by the
+ * reco interactions to select only reco interactions belonging to a certain
+ * truth category.
  * @return a vector with the result of VAR called on each true interaction that
- * is matched to by a reco interaction passing the cut SEL.
+ * is matched to by a reco interaction passing the cut SEL and which belongs to
+ * the truth category established by CAT.
  */
-#define SPINEVAR_RT(VAR,SEL)                                                              \
-    [](const caf::SRSpillProxy* sr)                                                       \
-    {                                                                                     \
-        std::vector<double> var;                                                          \
-        bool is_mc(sr->ndlp_true != 0);                                                   \
-        for(auto const& i : sr->dlp)                                                      \
-        {                                                                                 \
-            if(SEL(i) && (i.match.size() > 0 || !is_mc))                                  \
-                var.push_back(i.match.size() > 0 ? VAR(sr->dlp_true[i.match[0]]) : -1.0); \
-        }                                                                                 \
-        return var;                                                                       \
+#define SPINEVAR_RT(VAR,SEL,CAT)                                                            \
+    [](const caf::SRSpillProxy* sr)                                                         \
+    {                                                                                       \
+        std::vector<double> var;                                                            \
+        bool is_mc(sr->ndlp_true != 0);                                                     \
+        for(auto const& i : sr->dlp)                                                        \
+        {                                                                                   \
+            if(SEL(i) && ((i.match.size() > 0 && CAT(sr->dlp_true[i.match[0]])) || !is_mc)) \
+                var.push_back(i.match.size() > 0 ? VAR(sr->dlp_true[i.match[0]]) : -1.0);   \
+        }                                                                                   \
+        return var;                                                                         \
  }
 
 /**
