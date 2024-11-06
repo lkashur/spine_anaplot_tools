@@ -67,6 +67,18 @@ namespace cuts
     bool neutrino(const caf::SRInteractionTruthDLPProxy & obj) { return obj.is_neutrino; }
 
     /**
+     * @brief Apply a cut to select cosmogenic interactions.
+     * @details This function applies a cut to select cosmogenic interactions.
+     * This cut makes use of the is_neutrino flag in the true interaction
+     * object and is intended to be used to identify cosmogenic interactions.
+     * @param obj the interaction to select on.
+     * @return true if the interaction is a cosmogenic interaction.
+     * @note This cut is intended to be used for identifying cosmogenic
+     * interactions in truth, which is useful for making background definitions.
+     */
+    bool cosmic(const caf::SRInteractionTruthDLPProxy & obj) { return !obj.is_neutrino; }
+
+    /**
      * @brief Apply a fiducial volume cut; the interaction vertex must be
      * reconstructed within the fiducial volume.
      * @details The fiducial volume cut is applied on the reconstructed
