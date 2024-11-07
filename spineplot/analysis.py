@@ -55,7 +55,7 @@ class Analysis:
         # Initialize the samples
         if 'samples' not in self._config.keys():
             raise ConfigException(f"No samples defined in the TOML file. Please check for a valid sample configuration block in the TOML file ('{toml_path}').")
-        self._samples = {name: Sample(name, rf, **self._config['samples'][name]) for name in self._config['samples']}
+        self._samples = {name: Sample(name, rf, self._config['analysis']['category_branch'], **self._config['samples'][name]) for name in self._config['samples']}
 
         # Load the plot styles table
         if 'styles' not in self._config.keys():

@@ -19,10 +19,13 @@ class Sample:
         The exposure of the sample in POT.
     _exposure_livetime : float
         The exposure of the sample in livetime.
+    _category_branch : str
+        The name of the branch in the TTree containing the category
+        labels.
     _data : pd.DataFrame
         The data comprising the sample.
     """
-    def __init__(self, name, rf, key, scaling_type, override_category=None) -> None:
+    def __init__(self, name, rf, category_branch, key, scaling_type, trees, override_category=None) -> None:
         """
         Initializes the Sample object with the given name and key.
 
@@ -32,6 +35,11 @@ class Sample:
             The name of the sample.
         rf : uproot.reading.ReadOnlyDirectory
             The file handle for the input ROOT file.
+        category_branch : str
+            The name of the branch in the TTree containing the category
+            labels. This categorical information is referenced in the
+            configuration file to designate specific components of the
+            sample and apply different styles to them.
         key : str
             The key/name of the TDirectory in the ROOT file input
             containing the sample data.
@@ -49,12 +57,12 @@ class Sample:
         self._file_handle = rf[f'events/{key}']
         self._exposure_pot = self._file_handle['POT'].to_numpy()[0][0]
         self._exposure_livetime = self._file_handle['Livetime'].to_numpy()[0][0]
+        self._category_branch = category_branch
 
-        # TODO: Make this follow a setting in the config.
-        self._data = self._file_handle['selectedNu'].arrays(library='pd')
+        if self._category_branch not in self._data.columns:
+            self._data[self._category_branch] = 0
         if override_category is not None:
-            # TODO: Make this follow the category_tree setting in the config.
-            self._data['category'] = override_category
+            self._data[self._category_branch] = override_category
 
     def override_exposure(self, exposure, exposure_type='pot') -> None:
         """
@@ -129,10 +137,9 @@ class Sample:
         """
         data = {}
         weights = {}
-        # TODO: Make this follow the category_tree setting in the config.
-        for category in np.unique(self._data['category']):
-            data[int(category)] = self._data[self._data['category'] == category][variable]
-            weights[int(category)] = self._data[self._data['category'] == category]['weight']
+        for category in np.unique(self._data[self._category_branch]):
+            data[int(category)] = self._data[self._data[self._category_branch] == category][variable]
+            weights[int(category)] = self._data[self._data[self._category_branch] == category]['weight']
         return data, weights
 
     def __str__(self) -> str:

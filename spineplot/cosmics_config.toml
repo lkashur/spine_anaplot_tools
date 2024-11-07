@@ -1,0 +1,38 @@
+[analysis]
+ordinate_sample = 'mc_tracksplit'
+category_branch = 'category'
+category_assignment = [[0,]]
+category_labels = ['Cosmic']
+category_colors = ['C0',]
+category_types = ['histogram',]
+
+[samples]
+[samples.mc_tracksplit]
+key = "mc_tracksplit"
+scaling_type = "pot"
+trees = ['cosmics',]
+
+[styles]
+[styles.selected]
+style_sheet = "styles/muon2024.mplstyle"
+show_component_number = true
+show_component_percentage = false
+invert_stack_order = false
+
+[variables]
+[variables.visible_energy]
+key = "reco_edep"
+range = [0, 3]
+nbins = 25
+xlabel = "Visible Energy [GeV]"
+
+[variables.reco_muon_z]
+key = "reco_muon_z"
+range = [-45, 45]
+nbins = 100
+xlabel = "Reconstructed Muon End Point Z [cm]"
+
+[spectra]
+[spectra.test]
+style = 'selected'
+variable = 'reco_muon_z'
