@@ -47,6 +47,12 @@ class Sample:
             The scaling type for the sample. This can be either 'pot'
             or 'livetime'. This is used for matching the exposure of
             the sample to the target sample.
+        trees : list
+            The list of TTree names in the ROOT file to load for the
+            sample.
+        override_category : int
+            The category to override the category branch with if it is
+            configured. Else, the category branch is left as is.
 
         Returns
         -------
@@ -59,6 +65,7 @@ class Sample:
         self._exposure_livetime = self._file_handle['Livetime'].to_numpy()[0][0]
         self._category_branch = category_branch
 
+        self._data = pd.concat([self._file_handle[tree].arrays(library='pd') for tree in trees])
         if self._category_branch not in self._data.columns:
             self._data[self._category_branch] = 0
         if override_category is not None:
