@@ -13,24 +13,14 @@
  * @author mueller@fnal.gov
  */
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <map>
 
 #include "configuration.h"
 #include "trees.h"
-#include "utilities.h"
 
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
-#include "TTree.h"
-#include "TTreeReader.h"
-#include "TTreeReaderValue.h"
-#include "TTreeReaderArray.h"
-
-#include "sbnanaobj/StandardRecord/StandardRecord.h"
-#include "sbnanaobj/StandardRecord/SRTrueInteraction.h"
 
 int main(int argc, char * argv[])
 {
