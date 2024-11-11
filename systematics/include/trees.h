@@ -58,14 +58,27 @@ namespace sys::trees
      */
     void copy_tree(sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
     {
-        // Create the output subdirectory.
+        /**
+         * @brief Create the output subdirectory following the nesting outlined
+         * in the configuration file.
+         */
         TDirectory * directory = (TDirectory *) output;
         directory = create_directory(directory, table.get_string_field("destination").c_str());
         
-        // Create the output TTree.
+        /**
+         * @brief Create the output TTree with the name specified in the
+         * configuration file.
+         */
         TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
 
-        // Connect to the input TTree.
+        /**
+         * @brief Connect to the input TTree and associated branches.
+         * @details Three are N+3 branches in the input TTree, where N is the
+         * number of branches in the input TTree of type double. The three
+         * other branches (Run, Subrun, Evt) are of type int. This block uses
+         * a single array to store the values of the double branches and three
+         * separate variables to store the values of the int branches.
+         */
         TTree * input_tree = (TTree *) input->Get(table.get_string_field("origin").c_str());
         int run, subrun, event;
         double br[input_tree->GetNbranches()-3];
@@ -75,21 +88,34 @@ namespace sys::trees
         input_tree->SetBranchAddress("Subrun", &subrun);
         input_tree->SetBranchAddress("Evt", &event);
 
-        // Create the output TTree branches.
+        /**
+         * @brief Create the branches in the output TTree following the same
+         * structure as the input TTree.
+         * @details The same array (type double) and three variables (type int)
+         * as used above with the input TTree are used to create the branches
+         * in the output TTree. The branches are created in the same order as
+         * the input TTree. This process streamlines the copying of the values
+         * from the input TTree to the output TTree.
+         */
         for (int i = 0; i < input_tree->GetNbranches()-3; i++)
             output_tree->Branch(input_tree->GetListOfBranches()->At(i)->GetName(), br+i);
         output_tree->Branch("Run", &run);
         output_tree->Branch("Subrun", &subrun);
         output_tree->Branch("Evt", &event);
 
-        // Loop over the input TTree and copy the values to the output TTree.
+        /**
+         * @brief Loop over the input TTree and copy the values to the output
+         * TTree.
+         */
         for(int i(0); i < input_tree->GetEntries(); ++i)
         {
             input_tree->GetEntry(i);
             output_tree->Fill();
         }
 
-        // Write the output TTree to the output file.
+        /**
+         * @brief Write the output TTree to the output ROOT file.
+         */
         directory->WriteObject(output_tree, table.get_string_field("name").c_str());
     }
 
@@ -108,11 +134,23 @@ namespace sys::trees
      */
     void copy_with_weight_systematics(sys::cfg::ConfigurationTable & config, sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
     {
-        // Create the output subdirectory.
+        /**
+         * @brief Create the output subdirectory following the nesting outlined
+         * in the configuration file.
+         */
         TDirectory * directory = (TDirectory *) output;
         directory = create_directory(directory, table.get_string_field("destination").c_str());
         
-        // Connect to the input TTree.
+        /**
+         * @brief Connect to the input TTree and associated branches.
+         * @details Three are N+3 branches in the input TTree, where N is the
+         * number of branches in the input TTree of type double. The three
+         * other branches (Run, Subrun, Evt) are of type int. This block uses
+         * a single array to store the values of the double branches and three
+         * separate variables to store the values of the int branches. There is
+         * one quirk, however, as we would also like to have access to the
+         * "nu_id" branch in the input TTree directly.
+         */
         TTree * input_tree = (TTree *) input->Get(table.get_string_field("origin").c_str());
         double br[input_tree->GetNbranches()-3];
         double nu_id;
@@ -124,7 +162,33 @@ namespace sys::trees
         input_tree->SetBranchAddress("Subrun", &subrun);
         input_tree->SetBranchAddress("Evt", &event);
 
-        // Create and populate a map of the selected signal candidates.
+
+        /**
+         * @brief Create the output TTree with the name specified in the
+         * configuration file.
+         * @details The output TTree is created with the same branches as the
+         * input TTree, plus the Run, Subrun, and Evt branches. The same array
+         * (type double) and three variables (type int) as used above with the
+         * input TTree are used to create the branches in the output TTree. The
+         * branches are created in the same order as the input TTree. This
+         * process streamlines the copying of the values from the input TTree to
+         * the output TTree.
+         */
+        TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
+        for (int i(0); i < input_tree->GetNbranches()-3; ++i)
+            output_tree->Branch(input_tree->GetListOfBranches()->At(i)->GetName(), br+i);
+        output_tree->Branch("Run", &run);
+        output_tree->Branch("Subrun", &subrun);
+        output_tree->Branch("Evt", &event);
+        
+        /**
+         * @brief Create the map of selected signal candidates.
+         * @details This block creates a map of selected signal candidates. The
+         * map is built by looping over the input TTree and storing the index
+         * (run, subrun, event, nu_id) of the selected signal candidates in the
+         * map. The index is used to match the selected signal candidates with
+         * the universe weights for the parent neutrino.
+         */
         map_t candidates;
         for(int i(0); i < input_tree->GetEntries(); ++i)
         {
@@ -132,24 +196,52 @@ namespace sys::trees
             candidates.insert(std::make_pair<index_t, size_t>(std::make_tuple(run, subrun, event, nu_id), i));
         }
 
-        // Create the output TTree for the selected signal candidates.
-        TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
-        for (int i(0); i < input_tree->GetNbranches()-3; ++i)
-            output_tree->Branch(input_tree->GetListOfBranches()->At(i)->GetName(), br+i);
-        
-        output_tree->Branch("Run", &run);
-        output_tree->Branch("Subrun", &subrun);
-        output_tree->Branch("Evt", &event);
-
-        // Configure the weight-based systematics.
+        /**
+         * @brief Configure the weight-based systematics.
+         * @details This block configures the weight-based systematics. The
+         * systematics are split (by type) into separate TTrees, which is
+         * enforced by the configuration file. Because we do not wish to loop
+         * over the selected signal candidates multiple times, we must store
+         * the systematic information in such a way that we can easily
+         * accomodate this scheme. The variable "systables" is a vector of
+         * vectors of @ref sys::cfg::ConfigurationTables, with an inner vector
+         * for each systematic parameter and an outer vector for grouping the
+         * systematics by type. The variable "systs" is a map that maps the
+         * name of the systematic parameter to its index within the input
+         * weights. The variable "systrees" is a map that serves as a container
+         * for the output TTrees of each systematic type keyed by the name of
+         * the type. The variable "weights" is a map with a key of the index of
+         * the systematic parameter and a value of std::vector<double>* that is
+         * used to connect the universe weights to the output TTree.
+         */
         std::vector<std::vector<sys::cfg::ConfigurationTable>> systables;
         std::map<std::string, int64_t> systs;
         std::map<std::string, TTree *> systrees;
         std::map<int64_t, std::vector<double>*> weights;
+        
+        /**
+         * @brief Loop over the systematic types in the configuration file.
+         * @details This block loops over the systematic types in the
+         * configuration file. The "table" field in the configuration file
+         * specifies the name of the table lists in the configuration file that
+         * contain the exact definition of the systematics. Principally, this
+         * loop is used to load and configure the systematics of each type in
+         * sequential order.
+         */
         for(std::string & s : table.get_string_vector("table"))
         {
             systables.push_back(config.get_subtables(s));
             systrees[s] = new TTree((s+"Tree").c_str(), (s+"Tree").c_str());
+
+            /**
+             * @brief Loop over the systematics of this type.
+             * @details This block loops over systematics belonging to the same
+             * type as defined by the configuration file. The loop "flattens"
+             * the systematics into a single set of maps for use below in the
+             * loop over the input CAF files. The TTree of each systematic type
+             * is extended with a vector of doubles for each systematic
+             * parameter belonging to the type.
+             */
             for(sys::cfg::ConfigurationTable & t : systables.back())
             {
                 systs.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name"), t.get_int_field("index")));
@@ -158,7 +250,13 @@ namespace sys::trees
             }
         }
 
-        // Read in the input list of CAF files.
+        /**
+         * @brief Load the input CAF files.
+         * @details This block loads the input CAF files. The input CAF files
+         * are specified in a file list that is read from the configuration
+         * file. The file list is read line-by-line and the input CAF files are
+         * stored in a vector.
+         */
         std::vector<std::string> input_files;
         std::ifstream file_list(config.get_string_field("input.caflist"));
         std::string line;
@@ -260,5 +358,4 @@ namespace sys::trees
             directory->WriteObject(value, (key+"Tree").c_str());
     }   
 }
-
 #endif
