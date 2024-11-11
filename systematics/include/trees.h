@@ -39,6 +39,13 @@
 namespace sys::trees
 {
     /**
+     * @brief Type definitions for the selected signal candidates and the
+     * universe weights.
+     */
+    typedef std::tuple<Double_t, Double_t, Double_t, Double_t> index_t;
+    typedef std::map<index_t, size_t> map_t;
+
+    /**
      * @brief Copy the input TTree to the output TTree.
      * @details This function copies the input TTree to the output TTree. The
      * function loops over the input TTree and copies the values of the branches

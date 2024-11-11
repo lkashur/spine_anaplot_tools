@@ -17,31 +17,6 @@
 #include "TTreeReader.h"
 #include "TTreeReaderValue.h"
 
-typedef std::tuple<Double_t, Double_t, Double_t, Double_t> index_t;
-typedef std::map<index_t, size_t> map_t;
-
-/**
- * @brief Read the selected signal candidates from the TTree.
- * @details This function reads the selected signal candidates from the TTree
- * and stores them in a map. The map is indexed by the run, subrun, event, and
- * nu_id of the candidate. The value of the map is the entry number of the
- * candidate in the TTree. This map can be used later to match back to the
- * orignal candidates when writing the output TTree.
- * @param candidates The map that will store the selected signal candidates.
- * @param reader The TTreeReader that is used to read the TTree.
- * @return void
- */
-void read_candidates(map_t & candidates, TTreeReader & reader)
-{
-    TTreeReaderValue<Int_t> run(reader, "Run");
-    TTreeReaderValue<Int_t> subrun(reader, "Subrun");
-    TTreeReaderValue<Int_t> event(reader, "Evt");
-    TTreeReaderValue<Double_t> nu_id(reader, "nu_id");
-
-    while(reader.Next())
-        candidates.insert(std::make_pair<index_t, size_t>(std::make_tuple(*run, *subrun, *event, *nu_id), reader.GetCurrentEntry()));
-}
-
 /**
  * @brief Create a nested directory structure in the output ROOT file.
  * @details This function creates a nested directory structure in the output
