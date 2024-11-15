@@ -106,10 +106,7 @@ namespace pvars
     template<class T>
         double transverse_momentum(const T & p)
         {
-            if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
-                return std::sqrt(std::pow(p.truth_momentum[0], 2) + std::pow(p.truth_momentum[1], 2));
-            else
-                return std::sqrt(std::pow(p.momentum[0], 2) + std::pow(p.momentum[1], 2));
+            return std::sqrt(std::pow(p.momentum[0], 2) + std::pow(p.momentum[1], 2));
         }
 
     /**
@@ -124,10 +121,7 @@ namespace pvars
     template<class T>
         double polar_angle(const T & p)
         {
-            if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
-                return std::acos(p.truth_start_dir[2]);
-            else
-                return std::acos(p.start_dir[2]);
+            return std::acos(p.start_dir[2]);
         }
 
     /**
@@ -142,10 +136,7 @@ namespace pvars
     template<class T>
         double azimuthal_angle(const T & p)
         {
-            if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
-                return std::acos(p.truth_start_dir[0] / std::sqrt(std::pow(p.truth_start_dir[0], 2) + std::pow(p.truth_start_dir[1], 2)));
-            else
-                return std::acos(p.start_dir[0] / std::sqrt(std::pow(p.start_dir[0], 2) + std::pow(p.start_dir[1], 2)));
+            return std::acos(p.start_dir[0] / std::sqrt(std::pow(p.start_dir[0], 2) + std::pow(p.start_dir[1], 2)));
         }
 }
 #endif // PARTICLE_VARIABLES_H

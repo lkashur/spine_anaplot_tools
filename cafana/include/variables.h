@@ -63,7 +63,7 @@ namespace vars
     {
         double cat(-1);
         if(cuts::neutrino(obj))
-            cat = obj.nu_interaction_mode;
+            cat = obj.interaction_mode;
         return cat;
     }
 
@@ -75,7 +75,7 @@ namespace vars
      * @return the true neutrino energy.
      */
     template<class T>
-        double true_neutrino_energy(const T & obj) { return obj.nu_energy_init; }
+        double true_neutrino_energy(const T & obj) { return obj.energy_init; }
 
     /**
      * @brief Variable for the true neutrino baseline. Currently, if the
@@ -86,7 +86,11 @@ namespace vars
      * @return the true neutrino baseline.
      */
     template<class T>
-        double true_neutrino_baseline(const T & obj) { return obj.nu_distance_travel > 0 ? double(obj.nu_distance_travel) : 585.0; }
+    double true_neutrino_baseline(const T & obj)
+    {
+        // @TODO This is a temporary fix until the true neutrino distance is available.
+        return 585.0;
+    }
 
     /**
      * @brief Variable for the true neutrino PDG code.
@@ -96,7 +100,7 @@ namespace vars
      * @return the true neutrino PDG code.
      */
     template<class T>
-        double true_neutrino_pdg(const T & obj) { return obj.nu_pdg_code; }
+        double true_neutrino_pdg(const T & obj) { return obj.pdg_code; }
 
     /**
      * @brief Variable for the true neutrino current value.
@@ -106,7 +110,7 @@ namespace vars
      * @return the true neutrino current value.
      */
     template<class T>
-        double true_neutrino_cc(const T & obj) { return obj.nu_current_type; }
+        double true_neutrino_cc(const T & obj) { return obj.current_type; }
 
     /**
      * @brief Variable for the containment status of the interaction.
@@ -162,7 +166,12 @@ namespace vars
      * @return the flash time of the interaction.
      */
     template<class T>
-        double flash_time(const T & obj) { return obj.flash_time; }
+        double flash_time(const T & obj)
+        {
+            if(obj.flash_times.size() > 0)
+                return obj.flash_times[0];
+            return -1;
+        }
 
     /**
      * @brief Variable for the flash total photoelectron count of the
@@ -188,7 +197,34 @@ namespace vars
      * @return the flash hypothesis total photoelectron count of the interaction.
      */
     template<class T>
-        double flash_hypothesis(const T & obj) { return obj.flash_hypothesis; }
+        double flash_hypothesis(const T & obj) { return obj.flash_hypo_pe; }
+
+    /**
+     * @brief Variable for the truth x-coordinate of the interaction vertex.
+     * @details The interaction vertex is 3D point in space where the neutrino
+     * interacted to produce the primary particles in the interaction.
+     * @param obj the interaction to apply the variable on.
+     * @return the truth x-coordinate of the interaction vertex.
+     */
+    double truth_vertex_x(const caf::SRInteractionTruthDLPProxy & obj) { return obj.vertex[0]; }
+
+    /**
+     * @brief Variable for the truth y-coordinate of the interaction vertex.
+     * @details The interaction vertex is 3D point in space where the neutrino
+     * interacted to produce the primary particles in the interaction.
+     * @param obj the interaction to apply the variable on.
+     * @return the truth y-coordinate of the interaction vertex.
+     */
+    double truth_vertex_y(const caf::SRInteractionTruthDLPProxy & obj) { return obj.vertex[1]; }
+
+    /**
+     * @brief Variable for the truth z-coordinate of the interaction vertex.
+     * @details The interaction vertex is 3D point in space where the neutrino
+     * interacted to produce the primary particles in the interaction.
+     * @param obj the interaction to apply the variable on.
+     * @return the truth z-coordinate of the interaction vertex.
+     */
+    double truth_vertex_z(const caf::SRInteractionTruthDLPProxy & obj) { return obj.vertex[2]; }
 
     /**
      * @brief Variable for the x-coordinate of the interaction vertex.
@@ -199,13 +235,7 @@ namespace vars
      * @return the x-coordinate of the interaction vertex.
      */
     template<class T>
-        double vertex_x(const T & obj)
-        {
-            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                return obj.truth_vertex[0];
-            else
-                return obj.vertex[0];
-        }
+        double vertex_x(const T & obj) { return obj.vertex[0]; }
 
     /**
      * @brief Variable for the y-coordinate of the interaction vertex.
@@ -216,13 +246,7 @@ namespace vars
      * @return the y-coordinate of the interaction vertex.
      */
     template<class T>
-        double vertex_y(const T & obj)
-        {
-            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                return obj.truth_vertex[1];
-            else
-                return obj.vertex[1];
-        }
+        double vertex_y(const T & obj) { return obj.vertex[1]; }
 
     /**
      * @brief Variable for the z-coordinate of the interaction vertex.
@@ -233,13 +257,7 @@ namespace vars
      * @return the z-coordinate of the interaction vertex.
      */
     template<class T>
-        double vertex_z(const T & obj)
-        {
-            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                return obj.truth_vertex[2];
-            else
-                return obj.vertex[2];
-        }
+        double vertex_z(const T & obj) { return obj.vertex[2]; }
 
     /**
      * @brief Variable for the x-coordinate of the leading muon end point.
@@ -509,16 +527,8 @@ namespace vars
             for(const auto & p : obj.particles)
                 if(p.is_primary)
                 {
-                    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                    {
-                        px += p.truth_momentum[0];
-                        py += p.truth_momentum[1];
-                    }
-                    else
-                    {
-                        px += p.momentum[0];
-                        py += p.momentum[1];
-                    }
+                    px += p.momentum[0];
+                    py += p.momentum[1];
                 }
             return std::sqrt(std::pow(px, 2) + std::pow(py, 2));
         }
@@ -541,29 +551,13 @@ namespace vars
                 {
                     if(p.pid > 2)
                     {
-                        if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                        {
-                            hpx += p.truth_momentum[0];
-                            hpy += p.truth_momentum[1];
-                        }
-                        else
-                        {
-                            hpx += p.momentum[0];
-                            hpy += p.momentum[1];
-                        }
+                        hpx += p.momentum[0];
+                        hpy += p.momentum[1];
                     }
                     else if(p.pid == 2)
                     {
-                        if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                        {
-                            lpx += p.truth_momentum[0];
-                            lpy += p.truth_momentum[1];
-                        }
-                        else
-                        {
-                            lpx += p.momentum[0];
-                            lpy += p.momentum[1];
-                        }
+                        lpx += p.momentum[0];
+                        lpy += p.momentum[1];
                     }
                 }
             return std::acos((-hpx * lpx - hpy * lpy) / (std::sqrt(std::pow(hpx, 2) + std::pow(hpy, 2)) * std::sqrt(std::pow(lpx, 2) + std::pow(lpy, 2))));
@@ -586,27 +580,11 @@ namespace vars
                 {
                     if(p.pid <= 2)
                     {
-                        if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                        {
-                            lpx += p.truth_momentum[0];
-                            lpy += p.truth_momentum[1];
-                        }
-                        else
-                        {
-                            lpx += p.momentum[0];
-                            lpy += p.momentum[1];
-                        }
+                        lpx += p.momentum[0];
+                        lpy += p.momentum[1];
                     }
-                    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                    {
-                        px += p.truth_momentum[0];
-                        py += p.truth_momentum[1];
-                    }
-                    else
-                    {
-                        px += p.momentum[0];
-                        py += p.momentum[1];
-                    }
+                    px += p.momentum[0];
+                    py += p.momentum[1];
                 }
             return std::acos((-px * lpx - py * lpy) / (std::sqrt(std::pow(px, 2) + std::pow(py, 2)) * std::sqrt(std::pow(lpx, 2) + std::pow(lpy, 2))));
         }

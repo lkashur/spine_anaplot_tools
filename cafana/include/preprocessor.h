@@ -30,7 +30,7 @@
         bool is_mc(sr->ndlp_true != 0);                                                     \
         for(auto const& i : sr->dlp)                                                        \
         {                                                                                   \
-            if(SEL(i) && ((i.match.size() > 0 && CAT(sr->dlp_true[i.match[0]])) || !is_mc)) \
+            if(SEL(i) && ((i.match_ids.size() > 0 && CAT(sr->dlp_true[i.match_ids[0]])) || !is_mc)) \
                 var.push_back(VAR(i));                                                      \
         }                                                                                   \
         return var;                                                                         \
@@ -58,8 +58,8 @@
         bool is_mc(sr->ndlp_true != 0);                                                     \
         for(auto const& i : sr->dlp)                                                        \
         {                                                                                   \
-            if(SEL(i) && ((i.match.size() > 0 && CAT(sr->dlp_true[i.match[0]])) || !is_mc)) \
-                var.push_back(i.match.size() > 0 ? VAR(sr->dlp_true[i.match[0]]) : -1.0);   \
+            if(SEL(i) && ((i.match_ids.size() > 0 && CAT(sr->dlp_true[i.match_ids[0]])) || !is_mc)) \
+                var.push_back(i.match_ids.size() > 0 ? VAR(sr->dlp_true[i.match_ids[0]]) : -1.0);   \
         }                                                                                   \
         return var;                                                                         \
  }
@@ -81,8 +81,8 @@
         std::vector<double> var;			         \
         for(auto const& i : sr->dlp_true)	         \
         {                                            \
-            if(SEL(i) && i.match.size() > 0)         \
-            var.push_back(VAR(sr->dlp[i.match[0]])); \
+            if(SEL(i) && i.match_ids.size() > 0)         \
+            var.push_back(VAR(sr->dlp[i.match_ids[0]])); \
         }                                            \
         return var;                                  \
     }
@@ -104,7 +104,7 @@
         std::vector<double> var;             \
         for(auto const& i : sr->dlp_true)    \
         {                                    \
-            if(SEL(i) && i.match.size() > 0) \
+            if(SEL(i) && i.match_ids.size() > 0) \
                 var.push_back(VAR(i));       \
         }                                    \
         return var;                          \

@@ -40,7 +40,10 @@ namespace cuts
      * @return true if the interaction is flash matched and the time is valid.
      */
     template<class T>
-        bool valid_flashmatch(const T & obj) { return !std::isnan(obj.flash_time) && obj.fmatched == 1; }
+        bool valid_flashmatch(const T & obj)
+        {
+            return obj.flash_times.size() > 0 && obj.is_flash_matched == 1 && !std::isnan(obj.flash_times[0]);
+        }
 
     /**
      * @brief Apply no cut; all interactions passed.
@@ -64,7 +67,7 @@ namespace cuts
      * @note This cut is intended to be used for identifying neutrinos in
      * truth, which is useful for making signal definitions.
      */
-    bool neutrino(const caf::SRInteractionTruthDLPProxy & obj) { return obj.is_neutrino; }
+    bool neutrino(const caf::SRInteractionTruthDLPProxy & obj) { return obj.nu_id >= 0; }
 
     /**
      * @brief Apply a cut to select cosmogenic interactions.
@@ -76,7 +79,7 @@ namespace cuts
      * @note This cut is intended to be used for identifying cosmogenic
      * interactions in truth, which is useful for making background definitions.
      */
-    bool cosmic(const caf::SRInteractionTruthDLPProxy & obj) { return !obj.is_neutrino; }
+    bool cosmic(const caf::SRInteractionTruthDLPProxy & obj) { return !neutrino(obj); }
 
     /**
      * @brief Apply a fiducial volume cut; the interaction vertex must be
@@ -132,7 +135,7 @@ namespace cuts
             if(!valid_flashmatch(obj))
                 return false;
             else
-                return (obj.flash_time >= -0.5) && (obj.flash_time <= 1.6);
+                return (obj.flash_times[0] >= -0.5) && (obj.flash_times[0] <= 1.6);
         }
     
     /**
@@ -152,7 +155,7 @@ namespace cuts
             if(!valid_flashmatch(obj))
                 return false;
             else
-                return (obj.flash_time >= 0) && (obj.flash_time <= 9.6);
+                return (obj.flash_times[0] >= 0) && (obj.flash_times[0] <= 9.6);
         }
 
     /**

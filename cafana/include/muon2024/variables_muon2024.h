@@ -79,10 +79,7 @@ namespace vars::muon2024
         {
             auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
             auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
-            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                return std::acos(m.truth_start_dir[0] * p.truth_start_dir[0] + m.truth_start_dir[1] * p.truth_start_dir[1] + m.truth_start_dir[2] * p.truth_start_dir[2]);
-            else
-                return std::acos(m.start_dir[0] * p.start_dir[0] + m.start_dir[1] * p.start_dir[1] + m.start_dir[2] * p.start_dir[2]);
+            return std::acos(m.start_dir[0] * p.start_dir[0] + m.start_dir[1] * p.start_dir[1] + m.start_dir[2] * p.start_dir[2]);
         }
 }
 #endif // VARS_MUON2024_H

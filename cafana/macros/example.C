@@ -41,7 +41,7 @@ void example()
      * AddLoader function is used to create a directory in the output ROOT file
      * to store the results of the analysis.
      */
-    ana::SpectrumLoader var00("/pnfs/icarus/persistent/users/mueller/spinereco2024/allplanes/detsys_v09_89_01_01/var00_nominal.flat.root");
+    ana::SpectrumLoader var00("/exp/icarus/app/users/mueller/spineprod/spine_cafmaker/build/merged.flat.root");
     analysis.AddLoader("nominal", &var00, true);
     
     /**
@@ -54,32 +54,32 @@ void example()
     #define CUT cuts::fiducial_containment_flash_cut_bnb
     #define TCUT cuts::neutrino
     std::map<std::string, ana::SpillMultiVar> vars_selected_nu;
-    vars_selected_nu.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::neutrino_id, CUT, TCUT))});
-    vars_selected_nu.insert({"baseline", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_baseline, CUT, TCUT))});
-    vars_selected_nu.insert({"pdg", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_pdg, CUT, TCUT))});
-    vars_selected_nu.insert({"cc", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_cc, CUT, TCUT))});
-    vars_selected_nu.insert({"category", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::neutrino_interaction_mode, CUT, TCUT))});
-    vars_selected_nu.insert({"true_edep", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_energy, CUT, TCUT))});
-    vars_selected_nu.insert({"reco_edep", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::visible_energy, CUT, TCUT))});
-    vars_selected_nu.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::flash_time, CUT, TCUT))});
-    vars_selected_nu.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::flash_total_pe, CUT, TCUT))});
-    vars_selected_nu.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::flash_hypothesis, CUT, TCUT))});
+    vars_selected_nu.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_id, CUT, TCUT))});
+    vars_selected_nu.insert({"baseline", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_baseline, CUT, TCUT))});
+    vars_selected_nu.insert({"pdg", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_pdg, CUT, TCUT))});
+    vars_selected_nu.insert({"cc", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_cc, CUT, TCUT))});
+    vars_selected_nu.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_interaction_mode, CUT, TCUT))});
+    vars_selected_nu.insert({"true_edep", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_energy, CUT, TCUT))});
+    vars_selected_nu.insert({"reco_edep", ana::SpillMultiVar(SPINEVAR_RR(vars::visible_energy, CUT, TCUT))});
+    vars_selected_nu.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_time, CUT, TCUT))});
+    vars_selected_nu.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_total_pe, CUT, TCUT))});
+    vars_selected_nu.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_hypothesis, CUT, TCUT))});
 
     analysis.AddTree("selectedNu", vars_selected_nu, true);
 
     #undef TCUT
     #define TCUT cuts::cosmic
     std::map<std::string, ana::SpillMultiVar> vars_selected_cos;
-    vars_selected_cos.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::neutrino_id, CUT, TCUT))});
-    vars_selected_cos.insert({"baseline", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_baseline, CUT, TCUT))});
-    vars_selected_cos.insert({"pdg", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_pdg, CUT, TCUT))});
-    vars_selected_cos.insert({"cc", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_cc, CUT, TCUT))});
-    vars_selected_cos.insert({"category", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::neutrino_interaction_mode, CUT, TCUT))});
-    vars_selected_cos.insert({"true_edep", ana::SpillMultiVar(SPINEVAR_RT_TCAT(vars::true_neutrino_energy, CUT, TCUT))});
-    vars_selected_cos.insert({"reco_edep", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::visible_energy, CUT, TCUT))});
-    vars_selected_cos.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::flash_time, CUT, TCUT))});
-    vars_selected_cos.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::flash_total_pe, CUT, TCUT))});
-    vars_selected_cos.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR_TCAT(vars::flash_hypothesis, CUT, TCUT))});
+    vars_selected_cos.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_id, CUT, TCUT))});
+    vars_selected_cos.insert({"baseline", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_baseline, CUT, TCUT))});
+    vars_selected_cos.insert({"pdg", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_pdg, CUT, TCUT))});
+    vars_selected_cos.insert({"cc", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_cc, CUT, TCUT))});
+    vars_selected_cos.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_interaction_mode, CUT, TCUT))});
+    vars_selected_cos.insert({"true_edep", ana::SpillMultiVar(SPINEVAR_RT(vars::true_neutrino_energy, CUT, TCUT))});
+    vars_selected_cos.insert({"reco_edep", ana::SpillMultiVar(SPINEVAR_RR(vars::visible_energy, CUT, TCUT))});
+    vars_selected_cos.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_time, CUT, TCUT))});
+    vars_selected_cos.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_total_pe, CUT, TCUT))});
+    vars_selected_cos.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_hypothesis, CUT, TCUT))});
 
     analysis.AddTree("selectedCos", vars_selected_cos, true);
 
