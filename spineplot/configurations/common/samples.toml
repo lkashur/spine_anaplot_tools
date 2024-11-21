@@ -1,0 +1,16 @@
+[samples]
+[samples.mc]
+key = "mc"
+scaling_type = "pot"
+trees = ['selectedNu',]
+
+[samples.offbeam]
+key = "offbeam"
+scaling_type = "pot"
+trees = ['selectedNu',]
+
+[samples.onbeam]
+key = "onbeam"
+scaling_type = "pot"
+override_category = -100
+trees = ['selectedNu',]

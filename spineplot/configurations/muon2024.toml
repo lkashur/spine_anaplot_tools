@@ -1,3 +1,13 @@
+[[this_includes]]
+file = 'configurations/common/variables.toml'
+
+[[this_includes]]
+file = 'configurations/common/samples.toml'
+choose = {'samples' = ['mc', 'offbeam', 'onbeam']}
+
+[[this_includes]]
+file = 'configurations/common/styles.toml'
+
 [analysis]
 ordinate_sample = 'onbeam'
 category_branch = 'category'
@@ -6,54 +16,7 @@ category_labels = ['1$\mu$Np', 'Other CC $\nu$', 'NC $\nu$', 'Cosmic', 'Run 2 Da
 category_colors = ['C0', 'C1', 'C3', 'C4', 'C2']
 category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'scatter']
 
-[samples]
-[samples.mc]
-key = "mc"
-scaling_type = "pot"
-trees = ['selectedNu',]
-
-[samples.offbeam]
-key = "offbeam"
-scaling_type = "pot"
-trees = ['selectedNu',]
-
-[samples.onbeam]
-key = "onbeam"
-scaling_type = "pot"
-override_category = -100
-trees = ['selectedNu',]
-
-[styles]
-[styles.selected]
-style_sheet = "styles/muon2024.mplstyle"
-show_component_number = true
-show_component_percentage = true
-invert_stack_order = false
-
-[variables]
-[variables.visible_energy]
-key = "reco_edep"
-range = [0, 3]
-nbins = 25
-xlabel = "Visible Energy [GeV]"
-
-[variables.interaction_pt]
-key = "reco_dpT"
-range = [0,1200]
-nbins = 25
-xlabel = 'Reconstructed $\delta p_T$ [MeV/c]'
-
-[variables.reco_muon_z]
-key = "reco_muon_z"
-range = [-100, 100]
-nbins = 100
-xlabel = "Reconstructed Muon End Point Z [cm]"
-
 [spectra1D]
 [spectra1D.reco_visible_energy]
 style = 'selected'
 variable = 'visible_energy'
-
-[spectra1D.test]
-style = 'selected'
-variable = 'interaction_pt'

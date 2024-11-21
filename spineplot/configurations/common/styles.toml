@@ -1,0 +1,12 @@
+[styles]
+[styles.selected]
+style_sheet = "styles/muon2024.mplstyle"
+show_component_number = true
+show_component_percentage = true
+invert_stack_order = false
+
+[styles.signal]
+style_sheet = "styles/muon2024.mplstyle"
+show_component_number = true
+show_component_percentage = false
+invert_stack_order = false

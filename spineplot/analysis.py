@@ -43,6 +43,8 @@ class Analysis:
         """
         self._toml_path = toml_path
         self._config = toml.load(self._toml_path)
+        for table in self._config['this_includes']:
+            Analysis.handle_include(self._config, table)
         rf = uproot.open(rf_path)
 
         # Load the categories table
@@ -116,5 +118,35 @@ class Analysis:
             for sample in self._samples.values():
                 s.add_sample(sample)
 
-            with self._styles[self._spectra['test']._style] as style:
+            with self._styles[s._style] as style:
                 s.plot(style, name)
+
+    @classmethod
+    def handle_include(self, config, table):
+        """
+        Handles the inclusion of other configuration files in the main
+        configuration file. The include directive may also contain some
+        other optional fields which correspond to specific actions:
+
+        - choose: a dictionary of key-value pairs where the key is the
+        name of a table and the value is a list of corresponding sub-
+        tables to include.
+
+        Parameters
+        ----------
+        config : dict
+            The configuration dictionary to update.
+        table : dict
+            The block representing the include directive.
+        
+        Returns
+        -------
+        None.
+        """
+        with open(table['file'], 'r') as f:
+            if 'choose' in table.keys():
+                for key, value in table['choose'].items():
+                    c = toml.load(f)
+                    config[key] = {v: c[key][v] for v in value}
+            else:
+                config.update(toml.load(f))
