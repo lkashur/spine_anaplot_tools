@@ -160,7 +160,7 @@ class SpineSpectra1D(SpineSpectra):
             self._plotdata[self._categories[category]] += h[0]
             self._binedges[self._categories[category]] = h[1]
 
-    def plot(self, style) -> None:
+    def plot(self, style, name) -> None:
         """
         Plots the data for the SpineSpectra object.
 
@@ -205,5 +205,5 @@ class SpineSpectra1D(SpineSpectra):
                 self._ax.errorbar(bincenters[scatter_mask[i]], data[scatter_mask[i]], yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
         
         self._ax.legend()
-        self._figure.savefig(f'test.png')
+        self._figure.savefig(f'{name}.png')
         

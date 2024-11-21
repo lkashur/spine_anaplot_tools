@@ -112,9 +112,9 @@ class Analysis:
         for s in self._samples.values():
             s.set_weight(target=ordinate)
 
-        # TODO: Add support for multiple SpineSpectra objects
-        for sample in self._samples.values():
-            self._spectra['test'].add_sample(sample)
+        for name, s in self._spectra.items():
+            for sample in self._samples.values():
+                s.add_sample(sample)
 
-        with self._styles[self._spectra['test']._style] as style:
-            self._spectra['test'].plot(style)
+            with self._styles[self._spectra['test']._style] as style:
+                s.plot(style, name)
