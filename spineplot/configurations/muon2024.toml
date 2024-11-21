@@ -19,4 +19,4 @@ category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'scatter']
 [spectra1D]
 [spectra1D.reco_visible_energy]
 style = 'selected'
-variable = 'visible_energy'
+variable = 'reco_visible_energy'

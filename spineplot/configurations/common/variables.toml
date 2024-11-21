@@ -1,11 +1,11 @@
 [variables]
-[variables.visible_energy]
+[variables.reco_visible_energy]
 key = "reco_edep"
 range = [0, 3]
 nbins = 25
 xlabel = "Visible Energy [GeV]"
 
-[variables.interaction_pt]
+[variables.reco_interaction_pt]
 key = "reco_dpT"
 range = [0,1200]
 nbins = 25
