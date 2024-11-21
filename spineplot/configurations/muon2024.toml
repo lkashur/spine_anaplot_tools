@@ -37,6 +37,12 @@ range = [0, 3]
 nbins = 25
 xlabel = "Visible Energy [GeV]"
 
+[variables.interaction_pt]
+key = "reco_dpT"
+range = [0,1200]
+nbins = 25
+xlabel = 'Reconstructed $\delta p_T$ [MeV/c]'
+
 [variables.reco_muon_z]
 key = "reco_muon_z"
 range = [-100, 100]
@@ -47,3 +53,7 @@ xlabel = "Reconstructed Muon End Point Z [cm]"
 [spectra1D.test]
 style = 'selected'
 variable = 'visible_energy'
+
+[spectra1D.test]
+style = 'selected'
+variable = 'interaction_pt'
