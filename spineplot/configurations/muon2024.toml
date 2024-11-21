@@ -43,7 +43,7 @@ range = [-100, 100]
 nbins = 100
 xlabel = "Reconstructed Muon End Point Z [cm]"
 
-[spectra]
-[spectra.test]
+[spectra1D]
+[spectra1D.test]
 style = 'selected'
 variable = 'visible_energy'

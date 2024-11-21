@@ -9,6 +9,61 @@ class ConfigException(Exception):
 
 class SpineSpectra:
     """
+    A base class designed to encapsulate spectra for multiple variables
+    in an ensemble of samples. Though intended for use with a
+    collection of variables, this class is meant to be an abstraction
+    representing a single plot instance or plot content. 
+
+    Attributes
+    ----------
+    _style : str
+        The name of the style sheet to use for the plot.
+    _variables : list
+        The list of Variable objects for the spectra.
+    _categories : dict
+        A dictionary of the categories for the spectra. This serves as
+        a map between the category label in the input TTree and the
+        category label for the aggregated data (and therefore what is
+        shown in a single legend entry).
+    _plotdata : dict
+        A dictionary of the data for the spectra. This is a map between
+        the category label for the spectra and the histogram data for
+        that category.
+    """
+    def __init__(self, style, variables, categories, colors) -> None:
+        """
+        Initializes the SpineSpectra object with the given kwargs.
+
+        Parameters
+        ----------
+        style : str
+            The name of the style sheet to use for the plot.
+        variables : list
+            The list of Variable objects for the spectra.
+        categories : dict
+            A dictionary of the categories for the spectra. This serves
+            as a map between the category label in the input TTree and
+            the category label for the aggregated data (and therefore
+            what is shown in a single legend entry).
+        colors : dict
+            A dictionary of the colors for the categories in the spectra.
+            This serves as a map between the category label for the
+            spectra (value in the `_categories` dictionary) and the color
+            to use for the histogram. The color can be any valid matplotlib
+            color string or a cycle indicator (e.g. 'C0', 'C1', etc.).
+
+        Returns
+        -------
+        None.
+        """
+        self._style = style
+        self._variables = variables
+        self._categories = categories
+        self._colors = colors
+        self._plotdata = None
+
+class SpineSpectra1D(SpineSpectra):
+    """
     A class designed to encapsulate a single variable's spectrum for an
     ensemble of samples. The class method add_sample() can be used to
     add a sample to the SpineSpectra
@@ -69,10 +124,8 @@ class SpineSpectra:
         -------
         None.
         """
-        self._style = style
-        self._variable = variable
-        self._categories = categories
-        self._colors = colors
+        super().__init__(style, [variable,], categories, colors)
+        self._variable = self._variables[0]
         self._category_types = category_types
         self._plotdata = None
         self._binedges = None

@@ -1,7 +1,7 @@
 import toml
 import uproot
 from sample import Sample
-from spinespectra import SpineSpectra
+from spinespectra import SpineSpectra1D
 from style import Style
 from variable import Variable
 from matplotlib import pyplot as plt
@@ -68,9 +68,9 @@ class Analysis:
         self._variables = {name: Variable(name, **self._config['variables'][name]) for name in self._config['variables']}
 
         # Load the plots table and initialize the SpineSpectra objects
-        if 'spectra' not in self._config.keys():
+        if 'spectra1D' not in self._config.keys():
             raise ConfigException(f"No plots defined in the TOML file. Please check for a valid plot configuration block (table='plots') in the TOML file ('{toml_path}').")
-        self._spectra = {name: SpineSpectra(v['style'], self._variables[v['variable']], self._categories, self._colors, self._category_types) for name, v in self._config['spectra'].items()}
+        self._spectra = {name: SpineSpectra1D(v['style'], self._variables[v['variable']], self._categories, self._colors, self._category_types) for name, v in self._config['spectra1D'].items()}
     
     def override_exposure(self, sample_name, exposure, exposure_type='pot') -> None:
         """
