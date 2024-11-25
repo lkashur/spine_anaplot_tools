@@ -150,6 +150,7 @@ class SpineSpectra1D(SpineSpectra):
         if self._plotdata is None:
             self._plotdata = {}
             self._binedges = {}
+            self._onebincount = {}
         data, weights = sample.get_data([self._variable._key,])
         for category, values in data.items():
             values = values[0]
@@ -157,7 +158,9 @@ class SpineSpectra1D(SpineSpectra):
                 continue
             if self._categories[category] not in self._plotdata:
                 self._plotdata[self._categories[category]] = np.zeros(self._variable._nbins)
+                self._onebincount[self._categories[category]] = 0
             h = np.histogram(values, bins=self._variable._nbins, range=self._variable._range, weights=weights[category])
+            self._onebincount[self._categories[category]] += np.sum(weights[category])
             self._plotdata[self._categories[category]] += h[0]
             self._binedges[self._categories[category]] = h[1]
 
@@ -188,15 +191,16 @@ class SpineSpectra1D(SpineSpectra):
             histogram_mask = [li for li, label in enumerate(labels) if self._category_types[label] == 'histogram']
             scatter_mask = [li for li, label in enumerate(labels) if self._category_types[label] == 'scatter']
 
-            denominator = np.sum([data[i] for i in histogram_mask])
+            denominator = np.sum([self._onebincount[labels[i]] for i in histogram_mask])
+            counts = [x for x in self._onebincount.values()]
             if style.get_show_component_number() and style.get_show_component_percentage():
                 hlabel = lambda x : f'{np.sum(x):.1f}, {np.sum(x)/denominator:.2%}'
                 slabel = lambda x : f'{np.sum(x):.1f}'
-                labels = [f'{label} ({hlabel(d) if li in histogram_mask else slabel(d)})' for li, (label, d) in enumerate(zip(labels, data))]
+                labels = [f'{label} ({hlabel(d) if li in histogram_mask else slabel(d)})' for li, (label, d) in enumerate(zip(labels, counts))]
             elif style.get_show_component_number():
-                labels = [f'{label} ({np.sum(d):.1f})' for label, d in zip(labels, data)]
+                labels = [f'{label} ({np.sum(d):.1f})' for label, d in zip(labels, counts)]
             elif style.get_show_component_percentage():
-                labels = [f'{label} ({np.sum(d)/denominator:.2%})' if li in histogram_mask else label for li, (label, d) in enumerate(zip(labels, data))]
+                labels = [f'{label} ({np.sum(d)/denominator:.2%})' if li in histogram_mask else label for li, (label, d) in enumerate(zip(labels, counts))]
 
             reduce = lambda x : [x[i] for i in histogram_mask]
             self._ax.hist(reduce(bincenters), weights=reduce(data), bins=self._variable._nbins, range=self._variable._range, histtype='barstacked', label=reduce(labels), color=reduce(colors), stacked=True)
