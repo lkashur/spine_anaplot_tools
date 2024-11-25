@@ -61,6 +61,8 @@ class SpineSpectra:
         self._categories = categories
         self._colors = colors
         self._plotdata = None
+        self._binedges = None
+        self._onebincount = None
 
 class SpineSpectra1D(SpineSpectra):
     """
@@ -127,8 +129,6 @@ class SpineSpectra1D(SpineSpectra):
         super().__init__(style, [variable,], categories, colors)
         self._variable = self._variables[0]
         self._category_types = category_types
-        self._plotdata = None
-        self._binedges = None
 
     def add_sample(self, sample) -> None:
         """
@@ -271,8 +271,6 @@ class SpineSpectra2D(SpineSpectra):
         """
         super().__init__(style, variables, categories, colors)
         self._category_types = category_types
-        self._plotdata = None
-        self._binedges = None
         self._plotdata_diagonal = None
         self._binedges_diagonal = None
 
