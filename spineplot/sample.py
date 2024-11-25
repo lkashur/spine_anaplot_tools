@@ -120,16 +120,16 @@ class Sample:
             self._data['weight'] = (target._exposure_livetime / self._exposure_livetime)
             print(f"Setting weight for {self._name} to {target._exposure_livetime / self._exposure_livetime:.2e}")
 
-    def get_data(self, variable) -> dict:
+    def get_data(self, variables) -> dict:
         """
-        Returns the data for the given variable in the sample. The data
-        is returned as a dictionary with the category as the key and
-        the data for the requested variable as the value.
+        Returns the data for the given variable(s) in the sample. The
+        data is returned as a dictionary with the category as the key
+        and the data for the requested variable as the value.
 
         Parameters
         ----------
-        variable : str
-            The name of the variable to retrieve.
+        variables : list[str]
+            The names of the variables to retrieve.
 
         Returns
         -------
@@ -145,7 +145,9 @@ class Sample:
         data = {}
         weights = {}
         for category in np.unique(self._data[self._category_branch]):
-            data[int(category)] = self._data[self._data[self._category_branch] == category][variable]
+            data[int(category)] = list()
+            for v in variables:
+                data[int(category)].append(self._data[self._data[self._category_branch] == category][v])    
             weights[int(category)] = self._data[self._data[self._category_branch] == category]['weight']
         return data, weights
 

@@ -1,14 +1,27 @@
 [variables]
+
+[variables.true_visible_energy]
+key = "true_edep"
+range = [0, 3]
+nbins = 50
+xlabel = "True Visible Energy [GeV]"
+
 [variables.reco_visible_energy]
 key = "reco_edep"
 range = [0, 3]
-nbins = 25
-xlabel = "Visible Energy [GeV]"
+nbins = 50
+xlabel = "Reconstructed Visible Energy [GeV]"
+
+[variables.true_interaction_pt]
+key = "true_dpT_so"
+range = [0,1200]
+nbins = 100
+xlabel = 'True $\delta p_T$ [MeV/c]'
 
 [variables.reco_interaction_pt]
-key = "reco_dpT"
+key = "reco_dpT_so"
 range = [0,1200]
-nbins = 25
+nbins = 100
 xlabel = 'Reconstructed $\delta p_T$ [MeV/c]'
 
 [variables.reco_muon_z]

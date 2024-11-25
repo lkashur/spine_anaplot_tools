@@ -1,7 +1,7 @@
 import toml
 import uproot
 from sample import Sample
-from spinespectra import SpineSpectra1D
+from spinespectra import SpineSpectra1D, SpineSpectra2D
 from style import Style
 from variable import Variable
 from matplotlib import pyplot as plt
@@ -69,10 +69,14 @@ class Analysis:
             raise ConfigException(f"No variables defined in the TOML file. Please check for a valid variable configuration block (table='variables') in the TOML file ('{toml_path}').")
         self._variables = {name: Variable(name, **self._config['variables'][name]) for name in self._config['variables']}
 
-        # Load the plots table and initialize the SpineSpectra objects
+        # Load the plots table and initialize the SpineSpectra1D objects
         if 'spectra1D' not in self._config.keys():
             raise ConfigException(f"No plots defined in the TOML file. Please check for a valid plot configuration block (table='plots') in the TOML file ('{toml_path}').")
         self._spectra = {name: SpineSpectra1D(v['style'], self._variables[v['variable']], self._categories, self._colors, self._category_types) for name, v in self._config['spectra1D'].items()}
+
+        # Load the plots table and initialize the SpineSpectra2D objects
+        if 'spectra2D' in self._config.keys():
+            self._spectra.update({name: SpineSpectra2D(v['style'], [self._variables[x] for x in v['variables']], self._categories, self._colors, self._category_types) for name, v in self._config['spectra2D'].items()})
     
     def override_exposure(self, sample_name, exposure, exposure_type='pot') -> None:
         """
@@ -120,6 +124,8 @@ class Analysis:
 
             with self._styles[s._style] as style:
                 s.plot(style, name)
+                if type(s) == SpineSpectra2D:
+                    s.plot_diagonal_reduction(style, name)
 
     @classmethod
     def handle_include(self, config, table):

@@ -20,3 +20,12 @@ category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'scatter']
 [spectra1D.reco_visible_energy]
 style = 'selected'
 variable = 'reco_visible_energy'
+
+[spectra2D]
+[spectra2D.visible_energy]
+style = 'selected'
+variables = ['true_visible_energy', 'reco_visible_energy']
+
+[spectra2D.interaction_pt]
+style = 'selected'
+variables = ['true_interaction_pt', 'reco_interaction_pt']
