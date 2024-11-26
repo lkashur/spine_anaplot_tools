@@ -10,8 +10,8 @@ class Sample:
     ----------
     _name : str
         The name of the sample.
-    _scaling_type : str
-        The scaling type for the sample. This can be either 'pot' or
+    _exposure_type : str
+        The exposure type for the sample. This can be either 'pot' or
         'livetime'.
     _file_handle : uproot.reading.ReadOnlyDirectory
         The file handle for the input ROOT file.
@@ -25,7 +25,7 @@ class Sample:
     _data : pd.DataFrame
         The data comprising the sample.
     """
-    def __init__(self, name, rf, category_branch, key, scaling_type, trees, override_category=None) -> None:
+    def __init__(self, name, rf, category_branch, key, exposure_type, trees, override_category=None) -> None:
         """
         Initializes the Sample object with the given name and key.
 
@@ -43,8 +43,8 @@ class Sample:
         key : str
             The key/name of the TDirectory in the ROOT file input
             containing the sample data.
-        scaling_type : str
-            The scaling type for the sample. This can be either 'pot'
+        exposure_type : str
+            The exposure type for the sample. This can be either 'pot'
             or 'livetime'. This is used for matching the exposure of
             the sample to the target sample.
         trees : list
@@ -59,7 +59,7 @@ class Sample:
         None.
         """
         self._name = name
-        self._scaling_type = scaling_type
+        self._exposure_type = exposure_type
         self._file_handle = rf[f'events/{key}']
         self._exposure_pot = self._file_handle['POT'].to_numpy()[0][0]
         self._exposure_livetime = self._file_handle['Livetime'].to_numpy()[0][0]
@@ -113,7 +113,7 @@ class Sample:
         """
         if target is None:
             self._data['weight'] = 1
-        elif self._scaling_type == 'pot':
+        elif self._exposure_type == 'pot':
             self._data['weight'] = (target._exposure_pot / self._exposure_pot)
             print(f"Setting weight for {self._name} to {target._exposure_pot / self._exposure_pot:.2e}")
         else:
