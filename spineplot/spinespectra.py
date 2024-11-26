@@ -89,6 +89,22 @@ class SpineSpectra:
             else:
                 self._exposure = sample._exposure_livetime
 
+    def plot(self) -> None:
+        """
+        Plots the data for the SpineSpectra object. This is a base
+        method and contains only common plotting elements. The actual
+        plotting is done in the derived classes.
+
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        None.
+        """
+        self._figure = plt.figure()
+        self._ax = self._figure.add_subplot()
 
     def _mark_pot(self) -> None:
         """
@@ -227,8 +243,7 @@ class SpineSpectra1D(SpineSpectra):
         -------
         None.
         """
-        self._figure = plt.figure()
-        self._ax = self._figure.add_subplot()
+        super().plot()
         self._ax.set_xlabel(self._variable._xlabel)
         self._ax.set_ylabel('Candidates')
         self._ax.set_xlim(*self._variable._range)
@@ -389,19 +404,15 @@ class SpineSpectra2D(SpineSpectra):
         -------
         None.
         """
-        self._figure = plt.figure()
-        self._ax = self._figure.add_subplot()
+        super().plot()
         self._ax.set_xlabel(self._variables[0]._xlabel)
         self._ax.set_ylabel(self._variables[1]._xlabel)
-
-        # Simple 2D histogram representing the bin-sum over all categories
 
         if self._plotdata is not None:
             values = np.sum([v for v in self._plotdata.values()], axis=0)
             binedges = self._binedges[list(self._plotdata.keys())[0]]
             self._ax.imshow(values.T, extent=(binedges[0], binedges[-1], binedges[0], binedges[-1]), aspect='auto', origin='lower', cmap='cividis')
             self._figure.savefig(f'{name}.png')
-            # Unravel the values and binedges
             
     def plot_diagonal_reduction(self, style, name) -> None:
         """
@@ -419,8 +430,7 @@ class SpineSpectra2D(SpineSpectra):
         -------
         None.
         """
-        self._figure = plt.figure()
-        self._ax = self._figure.add_subplot()
+        super().plot()
         self._ax.set_xlabel(f'{self._variables[1]._xlabel} - {self._variables[0]._xlabel} / {self._variables[0]._xlabel}')
         self._ax.set_ylabel('Candidates')
 
