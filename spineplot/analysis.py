@@ -120,7 +120,7 @@ class Analysis:
 
         for name, s in self._spectra.items():
             for sample in self._samples.values():
-                s.add_sample(sample)
+                s.add_sample(sample, sample==ordinate)
 
             with self._styles[s._style] as style:
                 s.plot(style, name)

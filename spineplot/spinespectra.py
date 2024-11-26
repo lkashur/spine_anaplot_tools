@@ -64,6 +64,53 @@ class SpineSpectra:
         self._binedges = None
         self._onebincount = None
 
+    def add_sample(self, sample, is_ordinate) -> None:
+        """
+        Adds a sample to the SpineSpectra1D object. The sample's data
+        is extracted per category and stored for later plotting.
+        Multiple samples may have overlapping categories, so the data
+        is stored in a dictionary with the category as the key.
+
+        Parameters
+        ----------
+        sample : Sample
+            The sample to add to the SpineSpectra1D object.
+        is_ordinate : bool
+            A flag to indicate if the sample is the ordinate sample.
+
+        Returns
+        -------
+        None.
+        """
+        if is_ordinate:
+            self._exposure_type = sample._exposure_type
+            if self._exposure_type == 'pot':
+                self._exposure = sample._exposure_pot
+            else:
+                self._exposure = sample._exposure_livetime
+
+
+    def _mark_pot(self) -> None:
+        """
+        Add the POT information to the plot.
+
+        Parameters
+        ----------
+        None.
+
+        Returns
+        -------
+        None.
+        """
+        yrange = self._ax.get_ylim()
+        usey = yrange[1] + 0.02*(yrange[1] - yrange[0])
+        xrange = self._ax.get_xlim()
+        usex = xrange[1] - 0.02*(xrange[1] - xrange[0])
+        mag = int(np.floor(np.log10(self._exposure)))
+        usepot = self._exposure/10**mag
+        s = f'{usepot:.2f}'+f'$\\times 10^{{{mag}}}$ POT'
+        self._ax.text(x=usex, y=usey, s=s, fontsize=13, color='black', horizontalalignment='right')
+
 class SpineSpectra1D(SpineSpectra):
     """
     A class designed to encapsulate a single variable's spectrum for an
@@ -130,7 +177,7 @@ class SpineSpectra1D(SpineSpectra):
         self._variable = self._variables[0]
         self._category_types = category_types
 
-    def add_sample(self, sample) -> None:
+    def add_sample(self, sample, is_ordinate) -> None:
         """
         Adds a sample to the SpineSpectra1D object. The sample's data
         is extracted per category and stored for later plotting.
@@ -141,11 +188,14 @@ class SpineSpectra1D(SpineSpectra):
         ----------
         sample : Sample
             The sample to add to the SpineSpectra1D object.
+        is_ordinate : bool
+            A flag to indicate if the sample is the ordinate sample.
 
         Returns
         -------
         None.
         """
+        super().add_sample(sample, is_ordinate)
 
         if self._plotdata is None:
             self._plotdata = {}
@@ -210,6 +260,7 @@ class SpineSpectra1D(SpineSpectra):
                 self._ax.errorbar(bincenters[scatter_mask[i]], data[scatter_mask[i]], yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
         
         self._ax.legend()
+        self._mark_pot()
         self._figure.savefig(f'{name}.png')
 
 class SpineSpectra2D(SpineSpectra):
@@ -278,7 +329,7 @@ class SpineSpectra2D(SpineSpectra):
         self._plotdata_diagonal = None
         self._binedges_diagonal = None
 
-    def add_sample(self, sample) -> None:
+    def add_sample(self, sample, is_ordinate) -> None:
         """
         Adds a sample to the SpineSpectra2D object. The sample's data
         is extracted per category and stored for later plotting.
@@ -289,11 +340,15 @@ class SpineSpectra2D(SpineSpectra):
         ----------
         sample : Sample
             The sample to add to the SpineSpectra2D object.
+        is_ordinate : bool
+            A flag to indicate if the sample is the ordinate sample.
 
         Returns
         -------
         None.
         """
+        super().add_sample(sample, is_ordinate)
+
         if self._plotdata is None:
             self._plotdata = {}
             self._binedges = {}
