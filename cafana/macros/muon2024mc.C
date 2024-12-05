@@ -25,9 +25,9 @@
 
 void muon2024mc()
 {
-    ana::Analysis analysis("muon2024_1muNp_mc");
+    ana::Analysis analysis("muon2024_icarus");
 
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spinereco2024/allplanes/mc_v09_84_00_01/flat/*.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/nominal/flat/*.root");
     analysis.AddLoader("mc", &mc, true);
 
     /**
@@ -86,9 +86,16 @@ void muon2024mc()
     vars_selected_nu.insert({"reco_vertex_y", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_y, CUT, TCUT))});
     vars_selected_nu.insert({"true_vertex_z", ana::SpillMultiVar(SPINEVAR_RT(vars::vertex_z, CUT, TCUT))});
     vars_selected_nu.insert({"reco_vertex_z", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_z, CUT, TCUT))});
-    vars_selected_nu.insert({"muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_softmax, CUT, TCUT))});
-    vars_selected_nu.insert({"proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_softmax, CUT, TCUT))});
-    vars_selected_nu.insert({"mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_mip_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"muon_muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_muon_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"muon_pion_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_pion_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"muon_proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_proton_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"muon_mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_mip_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"muon_hadron_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_hadron_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"proton_muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_muon_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"proton_pion_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_pion_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"proton_proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_proton_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"proton_mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_mip_softmax, CUT, TCUT))});
+    vars_selected_nu.insert({"proton_hadron_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_hadron_softmax, CUT, TCUT))});
     vars_selected_nu.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_time, CUT, TCUT))});
     vars_selected_nu.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_total_pe, CUT, TCUT))});
     vars_selected_nu.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_hypothesis, CUT, TCUT))});
@@ -144,14 +151,51 @@ void muon2024mc()
     vars_selected_cos.insert({"reco_vertex_y", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_y, CUT, TCUT))});
     vars_selected_cos.insert({"true_vertex_z", ana::SpillMultiVar(SPINEVAR_RT(vars::vertex_z, CUT, TCUT))});
     vars_selected_cos.insert({"reco_vertex_z", ana::SpillMultiVar(SPINEVAR_RR(vars::vertex_z, CUT, TCUT))});
-    vars_selected_cos.insert({"muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_softmax, CUT, TCUT))});
-    vars_selected_cos.insert({"proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_softmax, CUT, TCUT))});
-    vars_selected_cos.insert({"mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_mip_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"muon_muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_muon_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"muon_pion_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_pion_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"muon_proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_proton_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"muon_mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_mip_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"muon_hadron_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_muon_hadron_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"proton_muon_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_muon_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"proton_pion_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_pion_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"proton_proton_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_proton_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"proton_mip_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_mip_softmax, CUT, TCUT))});
+    vars_selected_cos.insert({"proton_hadron_softmax", ana::SpillMultiVar(SPINEVAR_RR(vars::leading_proton_hadron_softmax, CUT, TCUT))});
     vars_selected_cos.insert({"flash_time", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_time, CUT, TCUT))});
     vars_selected_cos.insert({"flash_total", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_total_pe, CUT, TCUT))});
     vars_selected_cos.insert({"flash_hypothesis", ana::SpillMultiVar(SPINEVAR_RR(vars::flash_hypothesis, CUT, TCUT))});
 
     analysis.AddTree("selectedCos", vars_selected_cos, false);
+
+    #undef TCUT
+    #define TCUT cuts::neutrino
+    std::map<std::string, ana::SpillMultiVar> vars_purity_nu;
+    vars_purity_nu.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_id, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::muon2024::category, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"fiducial_cut", ana::SpillMultiVar(SPINEVAR_RR(cuts::fiducial_cut, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"containment_cut", ana::SpillMultiVar(SPINEVAR_RR(cuts::containment_cut, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"flash_cut_bnb", ana::SpillMultiVar(SPINEVAR_RR(cuts::flash_cut_bnb, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"has_no_charged_pions", ana::SpillMultiVar(SPINEVAR_RR(cuts::no_charged_pions, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"has_no_showers", ana::SpillMultiVar(SPINEVAR_RR(cuts::no_showers, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"has_single_muon", ana::SpillMultiVar(SPINEVAR_RR(cuts::has_single_muon, cuts::no_cut, TCUT))});
+    vars_purity_nu.insert({"has_multiple_protons", ana::SpillMultiVar(SPINEVAR_RR(cuts::has_nonzero_protons, cuts::no_cut, TCUT))});
+
+    analysis.AddTree("purityNu", vars_purity_nu, false);
+
+    #undef TCUT
+    #define TCUT cuts::cosmic
+    std::map<std::string, ana::SpillMultiVar> vars_purity_cos;
+    vars_purity_cos.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_RT(vars::neutrino_id, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"category", ana::SpillMultiVar(SPINEVAR_RT(vars::muon2024::category, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"fiducial_cut", ana::SpillMultiVar(SPINEVAR_RR(cuts::fiducial_cut, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"containment_cut", ana::SpillMultiVar(SPINEVAR_RR(cuts::containment_cut, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"flash_cut_bnb", ana::SpillMultiVar(SPINEVAR_RR(cuts::flash_cut_bnb, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"has_no_charged_pions", ana::SpillMultiVar(SPINEVAR_RR(cuts::no_charged_pions, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"has_no_showers", ana::SpillMultiVar(SPINEVAR_RR(cuts::no_showers, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"has_single_muon", ana::SpillMultiVar(SPINEVAR_RR(cuts::has_single_muon, cuts::no_cut, TCUT))});
+    vars_purity_cos.insert({"has_multiple_protons", ana::SpillMultiVar(SPINEVAR_RR(cuts::has_nonzero_protons, cuts::no_cut, TCUT))});
+
+    analysis.AddTree("purityCos", vars_purity_cos, false);
 
     /**
      * @brief Add a set of variables for signal interactions to the analysis.
@@ -188,6 +232,23 @@ void muon2024mc()
     vars_signal.insert({"true_vertex_x", ana::SpillMultiVar(SPINEVAR_TT(vars::vertex_x, SIGCUT))});
     vars_signal.insert({"true_vertex_y", ana::SpillMultiVar(SPINEVAR_TT(vars::vertex_y, SIGCUT))});
     vars_signal.insert({"true_vertex_z", ana::SpillMultiVar(SPINEVAR_TT(vars::vertex_z, SIGCUT))});
+    vars_signal.insert({"muon_muon_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_muon_muon_softmax, SIGCUT))});
+    vars_signal.insert({"muon_pion_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_muon_pion_softmax, SIGCUT))});
+    vars_signal.insert({"muon_proton_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_muon_proton_softmax, SIGCUT))});
+    vars_signal.insert({"muon_mip_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_muon_mip_softmax, SIGCUT))});
+    vars_signal.insert({"muon_hadron_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_muon_hadron_softmax, SIGCUT))});
+    vars_signal.insert({"proton_muon_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_proton_muon_softmax, SIGCUT))});
+    vars_signal.insert({"proton_pion_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_proton_pion_softmax, SIGCUT))});
+    vars_signal.insert({"proton_proton_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_proton_proton_softmax, SIGCUT))});
+    vars_signal.insert({"proton_mip_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_proton_mip_softmax, SIGCUT))});
+    vars_signal.insert({"proton_hadron_softmax", ana::SpillMultiVar(SPINEVAR_TR(vars::leading_proton_hadron_softmax, SIGCUT))});
+    vars_signal.insert({"fiducial_cut", ana::SpillMultiVar(SPINEVAR_TR(cuts::fiducial_cut, SIGCUT))});
+    vars_signal.insert({"containment_cut", ana::SpillMultiVar(SPINEVAR_TR(cuts::containment_cut, SIGCUT))});
+    vars_signal.insert({"flash_cut_bnb", ana::SpillMultiVar(SPINEVAR_TR(cuts::flash_cut_bnb, SIGCUT))});
+    vars_signal.insert({"has_no_charged_pions", ana::SpillMultiVar(SPINEVAR_TR(cuts::no_charged_pions, SIGCUT))});
+    vars_signal.insert({"has_no_showers", ana::SpillMultiVar(SPINEVAR_TR(cuts::no_showers, SIGCUT))});
+    vars_signal.insert({"has_single_muon", ana::SpillMultiVar(SPINEVAR_TR(cuts::has_single_muon, SIGCUT))});
+    vars_signal.insert({"has_multiple_protons", ana::SpillMultiVar(SPINEVAR_TR(cuts::has_nonzero_protons, SIGCUT))});
     
     analysis.AddTree("signal", vars_signal, true);
 
