@@ -134,8 +134,8 @@ class Analysis:
                 if type(s) == SpineSpectra2D:
                     s.plot_diagonal_reduction(style, self._output_path, name)
 
-    @classmethod
-    def handle_include(self, config, table):
+    @staticmethod
+    def handle_include(config, table):
         """
         Handles the inclusion of other configuration files in the main
         configuration file. The include directive may also contain some
