@@ -23,5 +23,5 @@ category_types = ['histogram', 'histogram', 'histogram', 'histogram']
 
 [spectra1D]
 [spectra1D.reco_visible_energy]
-style = 'selected'
+style = 'selected_sbnd'
 variable = 'reco_visible_energy'

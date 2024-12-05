@@ -9,6 +9,14 @@ class Style:
     ----------
     _style : str
         The name of the style sheet to use for the plot.
+    _title : str
+        The title to place at the top of the plot.
+    _mark_pot : bool
+        A flag toggling the display of the total POT (exposure) at the
+        top of the plot above the axis and below the title.
+    _mark_preliminary : str
+        A string to be used a label to indicate that the plot is
+        preliminary. If None, no label is added.
     _show_component_number : bool
         A flag toggling the display of the total number of selected
         interactions per component in the legend.
@@ -19,7 +27,7 @@ class Style:
         A flag toggling the inversion of the stack order for the
         components in the histogram.
     """
-    def __init__(self, style_sheet, show_component_number, show_component_percentage, invert_stack_order) -> None:
+    def __init__(self, style_sheet, title, mark_pot, mark_preliminary, show_component_number, show_component_percentage, invert_stack_order) -> None:
         """
         Initializes the Style object with the given kwargs.
 
@@ -27,6 +35,14 @@ class Style:
         ----------
         style_sheet : str
             The name of the style sheet to use for the plot.
+        title : str
+            The title to place at the top of the plot.
+        mark_pot : bool
+            A flag toggling the display of the total POT (exposure) at the
+            top of the plot above the axis and below the title.
+        mark_preliminary : str
+            A string to be used a label to indicate that the plot is
+            preliminary. If None, no label is added.
         show_component_number : bool
             A flag toggling the display of the total number of selected
             interactions per component in the legend.
@@ -42,6 +58,9 @@ class Style:
         None
         """
         self._style = style_sheet
+        self._title = None if title == 'none' else title
+        self._mark_pot = mark_pot
+        self._mark_preliminary = None if mark_preliminary == 'none' else mark_preliminary
         self._show_component_number = show_component_number
         self._show_component_percentage = show_component_percentage
         self._invert_stack_order = invert_stack_order
@@ -76,6 +95,50 @@ class Style:
         None
         """
         plt.style.use('default')
+
+    def get_style(self) -> str:
+        """
+        Returns the value of the style attribute.
+
+        Returns
+        -------
+        str
+            The value of the style attribute.
+        """
+        return self._style
+
+    def get_title(self) -> str:
+        """
+        Returns the value of the title attribute.
+
+        Returns
+        -------
+        str
+            The value of the title attribute.
+        """
+        return self._title
+    
+    def get_mark_pot(self) -> bool:
+        """
+        Returns the value of the mark_pot attribute.
+
+        Returns
+        -------
+        bool
+            The value of the mark_pot attribute.
+        """
+        return self._mark_pot
+    
+    def get_mark_preliminary(self) -> str:
+        """
+        Returns the value of the mark_preliminary attribute.
+
+        Returns
+        -------
+        str
+            The value of the mark_preliminary attribute.
+        """
+        return self._mark_preliminary
 
     def get_show_component_number(self) -> bool:
         """

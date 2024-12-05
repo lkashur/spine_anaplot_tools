@@ -127,6 +127,26 @@ class SpineSpectra:
         s = f'{usepot:.2f}'+f'$\\times 10^{{{mag}}}$ POT'
         self._ax.text(x=usex, y=usey, s=s, fontsize=13, color='black', horizontalalignment='right')
 
+    def _mark_preliminary(self, label) -> None:
+        """
+        Add a preliminary label to the plot.
+
+        Parameters
+        ----------
+        label : str
+            The label to add to the plot to indicate that the plot is
+            preliminary.
+
+        Returns
+        -------
+        None.
+        """
+        yrange = self._ax.get_ylim()
+        usey = yrange[1] + 0.025*(yrange[1] - yrange[0])
+        xrange = self._ax.get_xlim()
+        usex = xrange[0] + 0.025*(xrange[1] - xrange[0])
+        self._ax.text(x=usex, y=usey, s=label, fontsize=14, color='#d67a11')
+
 class SpineSpectra1D(SpineSpectra):
     """
     A class designed to encapsulate a single variable's spectrum for an
@@ -279,6 +299,12 @@ class SpineSpectra1D(SpineSpectra):
                 self._ax.errorbar(bincenters[scatter_mask[i]], data[scatter_mask[i]], yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
         
         self._ax.legend()
+        if style.get_mark_pot():
+            self._mark_pot()
+        if style.get_mark_preliminary() is not None:
+            self._mark_preliminary(style.get_mark_preliminary())
+        if style.get_title() is not None:
+            self._ax.set_title(style.get_title())
         self._figure.savefig(f'{path}/{name}.png')
 
 class SpineSpectra2D(SpineSpectra):
