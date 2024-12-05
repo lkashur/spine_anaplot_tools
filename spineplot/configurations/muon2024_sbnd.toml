@@ -1,0 +1,24 @@
+[[this_includes]]
+file = 'configurations/common/variables.toml'
+
+[[this_includes]]
+file = 'configurations/common/styles.toml'
+
+[samples]
+[samples.sbnd]
+key = "sbnd"
+exposure_type = "pot"
+trees = ['selectedNu','selectedCos']
+
+[analysis]
+ordinate_sample = 'sbnd'
+category_branch = 'category'
+category_assignment = [[0,2], [1,3,4,5], [6], [-1,7]]
+category_labels = ['1$\mu$Np', 'Other CC $\nu$', 'NC $\nu$', 'Cosmic']
+category_colors = ['C0', 'C1', 'C3', 'C4']
+category_types = ['histogram', 'histogram', 'histogram', 'histogram']
+
+[spectra1D]
+[spectra1D.reco_visible_energy]
+style = 'selected'
+variable = 'reco_visible_energy'
