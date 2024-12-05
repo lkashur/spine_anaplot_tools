@@ -230,7 +230,7 @@ class SpineSpectra1D(SpineSpectra):
             self._plotdata[self._categories[category]] += h[0]
             self._binedges[self._categories[category]] = h[1]
 
-    def plot(self, style, name) -> None:
+    def plot(self, style, path, name) -> None:
         """
         Plots the data for the SpineSpectra1D object.
 
@@ -238,6 +238,10 @@ class SpineSpectra1D(SpineSpectra):
         ----------
         style : Style
             The Style object to use for the plot.
+        path : str
+            The path to the output directory.
+        name : str
+            The name of the output image file.
 
         Returns
         -------
@@ -275,8 +279,7 @@ class SpineSpectra1D(SpineSpectra):
                 self._ax.errorbar(bincenters[scatter_mask[i]], data[scatter_mask[i]], yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
         
         self._ax.legend()
-        self._mark_pot()
-        self._figure.savefig(f'{name}.png')
+        self._figure.savefig(f'{path}/{name}.png')
 
 class SpineSpectra2D(SpineSpectra):
     """
@@ -389,7 +392,7 @@ class SpineSpectra2D(SpineSpectra):
             self._binedges_diagonal[self._categories[category]] = h[1]
         
 
-    def plot(self, style, name) -> None:
+    def plot(self, style, path, name) -> None:
         """
         Plots the data for the SpineSpectra2D object.
 
@@ -397,8 +400,10 @@ class SpineSpectra2D(SpineSpectra):
         ----------
         style : Style
             The Style object to use for the plot.
+        path : str
+            The path to the output directory
         name : str
-            The name of the output file.
+            The name of the output image file.
         
         Returns
         -------
@@ -412,9 +417,9 @@ class SpineSpectra2D(SpineSpectra):
             values = np.sum([v for v in self._plotdata.values()], axis=0)
             binedges = self._binedges[list(self._plotdata.keys())[0]]
             self._ax.imshow(values.T, extent=(binedges[0], binedges[-1], binedges[0], binedges[-1]), aspect='auto', origin='lower', cmap='cividis')
-            self._figure.savefig(f'{name}.png')
+            self._figure.savefig(f'{path}/{name}.png')
             
-    def plot_diagonal_reduction(self, style, name) -> None:
+    def plot_diagonal_reduction(self, style, path, name) -> None:
         """
         Plots the data for the SpineSpectra2D object with a diagonal
         reduction.
@@ -423,8 +428,10 @@ class SpineSpectra2D(SpineSpectra):
         ----------
         style : Style
             The Style object to use for the plot.
+        path : str
+            The path to the output directory.
         name : str
-            The name of the output file.
+            The name of the output image file.
         
         Returns
         -------
@@ -440,4 +447,4 @@ class SpineSpectra2D(SpineSpectra):
             bincenters = [self._binedges_diagonal[l][:-1] + np.diff(self._binedges_diagonal[l]) / 2 for l in labels]
 
             self._ax.hist(bincenters, weights=data, bins=self._variables[0]._nbins, range=(-4,4), histtype='barstacked', label=labels, color=colors, stacked=True)
-            self._figure.savefig(f'{name}_diag.png')
+            self._figure.savefig(f'{path}/{name}_diag.png')

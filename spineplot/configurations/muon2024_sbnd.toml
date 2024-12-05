@@ -4,6 +4,9 @@ file = 'configurations/common/variables.toml'
 [[this_includes]]
 file = 'configurations/common/styles.toml'
 
+[output]
+path = '/exp/icarus/app/users/mueller/spineprod/plots/sbnd/allplanes_old'
+
 [samples]
 [samples.sbnd]
 key = "sbnd"

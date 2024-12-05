@@ -8,6 +8,9 @@ choose = {'samples' = ['mc', 'offbeam', 'onbeam']}
 [[this_includes]]
 file = 'configurations/common/styles.toml'
 
+[output]
+path = '/exp/icarus/app/users/mueller/spineprod/plots/icarus/allplanes_old'
+
 [analysis]
 ordinate_sample = 'onbeam'
 category_branch = 'category'

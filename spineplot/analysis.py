@@ -20,6 +20,8 @@ class Analysis:
         The path to the TOML configuration file for the analysis.
     _config : dict
         The configuration dictionary loaded from the TOML file.
+    _output_path : str
+        The path to the output directory for the analysis.
     _ordinate_sample : str
         The name of the sample to use as the ordinate for the analysis.
     _category_tree : str
@@ -46,6 +48,11 @@ class Analysis:
         for table in self._config['this_includes']:
             Analysis.handle_include(self._config, table)
         rf = uproot.open(rf_path)
+
+        # Load the output path
+        if 'output' not in self._config.keys():
+            raise ConfigException(f"No output path defined in the TOML file. Please check for a valid output configuration block in the TOML file ('{toml_path}').")
+        self._output_path = self._config['output']['path']
 
         # Load the categories table
         self._categories = dict()
@@ -123,9 +130,9 @@ class Analysis:
                 s.add_sample(sample, sample==ordinate)
 
             with self._styles[s._style] as style:
-                s.plot(style, name)
+                s.plot(style, self._output_path, name)
                 if type(s) == SpineSpectra2D:
-                    s.plot_diagonal_reduction(style, name)
+                    s.plot_diagonal_reduction(style, self._output_path, name)
 
     @classmethod
     def handle_include(self, config, table):
