@@ -41,7 +41,7 @@ void example()
      * AddLoader function is used to create a directory in the output ROOT file
      * to store the results of the analysis.
      */
-    ana::SpectrumLoader var00("/exp/icarus/app/users/mueller/spineprod/spine_cafmaker/build/merged.flat.root");
+    ana::SpectrumLoader var00("/pnfs/icarus/persistent/users/mueller/fall2024/nominal/flat/*.root");
     analysis.AddLoader("nominal", &var00, true);
     
     /**
@@ -94,6 +94,9 @@ void example()
     std::map<std::string, ana::SpillMultiVar> vars_signal;
     vars_signal.insert({"nu_id", ana::SpillMultiVar(SPINEVAR_TT(vars::neutrino_id, SIGCUT))});
     vars_signal.insert({"category", ana::SpillMultiVar(SPINEVAR_TT(vars::neutrino_interaction_mode, SIGCUT))});
+    vars_signal.insert({"fiducial_cut", ana::SpillMultiVar(SPINEVAR_TR(cuts::fiducial_cut, SIGCUT))});
+    vars_signal.insert({"containment_cut", ana::SpillMultiVar(SPINEVAR_TR(cuts::containment_cut, SIGCUT))});
+    vars_signal.insert({"flash_cut_bnb", ana::SpillMultiVar(SPINEVAR_TR(cuts::flash_cut_bnb, SIGCUT))});
     analysis.AddTree("signalNu", vars_signal, true);
 
     /**
