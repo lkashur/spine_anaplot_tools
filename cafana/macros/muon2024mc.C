@@ -27,7 +27,7 @@ void muon2024mc()
 {
     ana::Analysis analysis("muon2024_icarus");
 
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/nominal/flat/*.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/nominal_primaryonly/flat/*.root");
     analysis.AddLoader("mc", &mc, true);
 
     /**
