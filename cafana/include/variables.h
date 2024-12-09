@@ -356,6 +356,39 @@ namespace vars
         }
 
     /**
+     * @brief Variable for the primary softmax score of the leading muon.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle "primary-ness."
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the primary softmax score of the leading muon.
+     */
+    template<class T>
+        double leading_muon_primary_softmax(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.primary_scores[1];
+        }
+
+    /**
+     * @brief Variable for the secondary softmax score of the leading muon.
+     * @details The leading muon is defined as the muon with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle "secondary-ness," which denotes a particle that
+     * is not a primary particle.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the secondary softmax score of the leading muon.
+     */
+    template<class T>
+        double leading_muon_secondary_softmax(const T & obj)
+        {
+            auto & m(obj.particles[utilities::leading_particle_index(obj, 2)]);
+            return m.primary_scores[0];
+        }
+
+    /**
      * @brief Variable for the muon softmax score of the leading muon.
      * @details The leading muon is defined as the muon with the highest
      * kinetic energy. The softmax score can be thought of as a "confidence"
@@ -435,6 +468,39 @@ namespace vars
         {
             auto & p(obj.particles[utilities::leading_particle_index(obj, 2)]);
             return p.pid_scores[3] + p.pid_scores[4];
+        }
+
+    /**
+     * @brief Variable for the primary softmax score of the leading proton.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle "primary-ness."
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the primary softmax score of the leading proton.
+     */
+    template<class T>
+        double leading_proton_primary_softmax(const T & obj)
+        {
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
+            return p.primary_scores[1];
+        }
+
+    /**
+     * @brief Variable for the secondary softmax score of the leading proton.
+     * @details The leading proton is defined as the proton with the highest
+     * kinetic energy. The softmax score can be thought of as a "confidence"
+     * value for the particle "secondary-ness," which denotes a particle that
+     * is not a primary particle.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the secondary softmax score of the leading proton.
+     */
+    template<class T>
+        double leading_proton_secondary_softmax(const T & obj)
+        {
+            auto & p(obj.particles[utilities::leading_particle_index(obj, 4)]);
+            return p.primary_scores[0];
         }
 
     /**
