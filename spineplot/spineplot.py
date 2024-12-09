@@ -3,7 +3,6 @@ from analysis import Analysis
 
 def main(config, input):
     ana = Analysis(config, input)
-    ana.override_exposure("offbeam", 534163 * (0.0309638 / 0.0240737) * (1.92082e19 / 159049), exposure_type='pot')
     ana.run()
 
 
