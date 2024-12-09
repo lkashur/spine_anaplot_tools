@@ -3,13 +3,13 @@
 [variables.true_visible_energy]
 key = "true_edep"
 range = [0, 3]
-nbins = 50
+nbins = 25
 xlabel = "True Visible Energy [GeV]"
 
 [variables.reco_visible_energy]
 key = "reco_edep"
 range = [0, 3]
-nbins = 50
+nbins = 25
 xlabel = "Reconstructed Visible Energy [GeV]"
 
 [variables.true_interaction_pt]
