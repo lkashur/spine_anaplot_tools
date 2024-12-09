@@ -1,5 +1,5 @@
 /**
- * @file cuts.h
+ * @file particle_cuts.h
  * @brief Header file for definitions of analysis cuts.
  * @details This file contains definitions of analysis cuts which can be used
  * to select particles. Each cut is implemented as a function which takes an
