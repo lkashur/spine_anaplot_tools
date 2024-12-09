@@ -4,6 +4,11 @@ key = "mc"
 exposure_type = "pot"
 trees = ['selectedNu',]
 
+[samples.mcsignal]
+key = "mc"
+exposure_type = "pot"
+trees = ['signal',]
+
 [samples.offbeam]
 key = "offbeam"
 exposure_type = "pot"
