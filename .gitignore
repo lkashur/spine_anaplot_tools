@@ -6,5 +6,6 @@
 *ACLiC*
 *.log
 *.cpython*
+*dev.*
 
 build/
