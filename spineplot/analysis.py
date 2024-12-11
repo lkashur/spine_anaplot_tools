@@ -157,9 +157,16 @@ class Analysis:
         None.
         """
         with open(table['file'], 'r') as f:
+            c = toml.load(f)
             if 'choose' in table.keys():
                 for key, value in table['choose'].items():
-                    c = toml.load(f)
-                    config[key] = {v: c[key][v] for v in value}
+                    if key in config.keys():
+                        config[key].update({k: c[key][k] for k in value})
+                    else:
+                        config[key] = {v: c[key][v] for v in value}
             else:
-                config.update(toml.load(f))
+                for key, value in c.items():
+                    if key in config.keys():
+                        config[key].update(value)
+                    else:
+                        config[key] = value
