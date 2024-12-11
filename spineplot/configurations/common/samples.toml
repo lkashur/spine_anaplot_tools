@@ -2,7 +2,7 @@
 [samples.mc]
 key = "mc"
 exposure_type = "pot"
-trees = ['selectedNu',]
+trees = ['selectedNu','selectedCos']
 
 [samples.mcsignal]
 key = "mc"
