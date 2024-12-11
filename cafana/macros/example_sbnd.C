@@ -41,8 +41,11 @@ void example_sbnd()
      * AddLoader function is used to create a directory in the output ROOT file
      * to store the results of the analysis.
      */
-    ana::SpectrumLoader sbnd("/pnfs/icarus/persistent/users/mueller/sbnd/larcv_sbnd_bnb_cosmics_spine.flat.root");
-    analysis.AddLoader("sbnd", &sbnd, true);
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/sbnd/larcv_sbnd_bnb_cosmics_spine.flat.root");
+    analysis.AddLoader("mc", &mc, true);
+
+    ana::SpectrumLoader intime("/pnfs/icarus/persistent/users/mueller/sbnd/larcv_sbnd_intime_spine.flat.root");
+    analysis.AddLoader("intime", &intime, true);
     
     /**
      * @brief Add a set of variables for selected interactions to the analysis.
