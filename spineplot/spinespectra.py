@@ -291,14 +291,21 @@ class SpineSpectra1D(SpineSpectra):
             elif style.get_show_component_percentage():
                 labels = [f'{label} ({np.sum(d)/denominator:.2%})' if li in histogram_mask else label for li, (label, d) in enumerate(zip(labels, counts))]
 
-            reduce = lambda x : [x[i] for i in histogram_mask]
+            if style.get_invert_stack_order():
+                reduce = lambda x : [x[i] for i in histogram_mask[::-1]]
+            else:
+                reduce = lambda x : [x[i] for i in histogram_mask]
             self._ax.hist(reduce(bincenters), weights=reduce(data), bins=self._variable._nbins, range=self._variable._range, histtype='barstacked', label=reduce(labels), color=reduce(colors), stacked=True)
 
             reduce = lambda x : [x[i] for i in scatter_mask]
             for i, label in enumerate(reduce(labels)):
                 self._ax.errorbar(bincenters[scatter_mask[i]], data[scatter_mask[i]], yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
         
-        self._ax.legend()
+        if style.get_invert_stack_order():
+            h, l = self._ax.get_legend_handles_labels()
+            self._ax.legend(h[::-1], l[::-1])
+        else:
+            self._ax.legend()
         if style.get_mark_pot():
             self._mark_pot()
         if style.get_mark_preliminary() is not None:
