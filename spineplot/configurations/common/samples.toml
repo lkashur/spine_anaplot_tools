@@ -19,3 +19,8 @@ key = "onbeam"
 exposure_type = "pot"
 override_category = -100
 trees = ['selectedNu',]
+
+[samples.intime]
+key = "intime"
+exposure_type = "livetime"
+trees = ['selectedCos',]
