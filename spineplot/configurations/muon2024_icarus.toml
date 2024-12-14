@@ -9,7 +9,7 @@ choose = {'samples' = ['mc', 'offbeam', 'onbeam']}
 file = 'configurations/common/styles.toml'
 
 [output]
-path = '/exp/icarus/app/users/mueller/spineprod/plots/icarus/allplanes_old'
+path = '/exp/icarus/app/users/mueller/spineprod/plots/dev'
 
 [analysis]
 ordinate_sample = 'onbeam'
@@ -19,16 +19,9 @@ category_labels = ['1$\mu$Np', 'Other CC $\nu$', 'NC $\nu$', 'Cosmic', 'Run 2 Da
 category_colors = ['C0', 'C1', 'C3', 'C4', 'C2']
 category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'scatter']
 
-[spectra1D]
-[spectra1D.reco_visible_energy]
+[[figure]]
+name = 'reco_visible_energy'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'reco_visible_energy'},]
 style = 'selected_icarus'
-variable = 'reco_visible_energy'
-
-[spectra2D]
-[spectra2D.visible_energy]
-style = 'selected_icarus'
-variables = ['true_visible_energy', 'reco_visible_energy']
-
-[spectra2D.interaction_pt]
-style = 'selected_icarus'
-variables = ['true_interaction_pt', 'reco_interaction_pt']
+figsize = [8,6]

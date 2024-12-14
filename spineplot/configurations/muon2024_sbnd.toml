@@ -6,7 +6,7 @@ file = 'configurations/common/styles.toml'
 
 [[this_includes]]
 file = 'configurations/common/samples.toml'
-choose = {'samples' = ['mc',]}
+choose = {'samples' = ['mc','intime']}
 
 [output]
 path = '/exp/icarus/app/users/mueller/spineprod/plots/sbnd/allplanes/'
@@ -19,7 +19,9 @@ category_labels = ['1$\mu$Np', 'Other CC $\nu$', 'NC $\nu$', 'Cosmic']
 category_colors = ['C0', 'C1', 'C3', 'C4']
 category_types = ['histogram', 'histogram', 'histogram', 'histogram']
 
-[spectra1D]
-[spectra1D.reco_visible_energy]
+[[figure]]
+name = 'reco_visible_energy'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'reco_visible_energy'},]
 style = 'selected_sbnd'
-variable = 'reco_visible_energy'
+figsize = [8,6]

@@ -1,10 +1,12 @@
 import toml
 import uproot
+from matplotlib import pyplot as plt
+
 from sample import Sample
-from spinespectra import SpineSpectra1D, SpineSpectra2D
+from figure import SimpleFigure
+from spectra1d import SpineSpectra1D
 from style import Style
 from variable import Variable
-from matplotlib import pyplot as plt
 
 class ConfigException(Exception):
     pass
@@ -76,15 +78,21 @@ class Analysis:
             raise ConfigException(f"No variables defined in the TOML file. Please check for a valid variable configuration block (table='variables') in the TOML file ('{toml_path}').")
         self._variables = {name: Variable(name, **self._config['variables'][name]) for name in self._config['variables']}
 
-        # Load the plots table and initialize the SpineSpectra1D objects
-        if 'spectra1D' not in self._config.keys():
-            raise ConfigException(f"No plots defined in the TOML file. Please check for a valid plot configuration block (table='plots') in the TOML file ('{toml_path}').")
-        self._spectra = {name: SpineSpectra1D(v['style'], self._variables[v['variable']], self._categories, self._colors, self._category_types) for name, v in self._config['spectra1D'].items()}
+        # Load the artists table
+        if 'figure' not in self._config.keys():
+            raise ConfigException(f"No figures defined in the TOML file. Please check for a valid figure configuration block (table='figure') in the TOML file ('{toml_path}').")
+        self._figures = dict()
+        self._artists = list()
+        for fig in self._config['figure']:
+            if fig['type'] == 'SimpleFigure':
+                with self._styles[fig['style']] as style:
+                    self._figures[fig['name']] = SimpleFigure(style, fig['figsize'])
+                    for x in fig['artists']:
+                        if x['type'] == 'SpineSpectra1D':
+                            art = SpineSpectra1D(self._variables[x['variable']], self._categories, self._colors, self._category_types)
+                            self._figures[fig['name']].register_spine_artist(art)
+                            self._artists.append(art)
 
-        # Load the plots table and initialize the SpineSpectra2D objects
-        if 'spectra2D' in self._config.keys():
-            self._spectra.update({name: SpineSpectra2D(v['style'], [self._variables[x] for x in v['variables']], self._categories, self._colors, self._category_types) for name, v in self._config['spectra2D'].items()})
-    
     def override_exposure(self, sample_name, exposure, exposure_type='pot') -> None:
         """
         Overrides the exposure for the given sample. This is useful for
@@ -125,14 +133,13 @@ class Analysis:
         for s in self._samples.values():
             s.set_weight(target=ordinate)
 
-        for name, s in self._spectra.items():
+        for artist in self._artists:
             for sample in self._samples.values():
-                s.add_sample(sample, sample==ordinate)
+                artist.add_sample(sample, sample==ordinate)
 
-            with self._styles[s._style] as style:
-                s.plot(style, self._output_path, name)
-                if type(s) == SpineSpectra2D:
-                    s.plot_diagonal_reduction(style, self._output_path, name)
+        for figname, figure in self._figures.items():
+            figure.create()
+            figure.figure.savefig(f"{self._output_path}/{figname}.png")
 
     @staticmethod
     def handle_include(config, table):
