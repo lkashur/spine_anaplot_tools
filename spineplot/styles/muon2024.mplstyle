@@ -15,7 +15,7 @@ axes.linewidth: 1.0
 axes.labelsize: xx-large
 axes.titlesize: 36
 # adding an additional padding, tuned based on an example plot and giving room for the preliminary/POT labels, etc.
-axes.titlepad: 24
+axes.titlepad: 28
 
 ## PATCHES
 # DUNE claims histograms are patches
