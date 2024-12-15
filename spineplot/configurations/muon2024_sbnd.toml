@@ -24,4 +24,3 @@ name = 'reco_visible_energy'
 type = 'SimpleFigure'
 artists = [{'type' = 'SpineSpectra1D', 'variable' = 'reco_visible_energy'},]
 style = 'selected_sbnd'
-figsize = [8,6]

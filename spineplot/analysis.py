@@ -86,7 +86,7 @@ class Analysis:
         for fig in self._config['figure']:
             if fig['type'] == 'SimpleFigure':
                 with self._styles[fig['style']] as style:
-                    self._figures[fig['name']] = SimpleFigure(style, fig['figsize'])
+                    self._figures[fig['name']] = SimpleFigure(style, fig.get('figsize', style.default_figsize))
                     for x in fig['artists']:
                         if x['type'] == 'SpineSpectra1D':
                             art = SpineSpectra1D(self._variables[x['variable']], self._categories, self._colors, self._category_types)

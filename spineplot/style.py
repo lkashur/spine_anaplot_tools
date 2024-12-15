@@ -9,6 +9,8 @@ class Style:
     ----------
     _style : str
         The name of the style sheet to use for the plot.
+    _default_figsize : tuple
+        The default size of the figure to create.
     _title : str
         The title to place at the top of the plot.
     _mark_pot : bool
@@ -27,7 +29,7 @@ class Style:
         A flag toggling the inversion of the stack order for the
         components in the histogram.
     """
-    def __init__(self, style_sheet, title, mark_pot, mark_preliminary, show_component_number, show_component_percentage, invert_stack_order) -> None:
+    def __init__(self, style_sheet, default_figsize, title, mark_pot, mark_preliminary, show_component_number, show_component_percentage, invert_stack_order) -> None:
         """
         Initializes the Style object with the given kwargs.
 
@@ -35,6 +37,8 @@ class Style:
         ----------
         style_sheet : str
             The name of the style sheet to use for the plot.
+        default_figsize : tuple
+            The default size of the figure to create.
         title : str
             The title to place at the top of the plot.
         mark_pot : bool
@@ -58,6 +62,7 @@ class Style:
         None
         """
         self._style = style_sheet
+        self._default_figsize = default_figsize
         self._title = None if title == 'none' else title
         self._mark_pot = mark_pot
         self._mark_preliminary = None if mark_preliminary == 'none' else mark_preliminary
@@ -106,6 +111,18 @@ class Style:
             The value of the style attribute.
         """
         return self._style
+    
+    @property
+    def default_figsize(self):
+        """
+        Returns the value of the default_figsize attribute.
+
+        Returns
+        -------
+        tuple
+            The value of the default_figsize attribute.
+        """
+        return self._default_figsize
 
     def get_title(self) -> str:
         """
