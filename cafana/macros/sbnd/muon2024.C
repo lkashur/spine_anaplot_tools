@@ -22,7 +22,7 @@
 #include "TDirectory.h"
 #include "TFile.h"
 
-void example_sbnd()
+void muon2024()
 {
     /**
      * @brief Create an instance of the Analysis class.

@@ -22,7 +22,7 @@
 #include "TDirectory.h"
 #include "TFile.h"
 
-void muon2024mc()
+void muon2024()
 {
     ana::Analysis analysis("muon2024_rev2_icarus_v4");
 
