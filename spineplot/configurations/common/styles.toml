@@ -27,7 +27,7 @@ mark_pot = true
 mark_preliminary = '$\bf{SBND}$ Simulation Work-in-Progress'
 show_component_number = true
 show_component_percentage = true
-invert_stack_order = true
+invert_stack_order = false
 
 [styles.signal_sbnd]
 style_sheet = "styles/muon2024.mplstyle"
