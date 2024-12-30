@@ -227,6 +227,32 @@ namespace pvars
         {
             return p.end_point[2];
         }
+
+    /**
+     * @brief Variable for the photon softmax score of the particle.
+     * @details The photon softmax score represents the confidence that the
+     * network has in the particle being a photon. The score is between 0 and 1,
+     * with 1 being the most confident that the particle is a photon.
+     * @param p the particle to apply the variable on.
+     * @return the photon softmax score of the particle.
+     */
+    double photon_softmax(const caf::SRParticleDLPProxy & p)
+    {
+        return p.pid_scores[0];
+    }
+
+    /**
+     * @brief Variable for the electron softmax score of the particle.
+     * @details The electron softmax score represents the confidence that the
+     * network has in the particle being an electron. The score is between 0 and 1,
+     * with 1 being the most confident that the particle is an electron.
+     * @param p the particle to apply the variable on.
+     * @return the electron softmax score of the particle.
+     */
+    double electron_softmax(const caf::SRParticleDLPProxy & p)
+    {
+        return p.pid_scores[1];
+    }
     
     /**
      * @brief Variable for the muon softmax score of the particle.
