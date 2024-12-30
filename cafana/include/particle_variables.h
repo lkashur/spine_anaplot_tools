@@ -148,6 +148,48 @@ namespace pvars
         }
 
     /**
+     * @brief Variable for the x-coordinate of the particle starting point.
+     * @details The starting point is the point at which the particle is created
+     * and is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the x-coordinate of the particle starting point.
+     */
+    template<class T>
+        double start_x(const T & p)
+        {
+            return p.start_point[0];
+        }
+
+    /**
+     * @brief Variable for the y-coordinate of the particle starting point.
+     * @details The starting point is the point at which the particle is created
+     * and is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the y-coordinate of the particle starting point.
+     */
+    template<class T>
+        double start_y(const T & p)
+        {
+            return p.start_point[1];
+        }
+
+    /**
+     * @brief Variable for the z-coordinate of the particle starting point.
+     * @details The starting point is the point at which the particle is created
+     * and is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the z-coordinate of the particle starting point.
+     */
+    template<class T>
+        double start_z(const T & p)
+        {
+            return p.start_point[2];
+        }
+
+    /**
      * @brief Variable for the x-coordinate of the particle end point.
      * @details The end point is predicted upstream in the SPINE reconstruction.
      * @tparam T the type of particle (true or reco).
