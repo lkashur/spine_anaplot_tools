@@ -45,13 +45,37 @@ void pi02024()
     vars_selected_nu.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category, &CUT, &TCUT)});
     vars_selected_nu.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category_topology, &CUT, &TCUT)});
     vars_selected_nu.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
-    vars_selected_nu.insert({"muon_momentum_mag", SpineVar<TTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_energy, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_nu.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_mass, &CUT, &TCUT)});
     vars_selected_nu.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
     vars_selected_nu.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
     vars_selected_nu.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
 
     analysis.AddTree("selectedNu", vars_selected_nu, false);
+
+    #undef TCUT
+    #define TCUT cuts::cosmic
+    std::map<std::string, ana::SpillMultiVar> vars_selected_cos;
+    vars_selected_cos.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_cos.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_cos.insert({"pdg", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_pdg, &CUT, &TCUT)});
+    vars_selected_cos.insert({"cc", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_cos.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category, &CUT, &TCUT)});
+    vars_selected_cos.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category_topology, &CUT, &TCUT)});
+    vars_selected_cos.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
+    vars_selected_cos.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_cos.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_cos.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_energy, &CUT, &TCUT)});
+    vars_selected_cos.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_cos.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_mass, &CUT, &TCUT)});
+    vars_selected_cos.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
+    vars_selected_cos.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
+    vars_selected_cos.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
+
+    analysis.AddTree("selectedCos", vars_selected_cos, false);
 
     /**
      * @brief Add a set of variables for signal interactions to the analysis.
@@ -69,13 +93,25 @@ void pi02024()
     vars_signal.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::pi02024::category, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"category_topology", SpineVar<TTYPE,TTYPE>(&vars::pi02024::category_topology, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"interaction_mode", SpineVar<TTYPE,TTYPE>(&vars::neutrino_interaction_mode, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_edep", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_energy, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"muon_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024::muon_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"muon_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024::muon_beam_costheta, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"flash_cut_bnb", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &SIGCUT, &SIGCUT)});
 
     analysis.AddTree("signal", vars_signal, true);
+
+    /**
+     *
+     *
+     *
+     *
+     */
+    std::map<std::string, ana:SpillMultiVar> vars_gundam;
 
     /**
      * @brief Run the analysis.

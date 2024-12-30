@@ -123,17 +123,132 @@ namespace vars::pi02024
     template<class T> 
         double muon_momentum_mag(const T & obj)
         {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+			       return s.muon_momentum_mag;
+			   }
+	    else
+            {
+	        reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+		return s.muon_momentum_mag;
+            }
+        }
+
+    /**
+     * @brief Variable for leading muon angle with beam.
+     * @details Variable for the cosine of the angle between
+     * the interaction's leading muon and the beam.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the leading muon's angle w.r.t. beam.
+     */
+    template<class T>
+        double muon_beam_costheta(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                           {
+			       truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+			       return s.muon_beam_costheta;
+                           }
+	    else
+	    {
+	      reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+	      return s.muon_beam_costheta;
+	    }
+        }
+
+    /**
+     * @brief Variable for pi0 leading photon energy.
+     * @details Variable for pi0 leading photon energy
+     * [MeV], as calculated with p.calo_ke attribute.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the pi0 leading photon energy.
+     */
+    template<class T>
+        double pi0_leading_photon_energy(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+			       return s.pi0_leading_photon_energy;
+			   }
+            else
+	    {
+		reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+		return s.pi0_leading_photon_energy;
+	    }
+	}
+
+    /**
+     * @brief Variable for pi0 leading photon conversion distance.
+     * @details Variable for pi0 leading photon conversion distance
+     * [cm], as calculated using interaction vertex and shower start point.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the pi0 leading photon conversion distance.
+     */
+    template<class T>
+      double pi0_leading_photon_conv_dist(const T & obj)
+      {
 	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 			 {
-			   truth_inter s = utilities_pi02024::truth_interaction_info(obj);
-			   return s.muon_momentum_mag;
+			     truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+			     return s.pi0_leading_photon_conv_dist;
 			 }
 	  else
+	  {
+	      reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+	      return s.pi0_leading_photon_conv_dist;
+	  }
+      }
+
+    /**
+     * @brief Variable for pi0 subleading photon energy.
+     * @details Variable for pi0 subleading photon energy
+     * [MeV], as calculated with p.calo_ke attribute.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the pi0 subleading photon energy. 
+     */
+    template<class T>
+        double pi0_subleading_photon_energy(const T & obj)
+	{
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                             {
+			       truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+			       return s.pi0_subleading_photon_energy;
+                             }
+            else
+	    {
+	        reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+                return s.pi0_subleading_photon_energy;
+	    }
+	}
+
+    /**
+     * @brief Variable for pi0 subleading photon conversion distance.
+     * @details Variable for pi0 subleading photon conversion distance
+     * [cm], as calculated using interaction vertex and shower start point.
+     * @tparam T the type of interaction (true or reco). 
+     * @param obj the interaction to apply the variable on.
+     * @return the pi0 subleading photon conversion distance. 
+     */
+    template<class T>
+      double pi0_subleading_photon_conv_dist(const T & obj)
+      {
+	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+		         {
+			     truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+			     return s.pi0_subleading_photon_conv_dist;
+		         }
+	  else
           {
-            reco_inter s = utilities_pi02024::reco_interaction_info(obj);
-            return s.muon_momentum_mag;
+	      reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+	      return s.pi0_subleading_photon_conv_dist;
           }
-        }
+      }
 
     /**
      * @brief Variable for neutral pion mass.
@@ -146,15 +261,15 @@ namespace vars::pi02024
     template<class T>
         double pi0_mass(const T & obj)
         {
-	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
-                         {
-			   truth_inter s = utilities_pi02024::truth_interaction_info(obj);
-                           return s.pi0_mass;
-                         }
-          else
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                           {
+			       truth_inter s = utilities_pi02024::truth_interaction_info(obj);
+                               return s.pi0_mass;
+                           }
+	    else
 	    {
-	      reco_inter s = utilities_pi02024::reco_interaction_info(obj);
-	      return s.pi0_mass;
+	        reco_inter s = utilities_pi02024::reco_interaction_info(obj);
+	        return s.pi0_mass;
 	    }
 	} 
 }
