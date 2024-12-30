@@ -135,7 +135,9 @@ namespace vars
 
     /**
      * @brief Variable for total visible energy of interaction.
-     * @units GeV
+     * @details This function calculates the total visible energy of the
+     * interaction by summing the energy of all particles that are identified
+     * as counting towards the final state of the interaction.
      * @tparam T the type of interaction (true or reco).
      * @param obj interaction to apply the variable on.
      * @return the total visible energy of the interaction.
@@ -146,7 +148,7 @@ namespace vars
             double energy(0);
             for(const auto & p : obj.particles)
             {
-                if(p.is_primary)
+                if(pcuts::final_state_signal(p))
                 {
                     energy += pvars::energy(p);
                     if(p.pid == 2) energy += MUON_MASS;
@@ -260,7 +262,8 @@ namespace vars
         double vertex_z(const T & obj) { return obj.vertex[2]; }
 
     /**
-     * @brief Variable for the transverse momentum of the interaction.
+     * @brief Variable for the transverse momentum of the interaction counting
+     * only particles identified as contributing to the final state.
      * @details The transverse momentum is defined as the square root of the
      * sum of the squares of the x and y components of the momentum. This
      * variable is useful for identifying interactions that have a significant
@@ -274,7 +277,7 @@ namespace vars
         {
             double px(0), py(0);
             for(const auto & p : obj.particles)
-                if(p.is_primary)
+                if(pcuts::final_state_signal(p))
                 {
                     px += p.momentum[0];
                     py += p.momentum[1];
