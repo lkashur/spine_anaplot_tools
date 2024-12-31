@@ -27,6 +27,7 @@
  */
 #define WRAP_BOOL(x) [](auto y) -> double { return x(y); }
 
+#define MCTRUTH caf::Proxy<caf::SRTrueInteraction>
 #define TTYPE caf::SRInteractionTruthDLPProxy
 #define RTYPE caf::SRInteractionDLPProxy
 #define TTYPEP caf::SRParticleTruthDLPProxy
@@ -50,6 +51,62 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
 {
     /**
      * @details This is the case that handles the broadcasting of a variable
+     * over the SRTrueInteractions matching reco interactions passing a cut.
+     * The function iterates over the reco interactions, checks that the
+     * interaction passes the cut, that it is matched to a true interaction
+     * of a certain truth category, then calls the function implementing the
+     * variable on the SRTrueInteraction containing the neutrino information
+     * for the true interaction. The result is stored in the vector of doubles.
+     */
+    if constexpr(std::is_same_v<CUTTYPE, RTYPE> && std::is_same_v<VARTYPE, MCTRUTH>)
+    {
+        return ana::SpillMultiVar([fvar, fcut, fcat](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
+        {
+            std::vector<double> var;
+            bool is_mc(sr->ndlp_true != 0);
+            for(auto const& i : sr->dlp)
+            {
+                if(fcut(i) && i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]]))
+                {
+                    int64_t nu_id = sr->dlp_true[i.match_ids[0]].nu_id;
+                    var.push_back(nu_id >= 0 ? fvar(sr->mc.nu[nu_id]) : -1.0);
+                }
+                else if(fcut(i) && !is_mc)
+                    var.push_back(-1.0);
+            }
+            return var;
+        });
+    }
+
+    /**
+     * @details This is the case that handles the broadcasting of a variable
+     * over the SRTrueInteractions associated with true interactions passing
+     * a cut. The function iterates over the true interactions, checks that
+     * the interaction passes the cut and belongs to the specified truth
+     * category, and that it is matched to a reco interaction. If these
+     * conditions are met, the function implementing the variable is called
+     * on the SRTrueInteraction containing the neutrino information for the
+     * true interaction. The result is stored in the vector of doubles.
+     */
+    else if constexpr(std::is_same_v<CUTTYPE, TTYPE> && std::is_same_v<VARTYPE, MCTRUTH>)
+    {
+        return ana::SpillMultiVar([fvar, fcut, fcat](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
+        {
+            std::vector<double> var;
+            for(auto const& i : sr->dlp_true)
+            {
+                if(fcut(i) && i.match_ids.size() > 0 && fcat(i))
+                {
+                    int64_t nu_id = i.nu_id;
+                    var.push_back(nu_id >= 0 ? fvar(sr->mc.nu[nu_id]) : -1.0);
+                }
+            }
+            return var;
+        });
+    }
+
+    /**
+     * @details This is the case that handles the broadcasting of a variable
      * over the true interactions passing a category cut (e.g. the neutrino)
      * that are matched to by reco interactions passing a cut. The function
      * iterates over the reco interactions, checks that the interaction passes
@@ -60,7 +117,7 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
      * variable on the true interaction. The result is stored in the vector of
      * variables.
      */
-    if constexpr(std::is_same_v<CUTTYPE, RTYPE> && std::is_same_v<VARTYPE, TTYPE>)
+    else if constexpr(std::is_same_v<CUTTYPE, RTYPE> && std::is_same_v<VARTYPE, TTYPE>)
     {
         return ana::SpillMultiVar([fvar, fcut, fcat](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
         {

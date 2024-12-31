@@ -8,6 +8,7 @@
  * and reduces the amount of boilerplate code needed to run the analysis.
  * @author mueller@fnal.gov
 */
+#include "include/mctruth.h"
 #include "include/variables.h"
 #include "include/muon2024/variables_muon2024.h"
 #include "include/cuts.h"
@@ -24,9 +25,9 @@
 
 void muon2024()
 {
-    ana::Analysis analysis("muon2024_rev2_icarus_v4");
+    ana::Analysis analysis("muon2024_rev4_icarus_collonly_v2b");
 
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/nominal_v4/flat/*.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/prod_v2b/nominal/flat/*210*.root");
     analysis.AddLoader("mc", &mc, true);
 
     /**
@@ -40,12 +41,13 @@ void muon2024()
     #define TCUT cuts::neutrino
     std::map<std::string, ana::SpillMultiVar> vars_selected_nu;
     vars_selected_nu.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
-    vars_selected_nu.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pdg", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_pdg, &CUT, &TCUT)});
-    vars_selected_nu.insert({"cc", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_nu.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_nu.insert({"cc", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pdg", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_pdg, &CUT, &TCUT)});
+    vars_selected_nu.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
+    vars_selected_nu.insert({"interaction_type", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_type, &CUT, &TCUT)});
     vars_selected_nu.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::muon2024::category, &CUT, &TCUT)});
-    vars_selected_nu.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
-    vars_selected_nu.insert({"true_edep", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_energy, &CUT, &TCUT)});
+    vars_selected_nu.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
     vars_selected_nu.insert({"reco_edep", SpineVar<RTYPE,RTYPE>(&vars::visible_energy, &CUT, &TCUT)});
     vars_selected_nu.insert({"true_muon_x", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"reco_muon_x", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
@@ -113,12 +115,13 @@ void muon2024()
     #define TCUT cuts::cosmic
     std::map<std::string, ana::SpillMultiVar> vars_selected_cos;
     vars_selected_cos.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
-    vars_selected_cos.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
-    vars_selected_cos.insert({"pdg", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_pdg, &CUT, &TCUT)});
-    vars_selected_cos.insert({"cc", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_cos.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_cos.insert({"cc", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_cos.insert({"pdg", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_pdg, &CUT, &TCUT)});
+    vars_selected_cos.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
+    vars_selected_cos.insert({"interaction_type", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_type, &CUT, &TCUT)});
     vars_selected_cos.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::muon2024::category, &CUT, &TCUT)});
-    vars_selected_cos.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
-    vars_selected_cos.insert({"true_edep", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_energy, &CUT, &TCUT)});
+    vars_selected_cos.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
     vars_selected_cos.insert({"reco_edep", SpineVar<RTYPE,RTYPE>(&vars::visible_energy, &CUT, &TCUT)});
     vars_selected_cos.insert({"true_muon_x", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"reco_muon_x", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
@@ -299,12 +302,13 @@ void muon2024()
     #define SIGCUT cuts::muon2024::signal_1muNp
     std::map<std::string, ana::SpillMultiVar> vars_signal;
     vars_signal.insert({"nu_id", SpineVar<TTYPE,TTYPE>(&vars::neutrino_id, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"baseline", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"pdg", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"cc", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_cc, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"baseline", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"cc", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_cc, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"pdg", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"interaction_mode", SpineVar<MCTRUTH,TTYPE>(&mctruth::interaction_mode, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"interaction_type", SpineVar<MCTRUTH,TTYPE>(&mctruth::interaction_type, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::muon2024::category, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"interaction_mode", SpineVar<TTYPE,TTYPE>(&vars::neutrino_interaction_mode, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"true_edep", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_energy, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_neutrino_energy", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_energy, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_muon_x", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::end_x, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_muon_y", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::end_y, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_muon_z", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::end_z, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
