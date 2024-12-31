@@ -13,13 +13,13 @@ nbins = 25
 xlabel = "Reconstructed Visible Energy [GeV]"
 
 [variables.true_interaction_pt]
-key = "true_dpT_so"
+key = "true_dpT"
 range = [0,1200]
 nbins = 100
 xlabel = 'True $\delta p_T$ [MeV/c]'
 
 [variables.reco_interaction_pt]
-key = "reco_dpT_so"
+key = "reco_dpT"
 range = [0,1200]
 nbins = 100
 xlabel = 'Reconstructed $\delta p_T$ [MeV/c]'
