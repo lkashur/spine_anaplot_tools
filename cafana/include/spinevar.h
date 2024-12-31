@@ -353,4 +353,121 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
     }
     else return ana::SpillMultiVar([](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>{return {1.0};});
 }
+
+template<class VARTYPE, class PCUTTYPE, class ICUTTYPE>
+ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fpcut)(const PCUTTYPE &), bool (*ficut)(const ICUTTYPE &))
+{
+    /**
+     * What do we want to do for p-vars?
+     * Select particles (pcut) and the calculate the variable (pvar) for each
+     * particle in the interaction.
+     * ICUTTYPE tells you which interactions to loop over.
+     * PCUTTYPE tells you which particles to select (should match true/reco value with ICUTTYPE)
+     * VARTYPE tells you if you apply the variable to the particle itself or the matched one.
+     */
+
+    /**
+     * @details This is the case that handles the broadcasting of a particle
+     * variable over some selection of reco particles 
+     */
+    if constexpr(std::is_same_v<ICUTTYPE, RTYPE> && std::is_same_v<PCUTTYPE, RTYPEP>)
+    {
+        if constexpr(std::is_same_v<VARTYPE, RTYPEP>)
+        {
+            return ana::SpillMultiVar([fvar, fpcut, ficut](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
+            {
+                std::vector<double> var;
+                for(auto const& i : sr->dlp)
+                {
+                    if(ficut(i))
+                    {
+                        for(auto const & j : i.particles)
+                        {
+                            if(fpcut(j) && j.match_ids.size() > 0)
+                                var.push_back(fvar(j));
+                        }
+                    }
+                }
+                return var;
+            });
+        }
+        else if constexpr(std::is_same_v<VARTYPE, TTYPEP>)
+        {
+            return ana::SpillMultiVar([fvar, fpcut, ficut](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
+            {
+                std::vector<double> var;
+                std::map<caf::Proxy<int64_t>, const caf::Proxy<caf::SRParticleTruthDLP> *> true_particles;
+                for(auto const& i : sr->dlp_true)
+                {
+                    for(auto const& j : i.particles)
+                    {
+                        true_particles.insert(std::make_pair(j.id, &j));
+                    }
+                }
+                for(auto const& i : sr->dlp)
+                {
+                    if(ficut(i))
+                    {
+                        for(auto const & j : i.particles)
+                        {
+                            if(fpcut(j) && j.match_ids.size() > 0)
+                                var.push_back(fvar(*true_particles[j.match_ids[0]]));
+                        }
+                    }
+                }
+                return var;
+            });
+        }
+    }
+    else if constexpr(std::is_same_v<ICUTTYPE, TTYPE> && std::is_same_v<PCUTTYPE, TTYPEP>)
+    {
+        if constexpr(std::is_same_v<VARTYPE, RTYPEP>)
+        {
+            return ana::SpillMultiVar([fvar, fpcut, ficut](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
+            {
+                std::vector<double> var;
+                std::map<caf::Proxy<int64_t>, const caf::Proxy<caf::SRParticleDLP> *> reco_particles;
+                for(auto const& i : sr->dlp)
+                {
+                    for(auto const& j : i.particles)
+                    {
+                        reco_particles.insert(std::make_pair(j.id, &j));
+                    }
+                }
+                for(auto const& i : sr->dlp_true)
+                {
+                    if(ficut(i))
+                    {
+                        for(auto const & j : i.particles)
+                        {
+                            if(fpcut(j) && j.match_ids.size() > 0)
+                                var.push_back(fvar(*reco_particles[j.match_ids[0]]));
+                        }
+                    }
+                }
+                return var;
+            });
+        }
+        else if constexpr(std::is_same_v<VARTYPE, TTYPEP>)
+        {
+            return ana::SpillMultiVar([fvar, fpcut, ficut](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>
+            {
+                std::vector<double> var;
+                for(auto const& i : sr->dlp_true)
+                {
+                    if(ficut(i))
+                    {
+                        for(auto const & j : i.particles)
+                        {
+                            if(fpcut(j) && j.match_ids.size() > 0)
+                                var.push_back(fvar(j));
+                        }
+                    }
+                }
+                return var;
+            });
+        }
+    }
+    else return ana::SpillMultiVar([](const caf::Proxy<caf::StandardRecord> * sr) -> std::vector<double>{return {1.0};});
+}
 #endif // SPINEVAR_H
