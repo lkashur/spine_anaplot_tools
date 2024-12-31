@@ -292,6 +292,47 @@ void muon2024()
     
     analysis.AddTree("signal", vars_signal, true);
 
+    std::map<std::string, ana::SpillMultiVar> vars_pid_muon;
+    auto primary_muon = [](const TTYPEP & p) { return p.pid == 2 && p.is_primary; };
+    auto primary_muon_reco = [](const RTYPEP & p) -> double { return p.pid == 2 && p.is_primary; };
+    auto pid = [](const RTYPEP & p) -> double { return p.pid; };
+    vars_pid_muon.insert({"muon_primary_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::primary_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"muon_secondary_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::secondary_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"muon_muon_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::muon_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"muon_pion_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::pion_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"muon_proton_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::proton_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"muon_mip_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::mip_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"muon_hadron_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::hadron_softmax, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"true_tmuon", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::ke, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"true_ptmuon", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::transverse_momentum, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"true_theta_mu", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::polar_angle, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"true_phi_mu", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::azimuthal_angle, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"pid", SpineVar<RTYPEP,TTYPEP,TTYPE>(pid, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"primary", SpineVar<RTYPEP,TTYPEP,TTYPE>(WRAP_BOOL(pcuts::is_primary), primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"is_primary_muon", SpineVar<RTYPEP,TTYPEP,TTYPE>(primary_muon_reco, primary_muon, &cuts::no_cut)});
+
+    analysis.AddTree("pidMuon", vars_pid_muon, true);
+
+    std::map<std::string, ana::SpillMultiVar> vars_pid_proton;
+    auto primary_proton = [](const TTYPEP & p) { return p.pid == 4 && p.is_primary; };
+    auto primary_proton_reco = [](const RTYPEP & p) -> double { return p.pid == 4 && p.is_primary; };
+    vars_pid_proton.insert({"proton_primary_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::primary_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"proton_secondary_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::secondary_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"proton_muon_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::muon_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"proton_pion_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::pion_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"proton_proton_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::proton_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"proton_mip_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::mip_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"proton_hadron_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::hadron_softmax, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"true_tproton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::ke, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"true_ptproton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::transverse_momentum, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"true_theta_proton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::polar_angle, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"true_phi_proton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::azimuthal_angle, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"pid", SpineVar<RTYPEP,TTYPEP,TTYPE>(pid, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"primary", SpineVar<RTYPEP,TTYPEP,TTYPE>(WRAP_BOOL(pcuts::is_primary), primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"is_primary_proton", SpineVar<RTYPEP,TTYPEP,TTYPE>(primary_proton_reco, primary_proton, &cuts::no_cut)});
+
+    analysis.AddTree("pidProton", vars_pid_proton, true);
+
     /**
      * @brief Run the analysis.
      * @details This runs the analysis on the samples specified by the
