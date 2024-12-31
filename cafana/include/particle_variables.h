@@ -100,6 +100,20 @@ namespace pvars
             }
             return energy;
         }
+
+    /**
+     * @brief Variable for the length of the particle track.
+     * @details The length of the track is calculated upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the length of the particle track.
+     */
+    template<class T>
+        double length(const T & p)
+        {
+            return p.length;
+        }
     
     /**
      * @brief Variable for the transverse momentum of a particle.
