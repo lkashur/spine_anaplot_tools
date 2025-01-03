@@ -106,14 +106,6 @@ void pi02024()
     analysis.AddTree("signal", vars_signal, true);
 
     /**
-     *
-     *
-     *
-     *
-     */
-    std::map<std::string, ana:SpillMultiVar> vars_gundam;
-
-    /**
      * @brief Run the analysis.
      * @details This runs the analysis on the samples specified by the
      * SpectrumLoaders and variables added to the Analysis class. It loops over

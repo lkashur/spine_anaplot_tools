@@ -28,7 +28,20 @@
  * namespace, which is used for organizing generic cuts which act on interactions.
  */
 namespace cuts::pi02024
-{   
+{
+    /**
+     * @brief Apply data cut.
+     * @details This cut asserts the interaction is from data (not MC).
+     * @param sr the Standard Record.
+     * @return true if interaction is from data.
+     * @note This cut is intended to be used for the pi02024 analysis.
+     */
+  //bool is_data(const caf::Proxy<caf::StandardRecord> sr) 
+  //{
+  //bool _is_data(sr.ndlp_true == 0);
+  //return _is_data;
+  //}
+  
     /**
      * @brief Apply a 1mu0pi2gamma topological (final state) cut.
      * @details The interaction must have a topology matching 1mu0pi2gamma as defined by
@@ -37,7 +50,7 @@ namespace cuts::pi02024
      * @param obj the interaction to select on.
      * @return true if the interaction has a 1mu0pi2gamma topology.
      * @note This cut is intended to be used for the pi02024 analysis.
-     */
+ 65;6003;1c    */
     template<class T>
         bool topological_1mu0pi2gamma_cut(const T & obj)
         {

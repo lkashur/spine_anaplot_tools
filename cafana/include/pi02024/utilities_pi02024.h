@@ -168,6 +168,7 @@ namespace utilities_pi02024
 	double pi0_subleading_photon_conv_dist;
 	double pi0_costheta;
 	double pi0_mass;
+	TVector3 pi0_momentum;
 	double pi0_momentum_mag;
 	double pi0_beam_costheta;
 
@@ -289,7 +290,8 @@ namespace utilities_pi02024
 	  pi0_subleading_photon_conv_dist = (vertex - pi0_subleading_photon_start_point).Mag();
 	  TVector3 pi0_subleading_photon_momentum(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1],pi0_subleading_photon.momentum[2]);
 
-	  TVector3 pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
+	  pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
+	  pi0_momentum_mag = pi0_momentum.Mag();
 	  pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
 
 	  pi0_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
@@ -306,7 +308,20 @@ namespace utilities_pi02024
 	  s.pi0_momentum_mag = pi0_momentum.Mag();
 	  s.pi0_beam_costheta = pi0_beam_costheta;
 	} // end signal 
-	  
+	else
+	{
+	  s.muon_momentum_mag = -5;
+          s.muon_beam_costheta = -5;
+          s.pi0_leading_photon_energy = -5;
+          s.pi0_leading_photon_conv_dist = -5;
+          s.pi0_subleading_photon_energy = -5;
+          s.pi0_subleading_photon_conv_dist = -5;
+          s.pi0_costheta = -5;
+          s.pi0_mass = -5;
+          s.pi0_momentum_mag = -5;
+          s.pi0_beam_costheta = -5;
+	}
+	
 	s.num_primary_muons = primary_muon_count;
 	s.num_primary_muons_thresh = primary_muon_count_thresh;
 	s.num_primary_pions = primary_pion_count;
@@ -321,7 +336,7 @@ namespace utilities_pi02024
 	s.is_neutrino = is_neutrino;
 	if(obj.current_type == 0) is_cc = true;
 	s.is_cc = is_cc;
-	  
+
 	return s;
       }
 
