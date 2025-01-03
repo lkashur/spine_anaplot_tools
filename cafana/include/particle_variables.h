@@ -100,6 +100,20 @@ namespace pvars
             }
             return energy;
         }
+
+    /**
+     * @brief Variable for the length of the particle track.
+     * @details The length of the track is calculated upstream in the SPINE
+     * reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the length of the particle track.
+     */
+    template<class T>
+        double length(const T & p)
+        {
+            return p.length;
+        }
     
     /**
      * @brief Variable for the transverse momentum of a particle.
@@ -148,6 +162,48 @@ namespace pvars
         }
 
     /**
+     * @brief Variable for the x-coordinate of the particle starting point.
+     * @details The starting point is the point at which the particle is created
+     * and is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the x-coordinate of the particle starting point.
+     */
+    template<class T>
+        double start_x(const T & p)
+        {
+            return p.start_point[0];
+        }
+
+    /**
+     * @brief Variable for the y-coordinate of the particle starting point.
+     * @details The starting point is the point at which the particle is created
+     * and is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the y-coordinate of the particle starting point.
+     */
+    template<class T>
+        double start_y(const T & p)
+        {
+            return p.start_point[1];
+        }
+
+    /**
+     * @brief Variable for the z-coordinate of the particle starting point.
+     * @details The starting point is the point at which the particle is created
+     * and is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the z-coordinate of the particle starting point.
+     */
+    template<class T>
+        double start_z(const T & p)
+        {
+            return p.start_point[2];
+        }
+
+    /**
      * @brief Variable for the x-coordinate of the particle end point.
      * @details The end point is predicted upstream in the SPINE reconstruction.
      * @tparam T the type of particle (true or reco).
@@ -185,6 +241,32 @@ namespace pvars
         {
             return p.end_point[2];
         }
+
+    /**
+     * @brief Variable for the photon softmax score of the particle.
+     * @details The photon softmax score represents the confidence that the
+     * network has in the particle being a photon. The score is between 0 and 1,
+     * with 1 being the most confident that the particle is a photon.
+     * @param p the particle to apply the variable on.
+     * @return the photon softmax score of the particle.
+     */
+    double photon_softmax(const caf::SRParticleDLPProxy & p)
+    {
+        return p.pid_scores[0];
+    }
+
+    /**
+     * @brief Variable for the electron softmax score of the particle.
+     * @details The electron softmax score represents the confidence that the
+     * network has in the particle being an electron. The score is between 0 and 1,
+     * with 1 being the most confident that the particle is an electron.
+     * @param p the particle to apply the variable on.
+     * @return the electron softmax score of the particle.
+     */
+    double electron_softmax(const caf::SRParticleDLPProxy & p)
+    {
+        return p.pid_scores[1];
+    }
     
     /**
      * @brief Variable for the muon softmax score of the particle.

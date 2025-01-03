@@ -332,5 +332,39 @@ namespace cuts
             std::vector<uint32_t> c(utilities::count_primaries(obj));
             return c[4] > 0;
         }
+
+    /**
+     * @brief Apply a cut to select interactions with at least one primary
+     * photon.
+     * @details This function applies a cut to select interactions with at
+     * least one primary photon in the final state as defined by the
+     * @ref utilities::count_primaries function.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to select on.
+     * @return true if the interaction has at least one primary photon.
+     */
+    template<class T>
+        bool has_photon(const T & obj)
+        {
+            std::vector<uint32_t> c(utilities::count_primaries(obj));
+            return c[0] > 0;
+        }
+
+    /**
+     * @brief Apply a cut to select interactions with at least one primary
+     * electron.
+     * @details This function applies a cut to select interactions with at
+     * least one primary electron in the final state as defined by the
+     * @ref utilities::count_primaries function.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to select on.
+     * @return true if the interaction has at least one primary electron.
+     */
+    template<class T>
+        bool has_electron(const T & obj)
+        {
+            std::vector<uint32_t> c(utilities::count_primaries(obj));
+            return c[1] > 0;
+        }
 }
 #endif
