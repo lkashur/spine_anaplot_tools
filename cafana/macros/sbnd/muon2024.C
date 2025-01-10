@@ -8,6 +8,7 @@
  * and reduces the amount of boilerplate code needed to run the analysis.
  * @author mueller@fnal.gov
 */
+#include "include/mctruth.h"
 #include "include/variables.h"
 #include "include/muon2024/variables_muon2024.h"
 #include "include/cuts.h"
