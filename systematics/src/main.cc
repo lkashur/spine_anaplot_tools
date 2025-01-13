@@ -17,6 +17,7 @@
 
 #include "configuration.h"
 #include "trees.h"
+#include "trees_gundam.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -78,7 +79,7 @@ int main(int argc, char * argv[])
      */
     TFile * input = TFile::Open(config.get_string_field("input.path").c_str(), "READ");
     TFile * output = TFile::Open(config.get_string_field("output.path").c_str(), "RECREATE");
-
+    
     /**
      * @brief Begin main loop over trees in the configuration file.
      * @details This block begins the main loop over the trees in the
@@ -90,13 +91,23 @@ int main(int argc, char * argv[])
      * @see sys::cfg::ConfigurationTable
      */
     std::vector<sys::cfg::ConfigurationTable> tables = config.get_subtables("tree");
+    std::string format = config.get_string_field("output.format");
     for(sys::cfg::ConfigurationTable & table : tables)
     {
         std::string type(table.get_string_field("action"));
         if(type == "copy")
             sys::trees::copy_tree(table, output, input);
         else if(type == "add_weights")
-            sys::trees::copy_with_weight_systematics(config, table, output, input);
+	{
+	    if(!strcmp(format.c_str(), "profit"))
+	    {
+		sys::trees::copy_with_weight_systematics(config, table, output, input);
+	    }
+	    else if(!strcmp(format.c_str(), "gundam"))
+	    {
+	        sys::trees_gundam::copy_with_weight_systematics(config, table, output, input);
+	    }
+	}
     }
     output->Close();
 

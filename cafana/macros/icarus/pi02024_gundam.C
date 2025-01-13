@@ -14,7 +14,8 @@
 #include "include/pi02024/cuts_pi02024.h"
 #include "include/spinevar.h"
 #include "include/srvar.h"
-#include "include/analysis_gundam.h"
+#include "include/analysis.h"
+//#include "include/analysis_gundam.h"
 
 #include "sbnana/CAFAna/Core/SpectrumLoader.h"
 #include "sbnana/CAFAna/Core/Tree.h"
@@ -40,16 +41,17 @@ void pi02024_gundam()
      */
     #define CUT cuts::pi02024::all_1mu0pi2gamma_cut
     #define TCUT cuts::neutrino
-    std::map<std::string, ana::SpillMultiVar> vars_gundam;
-    vars_gundam.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::pi02024::cut_type, &CUT, &TCUT)});
-    vars_gundam.insert({"IsSignal", SpineVar<TTYPE,RTYPE>(&vars::pi02024::is_signal, &CUT, &TCUT)});
-    vars_gundam.insert({"IsData", SrVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
-    vars_gundam.insert({"RecoMuonP", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
-    vars_gundam.insert({"TrueMuonP", SpineVar<TTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
-    vars_gundam.insert({"RecoMuonCos", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
-    vars_gundam.insert({"TrueMuonCos", SpineVar<TTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
+    std::map<std::string, ana::SpillMultiVar> vars_selected_nu;
+    vars_selected_nu.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_nu.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::pi02024::cut_type, &CUT, &TCUT)});
+    vars_selected_nu.insert({"IsSignal", SpineVar<TTYPE,RTYPE>(&vars::pi02024::is_signal, &CUT, &TCUT)});
+    vars_selected_nu.insert({"IsData", SrVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu.insert({"RecoMuonP", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu.insert({"TrueMuonP", SpineVar<TTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu.insert({"RecoMuonCos", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu.insert({"TrueMuonCos", SpineVar<TTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
     
-    analysis.AddTree("SelectedEvents_NSigmas", vars_gundam, false);
+    analysis.AddTree("selectedNu", vars_selected_nu, false);
 
     /**
      * @brief Run the analysis.

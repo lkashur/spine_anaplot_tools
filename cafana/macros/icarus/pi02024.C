@@ -49,6 +49,10 @@ void pi02024()
     vars_selected_nu.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
     vars_selected_nu.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_energy, &CUT, &TCUT)});
     vars_selected_nu.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_subleading_photon_energy, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu.insert({"pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_beam_costheta, &CUT, &TCUT)});
     vars_selected_nu.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_mass, &CUT, &TCUT)});
     vars_selected_nu.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
     vars_selected_nu.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
@@ -77,6 +81,18 @@ void pi02024()
 
     analysis.AddTree("selectedCos", vars_selected_cos, false);
 
+    #undef TCUT
+    #define TCUT cuts::neutrino
+    std::map<std::string, ana::SpillMultiVar> vars_purity_nu;
+    vars_purity_nu.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"topology_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::pi02024::topological_1mu0pi2gamma_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"fiducial_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::fiducial_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"track_containment_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::track_containment_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"flash_cut_bnb", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &cuts::no_cut, &TCUT)});
+    
+    analysis.AddTree("purityNu", vars_purity_nu, false);
+
     /**
      * @brief Add a set of variables for signal interactions to the analysis.
      * @details This adds a set of variables to the analysis by creating a
@@ -98,7 +114,9 @@ void pi02024()
     vars_signal.insert({"muon_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024::muon_beam_costheta, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"pi0_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_mass, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"flash_cut_bnb", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &SIGCUT, &SIGCUT)});
