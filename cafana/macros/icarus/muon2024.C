@@ -25,10 +25,29 @@
 
 void muon2024()
 {
-    ana::Analysis analysis("muon2024_rev4_icarus_collonly_v2b");
+    /**
+     * @brief Create an instance of the Analysis class.
+     * @details This creates an instance of the Analysis class, which is used
+     * to run the analysis on the specified samples. The name of the analysis,
+     * and therefore the name of the output file, is specified as an argument
+     * to the constructor.
+     */
+    ana::Analysis analysis("muon2024_dev");
 
+    /**
+     * @brief Add samples to the analysis.
+     * @details This adds samples to the analysis by creating SpectrumLoader
+     * objects and adding them to the Analysis class. The SpectrumLoader object
+     * represents the sample in the analysis, and is used to load the data from
+     * the ROOT file and apply the cuts and variables. The name passed to the
+     * AddLoader function is used to create a directory in the output ROOT file
+     * to store the results of the analysis.
+     */
     ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/prod_v2b/nominal/flat/*210*.root");
     analysis.AddLoader("mc", &mc, true);
+
+    ana::SpectrumLoader var01("/pnfs/icarus/persistent/users/mueller/spineprod/prod_v2b/var01/flat/*210*.root");
+    analysis.AddLoader("var01", &var01, true);
 
     /**
      * @brief Add a set of variables for selected interactions to the analysis.

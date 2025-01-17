@@ -35,9 +35,9 @@ void muon2024()
     ana::Analysis analysis("muon2024_sbnd");
 
     /**
-     * @brief Add a sample to the analysis.
-     * @details This adds a sample to the analysis by creating a SpectrumLoader
-     * object and adding it to the Analysis class. The SpectrumLoader object
+     * @brief Add samples to the analysis.
+     * @details This adds samples to the analysis by creating SpectrumLoader
+     * objects and adding them to the Analysis class. The SpectrumLoader object
      * represents the sample in the analysis, and is used to load the data from
      * the ROOT file and apply the cuts and variables. The name passed to the
      * AddLoader function is used to create a directory in the output ROOT file
