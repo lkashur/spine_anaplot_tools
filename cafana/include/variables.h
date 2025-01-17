@@ -52,67 +52,6 @@ namespace vars
     double neutrino_id(const caf::SRInteractionTruthDLPProxy & obj) { return obj.nu_id; }
 
     /**
-     * @brief Variable for a basic enumeration of interaction categories by
-     * the interaction mode.
-     * @details This variable is based on the interaction mode and is intended
-     * to provide a simple classification of interactions. 
-     * @param obj the interaction to apply the variable on.
-     * @return the interaction category.
-     */
-    double neutrino_interaction_mode(const caf::SRInteractionTruthDLPProxy & obj)
-    {
-        double cat(-1);
-        if(cuts::neutrino(obj))
-            cat = obj.interaction_mode;
-        return cat;
-    }
-
-    /**
-     * @brief Variable for the true neutrino energy.
-     * @units GeV
-     * @tparam T the type of object.
-     * @param obj the interaction to apply the variable on.
-     * @return the true neutrino energy.
-     */
-    template<class T>
-        double true_neutrino_energy(const T & obj) { return obj.energy_init; }
-
-    /**
-     * @brief Variable for the true neutrino baseline. Currently, if the
-     * distance is not available, the value is set to 585.0 meters.
-     * @units meters
-     * @tparam T the type of object.
-     * @param obj interaction to apply the variable on.
-     * @return the true neutrino baseline.
-     */
-    template<class T>
-    double true_neutrino_baseline(const T & obj)
-    {
-        // @TODO This is a temporary fix until the true neutrino distance is available.
-        return 585.0;
-    }
-
-    /**
-     * @brief Variable for the true neutrino PDG code.
-     * @units none
-     * @tparam T the type of object.
-     * @param obj interaction to apply the variable on.
-     * @return the true neutrino PDG code.
-     */
-    template<class T>
-        double true_neutrino_pdg(const T & obj) { return obj.pdg_code; }
-
-    /**
-     * @brief Variable for the true neutrino current value.
-     * @units none
-     * @tparam T the type of object.
-     * @param obj interaction to apply the variable on.
-     * @return the true neutrino current value.
-     */
-    template<class T>
-        double true_neutrino_cc(const T & obj) { return obj.current_type; }
-
-    /**
      * @brief Variable for the containment status of the interaction.
      * @details The containment status is determined upstream in the SPINE
      * reconstruction and is based on the set of all points in the interaction,
