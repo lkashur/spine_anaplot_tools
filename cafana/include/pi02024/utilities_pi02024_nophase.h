@@ -1,5 +1,5 @@
 /**
- * @file utilities_pi02024.h
+ * @file utilities_pi02024_nophase.h
  * @brief Header file for definitions of utility functions for supporting
  * analysis variables and cuts.
  * @details This file contains definitions of utility functions which are used
@@ -9,24 +9,23 @@
  * variables and cuts.
  * @author lkashur@colostate.edu
  */
-#ifndef UTILITIES_PI02024_EFF_H
-#define UTILITIES_PI02024_EFF_H
+#ifndef UTILITIES_PI02024_NOPHASE_H
+#define UTILITIES_PI02024_NOPHASE_H
 
+#include <iostream>
 #include <vector>
 #include <TVector3.h>
 #include "include/cuts.h"
+#include "include/beaminfo.h"
 
 #define MIN_PHOTON_ENERGY 25.0
 #define MIN_MUON_ENERGY 143.425
 #define MIN_PION_ENERGY 25.0
 
-struct truth_inter {
+struct truth_inter_nophase {
   int num_primary_muons;
-  int num_primary_muons_thresh;
   int num_primary_pions;
-  int num_primary_pions_thresh;
   int num_primary_pi0s;
-  int num_primary_pi0s_thresh;
   int num_nonprimary_pi0s;
   double transverse_momentum_mag;
   bool is_fiducial;
@@ -45,7 +44,7 @@ struct truth_inter {
   double pi0_beam_costheta;
 };
 
-struct reco_inter {
+struct reco_inter_nophase {
   double transverse_momentum_mag;
   double muon_momentum_mag;
   double muon_beam_costheta;
@@ -64,7 +63,7 @@ struct reco_inter {
 
 
 /**
- * @namespace utilities_pi02024_eff
+ * @namespace utilities_pi02024_nophase
  * @brief Namespace for organizing utility functions for supporting analysis
  * variables and cuts.
  * @details This namespace is intended to be used for organizing utility
@@ -76,7 +75,7 @@ struct reco_inter {
  * vars and cuts namespaces, which are used for organizing variables and cuts
  * which act on interactions.
  */
-namespace utilities_pi02024_eff
+namespace utilities_pi02024_nophase
 {
     /**
      * @brief Check if the particle meets final state signal requirements.
@@ -136,14 +135,14 @@ namespace utilities_pi02024_eff
      * @note This structure is intented to be used for the pi02024 analysis. 
      */
     template<class T> 
-      truth_inter truth_interaction_info(const T & obj)
+      truth_inter_nophase truth_interaction_info(const T & obj)
       {
 	// Initialize struct
-	truth_inter s;
+	truth_inter_nophase s;
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir(0, 0, 1); // BNB
+	TVector3 beamdir(BEAMDIR);
 	  
 	// Initialize output variables
 	int primary_muon_count(0);
@@ -154,7 +153,7 @@ namespace utilities_pi02024_eff
 	bool is_neutrino(false);
 	bool is_cc(false);
 	unordered_map<int, vector<pair<size_t, double>> > primary_pi0_map;
-	unordered_map< int, vector<double> > nonprimary_pi0_map;
+	unordered_map<int, vector<pair<size_t, double>> > nonprimary_pi0_map;
 	double muon_momentum_mag;
 	double muon_beam_costheta;
 	double pi0_leading_photon_energy;
@@ -201,9 +200,11 @@ namespace utilities_pi02024_eff
 	    {
 	      primary_pion_count++;
 	    }
+	    
 	    // Neutral pions
 	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
 	    {
+	      //std::cout << p.pdg_code << " " << p.pid << " " << p.parent_pdg_code << " " << p.is_primary << std::endl;
 	      primary_pi0_map[p.parent_track_id].push_back({i,p.ke});
 	    }
 	  } // end primary loop
@@ -213,27 +214,38 @@ namespace utilities_pi02024_eff
 	    // Neutral pions
 	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
 	    {
-	      nonprimary_pi0_map[p.parent_track_id].push_back(p.ke);
+	      nonprimary_pi0_map[p.parent_track_id].push_back({i,p.ke});
 	    }
 	  } // end nonprimary loop
 	} // end particle loop
 
 	// Loop over primary pi0s
+	vector<int> bad_primary_pi0_ids;
 	for(auto const & pi0 : primary_pi0_map)
-	{
-	  int num_primary_photon_daughters(0);
-	  for(auto & pair : pi0.second)
 	  {
-	    num_primary_photon_daughters++;
+	    // Loop over daughters of each pi0
+	    int num_primary_photon_daughters(0);
+	    for(auto & daughter : pi0.second)
+	      {
+		num_primary_photon_daughters++;
+	      }
+
+	    // Signal is all pi0s (including dalitz and pi0s where only 1 photon converts...)
+	    // Just kidding
+	    // If that were true, we wouldn't be able to make efficiency plots as a function of pi0 momentum...
+	    // Because we need true photon info to make these calculations
+	    if(num_primary_photon_daughters != 2) bad_primary_pi0_ids.push_back(pi0.first);
 	  }
-	  if(num_primary_photon_daughters == 2) primary_pi0_count++;
+	for(size_t i=0; i<bad_primary_pi0_ids.size(); i++)
+	{
+	    primary_pi0_map.erase(bad_primary_pi0_ids[i]);
 	}
+        primary_pi0_count = primary_pi0_map.size();
 
 	// Nonprimary pi0s
 	nonprimary_pi0_count = nonprimary_pi0_map.size();
 
 	// Obtain info about signal particles, if they exist
-	vector<size_t> pi0_photon_indices;
 	if(primary_muon_count == 1 && primary_pion_count == 0 && primary_pi0_count == 1)
 	{      
 	  // Get leading muon info
@@ -243,12 +255,15 @@ namespace utilities_pi02024_eff
 	  double muon_beam_costheta = muon_momentum.Unit().Dot(beamdir);
 	        
 	  // Get leading/subleading photon info
+	  vector<size_t> pi0_photon_indices;
 	  for(auto const & pi0 : primary_pi0_map)
 	  {
 	    for(auto pair : pi0.second)
 	    {
+	      //std::cout << pair.first << std::endl;
 	      pi0_photon_indices.push_back(pair.first);
 	    }
+	    //std::cout << " " << std::endl; 
 	  }
 
 	  const auto & pi0_photon0 = obj.particles[pi0_photon_indices[0]];
@@ -268,14 +283,14 @@ namespace utilities_pi02024_eff
 	  const auto & pi0_leading_photon = obj.particles[leading_photon_index];
 	  const auto & pi0_subleading_photon = obj.particles[subleading_photon_index];
 	        
-	  pi0_leading_photon_energy = pi0_leading_photon.ke;
+	  pi0_leading_photon_energy = pi0_leading_photon.ke; //.ke
 	  TVector3 pi0_leading_photon_start_point(pi0_leading_photon.start_point[0], pi0_leading_photon.start_point[1], pi0_leading_photon.start_point[2]);
 	  TVector3 pi0_leading_photon_dir(pi0_leading_photon.momentum[0], pi0_leading_photon.momentum[1], pi0_leading_photon.momentum[2]);
 	  pi0_leading_photon_dir = pi0_leading_photon_dir.Unit();
 	  pi0_leading_photon_conv_dist = (vertex - pi0_leading_photon_start_point).Mag();
 	  TVector3 pi0_leading_photon_momentum(pi0_leading_photon.momentum[0], pi0_leading_photon.momentum[1], pi0_leading_photon.momentum[2]);
 
-	  pi0_subleading_photon_energy = pi0_subleading_photon.ke;
+	  pi0_subleading_photon_energy = pi0_subleading_photon.ke; // .ke
 	  TVector3 pi0_subleading_photon_start_point(pi0_subleading_photon.start_point[0], pi0_subleading_photon.start_point[1], pi0_subleading_photon.start_point[2]);
 	  TVector3 pi0_subleading_photon_dir(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1], pi0_subleading_photon.momentum[2]);
 	  pi0_subleading_photon_dir = pi0_subleading_photon_dir.Unit();
@@ -314,6 +329,17 @@ namespace utilities_pi02024_eff
           s.pi0_beam_costheta = -5;
 	}
 	
+	/*
+	if(s.pi0_mass > 134 && primary_pi0_count == 1 && primary_muon_count == 1 && primary_pion_count == 0)
+	  {
+	    for(size_t i(0); i < obj.particles.size(); ++i)
+	      {
+		const auto & p = obj.particles[i];
+		std::cout << p.is_primary << " " << p.pdg_code << " " << p.parent_pdg_code << std::endl;
+	      }
+	  }
+	*/
+
 	s.num_primary_muons = primary_muon_count;
 	s.num_primary_pions = primary_pion_count;
 	s.num_primary_pi0s = primary_pi0_count;
@@ -339,14 +365,14 @@ namespace utilities_pi02024_eff
      * @note This structure is intented to be used for the pi02024 analysis.
      */
     template<class T> 
-      reco_inter reco_interaction_info(const T & obj)
+      reco_inter_nophase reco_interaction_info(const T & obj)
       {
 	// Initialize structure
-	reco_inter s;
+	reco_inter_nophase s;
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir(0, 0, 1); // BNB
+	TVector3 beamdir(BEAMDIR);
 
 	// Initialize output variables
 	double pT0(0), pT1(0), pT2(0);
@@ -488,4 +514,4 @@ namespace utilities_pi02024_eff
       }
 
 }
-#endif // UTILITIES_PI02024_EFF_H
+#endif // UTILITIES_PI02024_NOPHASE_H

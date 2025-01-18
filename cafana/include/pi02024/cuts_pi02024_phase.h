@@ -1,5 +1,5 @@
 /**
- * @file cuts_pi02024.h
+ * @file cuts_pi02024_phase.h
  * @brief Header file for definitions of analysis cuts specific to the muon2024
  * analysis.
  * @details This file contains definitions of analysis cuts which can be used
@@ -7,17 +7,17 @@
  * intended to be used in conjunction with the generic cuts defined in cuts.h.
  * @author lkashur@colostate.edu
 */
-#ifndef CUTS_PI02024_EFF_H
-#define CUTS_PI02024_EFF_H
+#ifndef CUTS_PI02024_PHASE_H
+#define CUTS_PI02024_PHASE_H
 #include <vector>
 #include <numeric>
 #include <cmath>
 #include <algorithm>
 
-#include "utilities_pi02024_eff.h"
+#include "utilities_pi02024_phase.h"
 
 /**
- * @namespace cuts::pi02024_eff
+ * @namespace cuts::pi02024_phase
  * @brief Namespace for organizing cuts specific to the pi02024 analysis.
  * @details This namespace is intended to be used for organizing cuts which act
  * on interactions specific to the pi02024 analysis. Each cut is implemented as
@@ -27,7 +27,7 @@
  * @note The namespace is intended to be used in conjunction with the cuts
  * namespace, which is used for organizing generic cuts which act on interactions.
  */
-namespace cuts::pi02024_eff
+namespace cuts::pi02024_phase
 {
     /**
      * @brief Apply data cut.
@@ -50,12 +50,13 @@ namespace cuts::pi02024_eff
      * @param obj the interaction to select on.
      * @return true if the interaction has a 1mu0pi2gamma topology.
      * @note This cut is intended to be used for the pi02024 analysis.
- 65;6003;1c    */
+     */
     template<class T>
         bool topological_1mu0pi2gamma_cut(const T & obj)
         {
-	  std::vector<uint32_t> c(utilities_pi02024_eff::count_primaries(obj));
-	  return c[0] == 2 && c[2] == 1 && c[3] == 0;
+	    std::vector<uint32_t> c(utilities_pi02024_phase::count_primaries(obj));
+	    reco_inter_phase s = utilities_pi02024_phase::reco_interaction_info(obj);
+            return c[0] == 2 && c[2] == 1 && c[3] == 0 && s.pi0_momentum_mag >= MIN_PI0_MOMENTUM;
         }
       
     /**
@@ -70,7 +71,7 @@ namespace cuts::pi02024_eff
     template<class T>
         bool pi0_mass_cut(const T & obj)
         {
-	  reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	  reco_inter_phase s = utilities_pi02024_phase::reco_interaction_info(obj);
 	  return s.pi0_mass < 400;
 	}
 
@@ -87,7 +88,10 @@ namespace cuts::pi02024_eff
      * @note This cut is intended to be used for the pi02024 analysis. 
      */
     template<class T>
-      bool all_1mu0pi2gamma_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+        bool all_1mu0pi2gamma_bnb_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj);}
+    
+    template<class T>
+        bool all_1mu0pi2gamma_numi_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_numi<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj);}
 
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.
@@ -100,8 +104,8 @@ namespace cuts::pi02024_eff
      */
     bool signal_1mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
-	  truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
-	  return s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_neutrino;
+	  truth_inter_phase s = utilities_pi02024_phase::truth_interaction_info(obj);
+	  return s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_neutrino;
         }
 
     /**
@@ -116,9 +120,9 @@ namespace cuts::pi02024_eff
      */
     bool other_nu_1mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
-	  truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
-	  return !(s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc) && s.is_neutrino;
+	  truth_inter_phase s = utilities_pi02024_phase::truth_interaction_info(obj);
+	  return !(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc) && s.is_neutrino;
         }
 
 }
-#endif // CUTS_PI02024_EFF_H
+#endif // CUTS_PI02024_PHASE_H

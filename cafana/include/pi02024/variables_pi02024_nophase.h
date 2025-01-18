@@ -1,5 +1,5 @@
 /**
- * @file vars_pi02024_eff.h
+ * @file vars_pi02024_nophase.h
  * @brief Header file for definitions of analysis variables specific to the
  * pi02024 analysis.
  * @details This file contains definitions of analysis variables which can be
@@ -9,19 +9,20 @@
  * building blocks for producing high-level plots of the selected interactions.
  * @author lkashur@colostate.edu
  */
-#ifndef VARS_PI02024_EFF_H
-#define VARS_PI02024_EFF_H
+#ifndef VARS_PI02024_NOPHASE_H
+#define VARS_PI02024_NOPHASE_H
 
 #include "sbnanaobj/StandardRecord/Proxy/SRProxy.h"
 #include "sbnanaobj/StandardRecord/SRInteractionDLP.h"
 #include "sbnanaobj/StandardRecord/SRInteractionTruthDLP.h"
 
+#include <iostream>
 #include "include/utilities.h"
 #include "include/cuts.h"
-#include "include/pi02024/cuts_pi02024_eff.h"
+#include "include/pi02024/cuts_pi02024_nophase.h"
 
 /**
- * @namespace vars::pi02024_eff
+ * @namespace vars::pi02024_nophase
  * @brief Namespace for organizing variables specific to the pi02024 analysis.
  * @details This namespace is intended to be used for organizing variables which
  * act on interactions specific to the pi02024 analysis. Each variable is
@@ -33,7 +34,7 @@
  * namespace, which is used for organizing generic variables which act on
  * interactions.
  */
-namespace vars::pi02024_eff
+namespace vars::pi02024_nophase
 {
     /**
      * @brief Variable for enumerating interaction categories.
@@ -53,7 +54,7 @@ namespace vars::pi02024_eff
       double cat(3);
 
       // Signal   
-      if(cuts::pi02024_eff::signal_1mu0pi1pi0(obj))
+      if(cuts::pi02024_nophase::signal_1mu0pi1pi0(obj))
       {
 	if(cuts::fiducial_cut(obj))
 	{
@@ -62,12 +63,39 @@ namespace vars::pi02024_eff
 	else cat = 1;
       }
       // Neutrino Background              
-      else if(cuts::pi02024_eff::other_nu_1mu0pi1pi0(obj))
+      else if(cuts::pi02024_nophase::other_nu_1mu0pi1pi0(obj))
       {
 	cat = 2;
       }
       return cat;
     }
+
+    double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
+    {
+      truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
+
+      // Cosmic
+      uint16_t cat(6);
+
+      // Neutrino
+      if(s.is_neutrino)
+	{
+	  // 1mu0pi1pi0 (in-phase)
+	  if(s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_fiducial) cat = 0;
+	  // 1muNpi1pi0 
+	  else if(s.num_primary_muons == 1 && s.num_primary_pions > 0 && s.num_primary_pi0s == 1 && s.is_cc) cat = 1;
+	  // 1muNpi0pi0
+	  else if(s.num_primary_muons == 1 && s.num_primary_pions > 0 && s.num_primary_pi0s == 0 && s.is_cc) cat = 2;
+	  // 1muNpi0
+	  else if(s.num_primary_muons == 1 && s.num_primary_pi0s > 1 && s.is_cc) cat = 3;
+	  // NC 1pi0
+	  else if(s.num_primary_muons == 0 && s.num_primary_pi0s == 1 && !s.is_cc) cat = 4;
+	  // Other nu   
+	  else cat = 5;
+	}
+      return cat;
+    }
+
 
     /**
      * @brief Variable for enumerating cut type.
@@ -100,12 +128,12 @@ namespace vars::pi02024_eff
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 			   {
-			       truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			       return s.muon_momentum_mag;
 			   }
 	    else
             {
-	        reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 		return s.muon_momentum_mag;
             }
         }
@@ -123,12 +151,12 @@ namespace vars::pi02024_eff
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
                            {
-			       truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			       return s.muon_beam_costheta;
                            }
 	    else
 	    {
-	      reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	      reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 	      return s.muon_beam_costheta;
 	    }
         }
@@ -146,12 +174,12 @@ namespace vars::pi02024_eff
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 			   {
-			       truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			       return s.pi0_leading_photon_energy;
 			   }
             else
 	    {
-		reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+		reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 		return s.pi0_leading_photon_energy;
 	    }
 	}
@@ -169,12 +197,12 @@ namespace vars::pi02024_eff
       {
 	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 			 {
-			     truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			     truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			     return s.pi0_leading_photon_conv_dist;
 			 }
 	  else
 	  {
-	      reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	      reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 	      return s.pi0_leading_photon_conv_dist;
 	  }
       }
@@ -192,12 +220,12 @@ namespace vars::pi02024_eff
 	{
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
                              {
-			       truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			       return s.pi0_subleading_photon_energy;
                              }
             else
 	    {
-	        reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
                 return s.pi0_subleading_photon_energy;
 	    }
 	}
@@ -215,12 +243,12 @@ namespace vars::pi02024_eff
       {
 	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		         {
-			     truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			     truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			     return s.pi0_subleading_photon_conv_dist;
 		         }
 	  else
           {
-	      reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	      reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 	      return s.pi0_subleading_photon_conv_dist;
           }
       }
@@ -238,12 +266,12 @@ namespace vars::pi02024_eff
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		       {
-			   truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			   truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			   return s.pi0_momentum_mag;
 		       }
 	    else
 	    {
-	        reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 		return s.pi0_momentum_mag;
 	    } 
         }
@@ -261,12 +289,12 @@ namespace vars::pi02024_eff
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		       {
-			   truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			   truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
 			   return s.pi0_beam_costheta;
 		       }
 	    else
 	    {
-	        reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 		return s.pi0_beam_costheta;
 	    }
         }
@@ -284,14 +312,14 @@ namespace vars::pi02024_eff
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
                            {
-			       truth_inter s = utilities_pi02024_eff::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_pi02024_nophase::truth_interaction_info(obj);
                                return s.pi0_mass;
                            }
 	    else
 	    {
-	        reco_inter s = utilities_pi02024_eff::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_pi02024_nophase::reco_interaction_info(obj);
 	        return s.pi0_mass;
 	    }
 	} 
 }
-#endif // VARS_PI02024_EFF_H
+#endif // VARS_PI02024_NOPHASE_H
