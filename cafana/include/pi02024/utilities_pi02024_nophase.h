@@ -52,7 +52,7 @@ struct reco_inter_nophase {
   double pi0_leading_photon_cosphi;
   double pi0_leading_photon_conv_dist;
   double pi0_subleading_photon_energy;
-  size_t pi0_subleading_photon_cosphi;
+  double pi0_subleading_photon_cosphi;
   double pi0_subleading_photon_conv_dist;
   double pi0_costheta;
   double pi0_mass;
