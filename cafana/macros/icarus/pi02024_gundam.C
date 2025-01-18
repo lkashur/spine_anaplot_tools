@@ -28,8 +28,9 @@ void pi02024_gundam()
 {
     ana::Analysis analysis("pi02024_output");
 
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/collonly_v2b/flat/*.root");
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/collonly_v2b/flat/*.root");
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/nominal/flat/*.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/v09_89_01_01p02_numi_nu_cosmic_mc/flat/*.root");
     analysis.AddLoader("mc", &mc, true);
 
     /**

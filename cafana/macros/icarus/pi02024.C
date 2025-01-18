@@ -1,5 +1,5 @@
 /**
- * @file pi02024.C
+ * @file pi02024_nophase.C
  * @brief The main analysis macro for the pi02024 analysis on ICARUS Monte
  * Carlo simulation.
  * @details This macro drives the analysis by configuring the variables, cuts,
@@ -9,11 +9,14 @@
  * @author lkashur@colostate.edu
 */
 #include "include/variables.h"
-#include "include/pi02024/variables_pi02024.h"
 #include "include/cuts.h"
-#include "include/pi02024/cuts_pi02024.h"
+#include "include/pi02024/variables_pi02024_nophase.h"
+#include "include/pi02024/cuts_pi02024_nophase.h"
+#include "include/pi02024/variables_pi02024_phase.h"
+#include "include/pi02024/cuts_pi02024_phase.h"
 #include "include/spinevar.h"
 #include "include/analysis.h"
+#include "include/beaminfo.h"
 
 #include "sbnana/CAFAna/Core/SpectrumLoader.h"
 #include "sbnana/CAFAna/Core/Tree.h"
@@ -24,10 +27,13 @@
 
 void pi02024()
 {
-    ana::Analysis analysis("pi02024_rev2_icarus_v4");
+    ana::Analysis analysis("pi02024");
 
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/collonly_v2b/flat/*.root");
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/nominal/flat/*.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/collonly_v2b/flat/*.root"); // BNB
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/v09_89_01_01p02_numi_nu_cosmic_mc/flat/*.root"); // NuMI
+
+    //#define IS_NUMI 1 // UNCOMMENT IF PROCESSING NUMI MC
+    
     analysis.AddLoader("mc", &mc, true);
 
     /**
@@ -37,61 +43,58 @@ void pi02024()
      * to calculate the variables. These names are used in the TTree that is
      * created by the Tree class to store the results of the analysis.
      */
-    #define CUT cuts::pi02024::all_1mu0pi2gamma_cut
+    #define CUT cuts::pi02024_nophase::SELCUT
     #define TCUT cuts::neutrino
-    std::map<std::string, ana::SpillMultiVar> vars_selected_nu;
-    vars_selected_nu.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
-    vars_selected_nu.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
-    vars_selected_nu.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category, &CUT, &TCUT)});
-    vars_selected_nu.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category_topology, &CUT, &TCUT)});
-    vars_selected_nu.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
-    vars_selected_nu.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
-    vars_selected_nu.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_energy, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_subleading_photon_energy, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_momentum_mag, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_beam_costheta, &CUT, &TCUT)});
-    vars_selected_nu.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_mass, &CUT, &TCUT)});
-    vars_selected_nu.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
-    vars_selected_nu.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
-    vars_selected_nu.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
-
-    analysis.AddTree("selectedNu", vars_selected_nu, false);
+    std::map<std::string, ana::SpillMultiVar> vars_selected_nu_nophase;
+    vars_selected_nu_nophase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024_nophase::category, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024_nophase::category_topology, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_leading_photon_energy, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_subleading_photon_energy, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_mass, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
+    vars_selected_nu_nophase.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
+    analysis.AddTree("selectedNu_NoPhaseCuts", vars_selected_nu_nophase, false);
 
     #undef TCUT
     #define TCUT cuts::cosmic
-    std::map<std::string, ana::SpillMultiVar> vars_selected_cos;
-    vars_selected_cos.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
-    vars_selected_cos.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
-    vars_selected_cos.insert({"pdg", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_pdg, &CUT, &TCUT)});
-    vars_selected_cos.insert({"cc", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_cc, &CUT, &TCUT)});
-    vars_selected_cos.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category, &CUT, &TCUT)});
-    vars_selected_cos.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category_topology, &CUT, &TCUT)});
-    vars_selected_cos.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
-    vars_selected_cos.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_momentum_mag, &CUT, &TCUT)});
-    vars_selected_cos.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024::muon_beam_costheta, &CUT, &TCUT)});
-    vars_selected_cos.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_energy, &CUT, &TCUT)});
-    vars_selected_cos.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_cos.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024::pi0_mass, &CUT, &TCUT)});
-    vars_selected_cos.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
-    vars_selected_cos.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
-    vars_selected_cos.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
-
-    analysis.AddTree("selectedCos", vars_selected_cos, false);
+    std::map<std::string, ana::SpillMultiVar> vars_selected_cos_nophase;
+    vars_selected_cos_nophase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"pdg", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_pdg, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"cc", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024_nophase::category, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024_nophase::category_topology, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_leading_photon_energy, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024_nophase::pi0_mass, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
+    vars_selected_cos_nophase.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
+    analysis.AddTree("selectedCos_NoPhaseCuts", vars_selected_cos_nophase, false);
 
     #undef TCUT
     #define TCUT cuts::neutrino
-    std::map<std::string, ana::SpillMultiVar> vars_purity_nu;
-    vars_purity_nu.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024::category, &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"topology_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::pi02024::topological_1mu0pi2gamma_cut), &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"fiducial_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::fiducial_cut), &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"track_containment_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::track_containment_cut), &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"flash_cut_bnb", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &cuts::no_cut, &TCUT)});
-    
-    analysis.AddTree("purityNu", vars_purity_nu, false);
+    std::map<std::string, ana::SpillMultiVar> vars_purity_nu_nophase;
+    vars_purity_nu_nophase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &cuts::no_cut, &TCUT)});
+    vars_purity_nu_nophase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024_nophase::category, &cuts::no_cut, &TCUT)});
+    vars_purity_nu_nophase.insert({"topology_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::pi02024_nophase::topological_1mu0pi2gamma_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu_nophase.insert({"fiducial_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::fiducial_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu_nophase.insert({"track_containment_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::track_containment_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu_nophase.insert({"flash_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(FLASHCUT), &cuts::no_cut, &TCUT)});
+    analysis.AddTree("purityNu_NoPhaseCuts", vars_purity_nu_nophase, false);
 
     /**
      * @brief Add a set of variables for signal interactions to the analysis.
@@ -100,28 +103,106 @@ void pi02024()
      * to calculate the variables. These names are used in the TTree that is
      * created by the Tree class to store the results of the analysis.
      */
-    #define SIGCUT cuts::pi02024::signal_1mu0pi1pi0
-    std::map<std::string, ana::SpillMultiVar> vars_signal;
-    vars_signal.insert({"nu_id", SpineVar<TTYPE,TTYPE>(&vars::neutrino_id, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"baseline", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"pdg", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"cc", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_cc, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::pi02024::category, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"category_topology", SpineVar<TTYPE,TTYPE>(&vars::pi02024::category_topology, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"interaction_mode", SpineVar<TTYPE,TTYPE>(&vars::neutrino_interaction_mode, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"true_edep", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_energy, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"muon_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024::muon_momentum_mag, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"muon_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024::muon_beam_costheta, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"pi0_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024::pi0_mass, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"flash_cut_bnb", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &SIGCUT, &SIGCUT)});
+    #define SIGCUT cuts::pi02024_nophase::signal_1mu0pi1pi0
+    std::map<std::string, ana::SpillMultiVar> vars_signal_nophase;
+    vars_signal_nophase.insert({"nu_id", SpineVar<TTYPE,TTYPE>(&vars::neutrino_id, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"baseline", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"pdg", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"cc", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_cc, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::category, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"category_topology", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::category_topology, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"interaction_mode", SpineVar<TTYPE,TTYPE>(&vars::neutrino_interaction_mode, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"true_edep", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_energy, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"muon_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::muon_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"muon_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::muon_beam_costheta, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::pi0_mass, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"pi0_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_nophase::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(FLASHCUT), &SIGCUT, &SIGCUT)});
+    analysis.AddTree("Signal_NoPhaseCuts", vars_signal_nophase, true);
 
-    analysis.AddTree("signal", vars_signal, true);
+    // Analysis with phase cuts starts here
+    std::map<std::string, ana::SpillMultiVar> vars_selected_nu_phase;
+    #undef CUT
+    #define CUT cuts::pi02024_phase::SELCUT
+    #undef TCUT
+    #define TCUT cuts::neutrino
+    vars_selected_nu_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024_phase::category, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024_phase::category_topology, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_leading_photon_energy, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_subleading_photon_energy, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_momentum_mag, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_mass, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
+    analysis.AddTree("selectedNu_PhaseCuts", vars_selected_nu_phase, false);
+
+    #undef TCUT
+    #define TCUT cuts::cosmic
+    std::map<std::string, ana::SpillMultiVar> vars_selected_cos_phase;
+    vars_selected_cos_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"pdg", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_pdg, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"cc", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_cc, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024_phase::category, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi02024_phase::category_topology, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"interaction_mode", SpineVar<TTYPE,RTYPE>(&vars::neutrino_interaction_mode, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::muon_momentum_mag, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::muon_beam_costheta, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_leading_photon_energy, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi02024_phase::pi0_mass, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"flash_time", SpineVar<RTYPE,RTYPE>(&vars::flash_time, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"flash_total", SpineVar<RTYPE,RTYPE>(&vars::flash_total_pe, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &CUT, &TCUT)});
+    analysis.AddTree("selectedCos_PhaseCuts", vars_selected_cos_phase, false);
+
+    #undef TCUT
+    #define TCUT cuts::neutrino
+    std::map<std::string, ana::SpillMultiVar> vars_purity_nu_phase;
+    vars_purity_nu_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &cuts::no_cut, &TCUT)});
+    vars_purity_nu_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi02024_phase::category, &cuts::no_cut, &TCUT)});
+    vars_purity_nu_phase.insert({"topology_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::pi02024_phase::topological_1mu0pi2gamma_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu_phase.insert({"fiducial_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::fiducial_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu_phase.insert({"track_containment_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::track_containment_cut), &cuts::no_cut, &TCUT)});
+    vars_purity_nu_phase.insert({"flash_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(FLASHCUT), &cuts::no_cut, &TCUT)});
+    analysis.AddTree("purityNu_PhaseCuts", vars_purity_nu_phase, false);
+
+    #undef SIGCUT
+    #define SIGCUT cuts::pi02024_phase::signal_1mu0pi1pi0
+    std::map<std::string, ana::SpillMultiVar> vars_signal_phase;
+    vars_signal_phase.insert({"nu_id", SpineVar<TTYPE,TTYPE>(&vars::neutrino_id, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"baseline", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"pdg", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"cc", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_cc, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::category, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"category_topology", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::category_topology, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"interaction_mode", SpineVar<TTYPE,TTYPE>(&vars::neutrino_interaction_mode, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"true_edep", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_energy, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"muon_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::muon_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"muon_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::muon_beam_costheta, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::pi0_mass, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"pi0_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_phase::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(FLASHCUT), &SIGCUT, &SIGCUT)});
+    analysis.AddTree("Signal_PhaseCuts", vars_signal_phase, true);
 
     /**
      * @brief Run the analysis.
