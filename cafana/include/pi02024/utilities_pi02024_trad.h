@@ -1,5 +1,5 @@
 /**
- * @file utilities_pi02024_phase.h
+ * @file utilities_pi02024_trad.h
  * @brief Header file for definitions of utility functions for supporting
  * analysis variables and cuts.
  * @details This file contains definitions of utility functions which are used
@@ -9,8 +9,8 @@
  * variables and cuts.
  * @author lkashur@colostate.edu
  */
-#ifndef UTILITIES_PI02024_PHASE_H
-#define UTILITIES_PI02024_PHASE_H
+#ifndef UTILITIES_PI02024_TRAD_H
+#define UTILITIES_PI02024_TRAD_H
 
 #include <iostream>
 #include <vector>
@@ -18,11 +18,11 @@
 #include "include/cuts.h"
 #include "include/beaminfo.h"
 
-#define MIN_MUON_MOMENTUM 226
-#define MIN_PION_MOMENTUM 0
-#define MIN_PI0_MOMENTUM 50
+#define MIN_MUON_ENERGY 143.425
+#define MIN_PION_ENERGY 0
+#define MIN_PHOTON_ENERGY 40
 
-struct truth_inter_phase {
+struct truth_inter_trad {
   int num_primary_muons;
   int num_primary_muons_thresh;
   int num_primary_pions;
@@ -47,7 +47,7 @@ struct truth_inter_phase {
   double pi0_beam_costheta;
 };
 
-struct reco_inter_phase {
+struct reco_inter_trad {
   double transverse_momentum_mag;
   double muon_momentum_mag;
   double muon_beam_costheta;
@@ -66,7 +66,7 @@ struct reco_inter_phase {
 
 
 /**
- * @namespace utilities_pi02024_phase
+ * @namespace utilities_pi02024_trad
  * @brief Namespace for organizing utility functions for supporting analysis
  * variables and cuts.
  * @details This namespace is intended to be used for organizing utility
@@ -78,7 +78,7 @@ struct reco_inter_phase {
  * vars and cuts namespaces, which are used for organizing variables and cuts
  * which act on interactions.
  */
-namespace utilities_pi02024_phase
+namespace utilities_pi02024_trad
 {
     /**
      * @brief Check if the particle meets final state signal requirements.
@@ -95,13 +95,10 @@ namespace utilities_pi02024_phase
 	  bool passes(false);
 	  if(p.is_primary)
 	  {
-	    TVector3 momentum(p.momentum[0], p.momentum[1], p.momentum[2]);
-	    double momentum_mag(momentum.Mag());
-
-	    if(p.pid == 0) passes = true; // Photons
+	    if(p.pid == 0 && p.ke >= MIN_PHOTON_ENERGY) passes = true; // Photons
 	    if(p.pid == 1) passes = true; // Electrons
-	    if(p.pid == 2 && momentum_mag >= MIN_MUON_MOMENTUM) passes = true; // Muons
-	    if(p.pid == 3 && momentum_mag >= MIN_PION_MOMENTUM) passes = true; // Pions
+	    if(p.pid == 2 && p.ke >= MIN_MUON_ENERGY) passes = true; // Muons
+	    if(p.pid == 3 && p.ke >= MIN_PION_ENERGY) passes = true; // Pions
 	    if(p.pid == 4) passes = true; // Protons
 	    if(p.pid == 5) passes = true; // Kaons
 	  }
@@ -138,10 +135,10 @@ namespace utilities_pi02024_phase
      * @note This structure is intented to be used for the pi02024 analysis. 
      */
     template<class T> 
-      truth_inter_phase truth_interaction_info(const T & obj)
+      truth_inter_trad truth_interaction_info(const T & obj)
       {
 	// Initialize struct
-	truth_inter_phase s;
+	truth_inter_trad s;
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
@@ -158,7 +155,7 @@ namespace utilities_pi02024_phase
 	double pT0(0), pT1(0), pT2(0);
 	bool is_neutrino(false);
 	bool is_cc(false);
-	unordered_map<int, vector<pair<size_t, TVector3>> > primary_pi0_map;
+	unordered_map<int, vector<pair<size_t, double>> > primary_pi0_map;
 	unordered_map<int, vector<pair<size_t, double>> > nonprimary_pi0_map;
 	double muon_momentum_mag;
 	double muon_beam_costheta;
@@ -194,7 +191,7 @@ namespace utilities_pi02024_phase
 	    if(p.pid == 2)
 	    {
 	      primary_muon_count++;
-	      if(_p.Mag() >= MIN_MUON_MOMENTUM) primary_muon_count_thresh++;
+	      if(p.ke >= MIN_MUON_ENERGY) primary_muon_count_thresh++;
 	      if(p.ke > max_muon_ke)
 	      {
 		max_muon_ke = p.ke;
@@ -205,13 +202,13 @@ namespace utilities_pi02024_phase
 	    if(p.pid == 3)
 	    {
 	      primary_pion_count++;
-	      if(_p.Mag() >= MIN_PION_MOMENTUM) primary_pion_count_thresh++;
+	      if(p.ke >= MIN_PION_ENERGY) primary_pion_count_thresh++;
 	    }
 	    
 	    // Neutral pions
 	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
 	    {
-	      primary_pi0_map[p.parent_track_id].push_back({i,_p});
+	      primary_pi0_map[p.parent_track_id].push_back({i,p.ke});
 	    }
 	  } // end primary loop
 	  // Nonprimaries
@@ -249,20 +246,20 @@ namespace utilities_pi02024_phase
 	vector<int> subthresh_primary_pi0_ids;
 	for(auto const & pi0 : primary_pi0_map)
 	  {
-	    TVector3 pi0_mom(0,0,0);
+	    int num_photon_daughters_thresh(0);
 	    for(auto & daughter : pi0.second)
 	      {
-		pi0_mom += daughter.second;
+		if(daughter.second >= MIN_PHOTON_ENERGY) num_photon_daughters_thresh++;
 	      }
 	    
-	    if(pi0_mom.Mag() >= MIN_PI0_MOMENTUM) 
+	    if(num_photon_daughters_thresh == 2)
 	      {
 		primary_pi0_count_thresh++;
 	      }
 	    else
 	      {
 		subthresh_primary_pi0_ids.push_back(pi0.first);
-	      }  
+	      }
 	  }
 
 	// Remove subthreshold pi0s from our map
@@ -325,9 +322,6 @@ namespace utilities_pi02024_phase
 	  TVector3 pi0_subleading_photon_momentum(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1], pi0_subleading_photon.momentum[2]);
 
 	  pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
-	  //pi0_momentum_mag = pi0_momentum.Mag();
-	  //std::cout << "pi0 momentum 2: " << pi0_momentum_mag << std::endl;
-	  //std::cout << " " << std::endl;
 	  pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
 
 	  pi0_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
@@ -386,10 +380,10 @@ namespace utilities_pi02024_phase
      * @note This structure is intented to be used for the pi02024 analysis.
      */
     template<class T> 
-      reco_inter_phase reco_interaction_info(const T & obj)
+      reco_inter_trad reco_interaction_info(const T & obj)
       {
 	// Initialize structure
-	reco_inter_phase s;
+	reco_inter_trad s;
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
@@ -536,4 +530,4 @@ namespace utilities_pi02024_phase
       }
 
 }
-#endif // UTILITIES_PI02024_PHASE_H
+#endif // UTILITIES_PI02024_TRAD_H

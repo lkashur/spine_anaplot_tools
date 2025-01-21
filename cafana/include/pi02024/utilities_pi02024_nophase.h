@@ -18,10 +18,6 @@
 #include "include/cuts.h"
 #include "include/beaminfo.h"
 
-#define MIN_PHOTON_ENERGY 25.0
-#define MIN_MUON_ENERGY 143.425
-#define MIN_PION_ENERGY 25.0
-
 struct truth_inter_nophase {
   int num_primary_muons;
   int num_primary_pions;
@@ -92,10 +88,6 @@ namespace utilities_pi02024_nophase
 	  bool passes(false);
 	  if(p.is_primary)
 	  {
-	    double energy(p.pid > 1 ? p.csda_ke : p.calo_ke); // only valid for contained analysis  
-	    if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
-			     energy = p.ke;
-
 	    if(p.pid == 0) passes = true; // Photons
 	    if(p.pid == 1) passes = true; // Electrons
 	    if(p.pid == 2) passes = true; // Muons
@@ -397,9 +389,9 @@ namespace utilities_pi02024_nophase
 	    // Muons
 	    if(p.pid == 2)
 	    {
-		if(p.csda_ke > max_muon_ke)
+		if(p.ke > max_muon_ke)
 		{
-		    max_muon_ke = p.csda_ke;
+		    max_muon_ke = p.ke;
 		    leading_muon_index = i;
 		}
 	    }

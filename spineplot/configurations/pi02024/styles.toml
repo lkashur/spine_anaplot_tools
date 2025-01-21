@@ -1,0 +1,40 @@
+[styles]
+[styles.selected_icarus]
+style_sheet = "styles/pi02024.mplstyle"
+default_figsize = [6.4,4.8]
+title = '$\bf{ICARUS}$ $\nu_{\mu}$ CC $\pi^{0}$'
+mark_pot = true
+mark_preliminary = '$\bf{ICARUS}$ Simulation Work-in-Progress'
+show_component_number = true
+show_component_percentage = true
+invert_stack_order = true
+
+[styles.signal_icarus]
+style_sheet = "styles/muon2024.mplstyle"
+default_figsize = [6.4,4.8]
+title = '$\bf{ICARUS}$ $1\mu Np$ CC0$\pi$'
+mark_pot = true
+mark_preliminary = '$\bf{ICARUS}$ Simulation Work-in-Progress'
+show_component_number = true
+show_component_percentage = false
+invert_stack_order = false
+
+[styles.selected_sbnd]
+style_sheet = "styles/muon2024.mplstyle"
+default_figsize = [6.4,4.8]
+title = '$\bf{SBND}$ $1\mu Np$ CC0$\pi$'
+mark_pot = true
+mark_preliminary = '$\bf{SBND}$ Simulation Work-in-Progress'
+show_component_number = true
+show_component_percentage = true
+invert_stack_order = false
+
+[styles.signal_sbnd]
+style_sheet = "styles/muon2024.mplstyle"
+default_figsize = [6.4,4.8]
+title = '$\bf{SBND}$ $1\mu Np$ CC0$\pi$'
+mark_pot = true
+mark_preliminary = '$\bf{SBND}$ Simulation Work-in-Progress'
+show_component_number = true
+show_component_percentage = false
+invert_stack_order = false
