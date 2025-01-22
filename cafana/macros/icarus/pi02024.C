@@ -136,6 +136,8 @@ void pi02024()
     vars_signal_nophase.insert({"pi0_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::pi0_beam_costheta, &SIGCUT, &SIGCUT)});
     vars_signal_nophase.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024_nophase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_nophase.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_nophase::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"has_single_muon", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_nophase::single_muon), &SIGCUT, &SIGCUT)});
+    vars_signal_nophase.insert({"has_no_charged_pions", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_nophase::no_charged_pions), &SIGCUT, &SIGCUT)});
     vars_signal_nophase.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal_nophase.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
     vars_signal_nophase.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(FLASHCUT), &SIGCUT, &SIGCUT)});
@@ -224,6 +226,8 @@ void pi02024()
     vars_signal_phase.insert({"pi0_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::pi0_beam_costheta, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024_phase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_phase::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"has_single_muon", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_phase::single_muon), &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"has_no_charged_pions", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_phase::no_charged_pions), &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(FLASHCUT), &SIGCUT, &SIGCUT)});

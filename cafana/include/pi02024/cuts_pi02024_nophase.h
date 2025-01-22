@@ -57,6 +57,36 @@ namespace cuts::pi02024_nophase
 	  std::vector<uint32_t> c(utilities_pi02024_nophase::count_primaries(obj));
 	  return c[0] == 2 && c[2] == 1 && c[3] == 0;
         }
+
+    /**
+     * @brief Apply a charged pion (final state) cut.
+     * @details The interaction must not contain any charged pions as defined by
+     * the conditions in the @ref count_primaries() function.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to select on.
+     * @return true if the interaction contains zero charged pions.
+     */
+    template<class T>
+        bool no_charged_pions(const T & obj)
+        {
+	    std::vector<uint32_t> c(utilities_pi02024_nophase::count_primaries(obj));
+	    return c[3] == 0;
+	}
+
+    /**
+     * @brief Apply a single muon (final state) cut.
+     * @details The interaction must contain exactly one muon as defined by
+     * the conditions in the @ref count_primaries() function.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to select on.
+     * @return true if the interaction contains exactly one muon.
+     */
+    template<class T>
+        bool single_muon(const T & obj)
+        {
+	    std::vector<uint32_t> c(utilities_pi02024_nophase::count_primaries(obj));
+	    return c[2] == 1;
+        }
       
     /**
      * @brief Apply pi0 mass cut.
