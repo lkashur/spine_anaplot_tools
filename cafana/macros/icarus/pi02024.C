@@ -30,10 +30,11 @@
 
 void pi02024()
 {
-    ana::Analysis analysis("pi02024_bnb_nu_cosmic_mc_cv_v09_89");
+    //ana::Analysis analysis("pi02024_bnb_nu_cosmic_mc_cv_v09_89");
+    ana::Analysis analysis("pi02024_test");
 
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/collonly_v2b/flat/*.root"); // BNB
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/nominal/flat/*.root"); // Nominal BNB Nu + Cosmic (v09_89)
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/fall2024/collonly_v2b/flat/*.root"); // BNB Mini Sample
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/nominal/flat/*.root"); // Nominal BNB Nu + Cosmic (v09_89)
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/v09_89_01_01p02_numi_nu_cosmic_mc/flat/*.root"); // NuMI
 
     //#define IS_NUMI 1 // UNCOMMENT IF PROCESSING NUMI MC
@@ -226,7 +227,7 @@ void pi02024()
     vars_signal_phase.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(FLASHCUT), &SIGCUT, &SIGCUT)});
-    vars_signal_phase.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_nophase::SELCUT), &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_phase::SELCUT), &SIGCUT, &SIGCUT)});
     analysis.AddTree("Signal_PhaseCuts", vars_signal_phase, true);
 
     // Analysis with "traditional" cuts starts here
@@ -311,10 +312,12 @@ void pi02024()
     vars_signal_trad.insert({"pi0_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::pi02024_trad::pi0_beam_costheta, &SIGCUT, &SIGCUT)});
     vars_signal_trad.insert({"pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::pi02024_trad::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_trad.insert({"topological_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_trad::topological_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
+    vars_signal_trad.insert({"has_single_muon", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_trad::single_muon), &SIGCUT, &SIGCUT)});
+    vars_signal_trad.insert({"has_no_charged_pions", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_trad::no_charged_pions), &SIGCUT, &SIGCUT)});
     vars_signal_trad.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal_trad.insert({"track_containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::track_containment_cut), &SIGCUT, &SIGCUT)});
     vars_signal_trad.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(FLASHCUT), &SIGCUT, &SIGCUT)});
-    vars_signal_trad.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_nophase::SELCUT), &SIGCUT, &SIGCUT)});
+    vars_signal_trad.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi02024_trad::SELCUT), &SIGCUT, &SIGCUT)});
     analysis.AddTree("Signal_TradCuts", vars_signal_trad, true);
 
 

@@ -19,8 +19,8 @@
 #include "include/beaminfo.h"
 
 #define MIN_MUON_ENERGY 143.425
-#define MIN_PION_ENERGY 0
-#define MIN_PHOTON_ENERGY 40
+#define MIN_PION_ENERGY 25
+#define MIN_PHOTON_ENERGY 25
 
 struct truth_inter_trad {
   int num_primary_muons;
