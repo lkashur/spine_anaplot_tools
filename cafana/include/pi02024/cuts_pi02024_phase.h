@@ -119,10 +119,10 @@ namespace cuts::pi02024_phase
      * @note This cut is intended to be used for the pi02024 analysis. 
      */
     template<class T>
-        bool all_1mu0pi2gamma_bnb_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj);}
+        bool all_1mu0pi2gamma_bnb_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
     
     template<class T>
-        bool all_1mu0pi2gamma_numi_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_numi<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj);}
+        bool all_1mu0pi2gamma_numi_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_numi<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
 
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.

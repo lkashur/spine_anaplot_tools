@@ -1,9 +1,9 @@
 [[this_includes]]
-file = 'configurations/pi02024/reco_variables.toml'
+file = 'configurations/pi02024/selected/reco_variables.toml'
 
 [[this_includes]]
 file = 'configurations/pi02024/samples.toml'
-choose = {'samples' = ['mctrad']}
+choose = {'samples' = ['mcphase']}
 
 [[this_includes]]
 file = 'configurations/pi02024/styles.toml'
@@ -12,7 +12,7 @@ file = 'configurations/pi02024/styles.toml'
 path = '/exp/icarus/app/users/lkashur/SPINEAna/spine_anaplot_tools/spineplot/'
 
 [analysis]
-ordinate_sample = 'mctrad'
+ordinate_sample = 'mcphase'
 category_branch = 'category_topology'
 category_assignment = [[0], [1], [2], [3], [4], [5], [6], [7]]
 category_labels = ['1$\mu$0$\pi^{±}$1$\pi^{0}$', '1$\mu$0$\pi^{±}$1$\pi^{0}$ (OOPS)', '1$\mu$N$\pi^{±}$1$\pi^{0}$', '1$\mu$N$\pi^{±}$0$\pi^{0}$', '1$\mu$N$\pi^{0}$', 'NC 1$\pi^{0}$ ', 'Other $\nu$', 'Cosmic']

@@ -20,7 +20,7 @@
 
 #define MIN_MUON_MOMENTUM 226
 #define MIN_PION_MOMENTUM 0
-#define MIN_PI0_MOMENTUM 50
+#define MIN_PI0_MOMENTUM 100
 
 struct truth_inter_phase {
   int num_primary_muons;
