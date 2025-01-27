@@ -1,0 +1,36 @@
+[samples]
+[samples.mctrad]
+key = "mc"
+exposure_type = "pot"
+trees = ['SelectedNu_TradCuts', 'SelectedCos_TradCuts']
+
+[samples.mcphase]
+key = "mc"
+exposure_type = "pot"
+trees = ['SelectedNu_PhaseCuts','SelectedCos_PhaseCuts']
+
+[samples.mcnophase]
+key = "mc"
+exposure_type = "pot"
+trees = ['SelectedNu_NoPhaseCuts','SelectedCos_NoPhaseCuts']
+
+[samples.mcsignal]
+key = "mc"
+exposure_type = "pot"
+trees = ['signal',]
+
+[samples.offbeam]
+key = "offbeam"
+exposure_type = "pot"
+trees = ['selectedNu',]
+
+[samples.onbeam]
+key = "onbeam"
+exposure_type = "pot"
+override_category = -100
+trees = ['selectedNu',]
+
+[samples.intime]
+key = "intime"
+exposure_type = "livetime"
+trees = ['selectedCos',]

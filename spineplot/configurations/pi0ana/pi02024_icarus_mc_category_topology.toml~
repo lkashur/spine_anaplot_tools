@@ -1,0 +1,32 @@
+[[this_includes]]
+file = 'configurations/pi02024/variables.toml'
+
+[[this_includes]]
+file = 'configurations/common/samples.toml'
+choose = {'samples' = ['mc']}
+
+[[this_includes]]
+file = 'configurations/pi02024/styles.toml'
+
+[output]
+path = '/exp/icarus/app/users/lkashur/SPINEAna/spine_anaplot_tools/spineplot/'
+
+[analysis]
+ordinate_sample = 'mc'
+category_branch = 'category_topology'
+category_assignment = [[0], [1], [2], [3], [4], [5], [6], [7]]
+category_labels = ['1$\mu$0$\pi$1$\pi^{0}$', '1', '2', '3', '4', '5', '6', '7']
+category_colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', 'black']
+category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
+
+[[figure]]
+name = 'pi0_leading_photon_energy'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'pi0_leading_photon_energy'},]
+style = 'selected_icarus'
+
+[[figure]]
+name = 'pi0_mass'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'pi0_mass'},]
+style = 'selected_icarus'

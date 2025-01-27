@@ -1,0 +1,26 @@
+[[this_includes]]
+file = 'configurations/pi02024/variables.toml'
+
+[[this_includes]]
+file = 'configurations/common/samples.toml'
+choose = {'samples' = ['mcsignal']}
+
+[[this_includes]]
+file = 'configurations/pi02024/styles.toml'
+
+[output]
+path = '/exp/icarus/app/users/lkashur/SPINEAna/spine_anaplot_tools/spineplot/'
+
+[analysis]
+ordinate_sample = 'mcsignal'
+category_branch = 'interaction_mode'
+category_assignment = [[0], [10], [1], [2], [3], [4], [5], [6], [7], [8], [9], [11], [12], [13]]
+category_labels = ['QE', 'MEC', 'Res', 'DIS', 'Coh', 'CohElastic', 'ElectronScattering', 'IMDAnnihilation', 'IMDAnnihilation', 'GlashowResonance', 'AMNuGamma', 'Diffractive', 'EM', 'WeakMix']
+category_colors = ['#E56A54', '#105456', '#008FB3', '#82C503', 'black', 'black', 'black', 'black', 'black', 'black', 'black', 'black', 'black', 'black', 'black']
+category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
+
+[[figure]]
+name = 'true_neutrino_energy'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'true_neutrino_energy'},]
+style = 'selected_icarus'

@@ -1,0 +1,51 @@
+[[this_includes]]
+file = 'configurations/pi02024/reco_variables.toml'
+
+[[this_includes]]
+file = 'configurations/pi02024/samples.toml'
+choose = {'samples' = ['mctrad']}
+
+[[this_includes]]
+file = 'configurations/pi02024/styles.toml'
+
+[output]
+path = '/exp/icarus/app/users/lkashur/SPINEAna/spine_anaplot_tools/spineplot/'
+
+[analysis]
+ordinate_sample = 'mctrad'
+category_branch = 'category_topology'
+category_assignment = [[0], [1], [2], [3], [4], [5], [6], [7]]
+category_labels = ['1$\mu$0$\pi^{±}$1$\pi^{0}$', '1$\mu$0$\pi^{±}$1$\pi^{0}$ (OOPS)', '1$\mu$N$\pi^{±}$1$\pi^{0}$', '1$\mu$N$\pi^{±}$0$\pi^{0}$', '1$\mu$N$\pi^{0}$', 'NC 1$\pi^{0}$ ', 'Other $\nu$', 'Cosmic']
+category_colors = ['#1b9e77', '#dea0fd', '#4c78a8', '#e5c494', '#e45756', '#17becf', '#f58518', '#a6761d']
+#category_colors = ['C8', 'C7', 'C6', 'C5', 'C4', 'C3', 'C2', 'C1']
+category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
+
+[[figure]]
+name = 'muon_momentum_mag'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'muon_momentum_mag'},]
+style = 'selected_icarus'
+
+[[figure]]
+name = 'pi0_leading_photon_energy'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'pi0_leading_photon_energy'},]
+style = 'selected_icarus'
+
+[[figure]]
+name = 'pi0_subleading_photon_energy'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'pi0_subleading_photon_energy'},]
+style = 'selected_icarus'
+
+[[figure]]
+name = 'pi0_momentum_mag'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'pi0_momentum_mag'},]
+style = 'selected_icarus'
+
+[[figure]]
+name = 'pi0_mass'
+type = 'SimpleFigure'
+artists = [{'type' = 'SpineSpectra1D', 'variable' = 'pi0_mass'},]
+style = 'selected_icarus'
