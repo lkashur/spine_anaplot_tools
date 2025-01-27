@@ -96,9 +96,9 @@ class SpineSpectra(SpineArtist):
         None.
         """
         yrange = ax.get_ylim()
-        usey = yrange[1] + 0.02*(yrange[1] - yrange[0])
+        usey = yrange[1] + 0.025*(yrange[1] - yrange[0])
         xrange = ax.get_xlim()
-        usex = xrange[1] - 0.02*(xrange[1] - xrange[0])
+        usex = xrange[1] - 0.025*(xrange[1] - xrange[0])
         mag = int(np.floor(np.log10(self._exposure)))
         usepot = self._exposure/10**mag
         s = f'{usepot:.2f}'+f'$\\times 10^{{{mag}}}$ POT'
@@ -125,3 +125,10 @@ class SpineSpectra(SpineArtist):
         xrange = ax.get_xlim()
         usex = xrange[0] + 0.025*(xrange[1] - xrange[0])
         ax.text(x=usex, y=usey, s=label, fontsize=14, color='#d67a11')
+
+    def mark_title(self, ax, label) -> None:
+        yrange = ax.get_ylim()
+        usey = yrange[1] + 0.025*(yrange[1] - yrange[0])
+        xrange = ax.get_xlim()
+        usex = (xrange[1] + xrange[0])/2
+        ax.text(x=usex, y=usey, s=label, fontsize=14, color='black')

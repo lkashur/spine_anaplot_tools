@@ -119,9 +119,9 @@ class SpineSpectra:
         None.
         """
         yrange = self._ax.get_ylim()
-        usey = yrange[1] + 0.02*(yrange[1] - yrange[0])
+        usey = yrange[1] + 0.025*(yrange[1] - yrange[0])
         xrange = self._ax.get_xlim()
-        usex = xrange[1] - 0.02*(xrange[1] - xrange[0])
+        usex = xrange[1] - 0.025*(xrange[1] - xrange[0])
         mag = int(np.floor(np.log10(self._exposure)))
         usepot = self._exposure/10**mag
         s = f'{usepot:.2f}'+f'$\\times 10^{{{mag}}}$ POT'
@@ -146,6 +146,13 @@ class SpineSpectra:
         xrange = self._ax.get_xlim()
         usex = xrange[0] + 0.025*(xrange[1] - xrange[0])
         self._ax.text(x=usex, y=usey, s=label, fontsize=14, color='#d67a11')
+
+    def _mark_title(self, label) -> None:
+        yrange = self._ax.get_ylim()
+        usey = yrange[1] + 0.025*(yrange[1] - yrange[0])
+        xrange = self._ax.get_xlim()
+        usex = (xrange[1] + xrange[0])/2
+        self._ax.text(x=usex, y=usey, s=label, fontsize=14, color='black')
 
 class SpineSpectra1D(SpineSpectra):
     """
@@ -310,6 +317,8 @@ class SpineSpectra1D(SpineSpectra):
             self._mark_pot()
         if style.get_mark_preliminary() is not None:
             self._mark_preliminary(style.get_mark_preliminary())
+        if style.get_mark_title() is not None:
+            self._mark_title(style.get_mark_title())
         if style.get_title() is not None:
             self._ax.set_title(style.get_title())
         self._figure.savefig(f'{path}/{name}.png')

@@ -29,7 +29,7 @@ class Style:
         A flag toggling the inversion of the stack order for the
         components in the histogram.
     """
-    def __init__(self, style_sheet, default_figsize, title, mark_pot, mark_preliminary, show_component_number, show_component_percentage, invert_stack_order) -> None:
+    def __init__(self, style_sheet, default_figsize, title, mark_pot, mark_preliminary, mark_title, show_component_number, show_component_percentage, invert_stack_order) -> None:
         """
         Initializes the Style object with the given kwargs.
 
@@ -66,6 +66,7 @@ class Style:
         self._title = None if title == 'none' else title
         self._mark_pot = mark_pot
         self._mark_preliminary = None if mark_preliminary == 'none' else mark_preliminary
+        self._mark_title = None if mark_title == 'none' else mark_title
         self._show_component_number = show_component_number
         self._show_component_percentage = show_component_percentage
         self._invert_stack_order = invert_stack_order
@@ -157,6 +158,9 @@ class Style:
         """
         return self._mark_preliminary
 
+    def get_mark_title(self) -> str:
+        return self._mark_title
+        
     def get_show_component_number(self) -> bool:
         """
         Returns the value of the show_component_number attribute.
