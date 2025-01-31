@@ -152,7 +152,22 @@ namespace vars::pi0ana_phase
 
 	  return cat;
         }
+
+    template<class T>
+        double is_not_data(const T & obj)
+        {
+	    double cat(0);
+	    return cat;
+	}
  
+    template<class T>
+        double is_data(const T & obj)
+	{
+            double cat(1);
+            return cat;
+	}
+
+
     /**
      * @brief Variable for leading muon momentum magnitude.
      * @details Variable for momentum of the leading muon

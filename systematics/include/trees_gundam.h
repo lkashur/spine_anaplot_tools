@@ -134,9 +134,10 @@ namespace sys::trees_gundam
      * @param table The table that contains the configuration for the tree.
      * @param output The output TFile.
      * @param input The input TFile.
+     * @param selected or truth tree.
      * @return void
      */
-    void copy_with_weight_systematics(sys::cfg::ConfigurationTable & config, sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
+    void copy_with_weight_systematics(sys::cfg::ConfigurationTable & config, sys::cfg::ConfigurationTable & table, TFile * output, TFile * input, std::string sel_or_truth)
     {
         /**
          * @brief Create the output subdirectory following the nesting outlined
@@ -158,6 +159,7 @@ namespace sys::trees_gundam
         TTree * input_tree = (TTree *) input->Get(table.get_string_field("origin").c_str());
 	TH1D * _POT = (TH1D *) input->Get("events/mc/POT");
 	TH1D *_Livetime = (TH1D*) input->Get("events/mc/Livetime");
+	//std::cout << input_tree->GetNbranches()-3 << std::endl;
         double br[input_tree->GetNbranches()-3];
         double nu_id;
         Int_t run, subrun, event;
@@ -175,7 +177,7 @@ namespace sys::trees_gundam
         input_tree->SetBranchAddress("CutType", &cuttype);
 	input_tree->SetBranchAddress("IsSignal", &issignal);
 	input_tree->SetBranchAddress("IsData", &isdata);
-	
+
         /**
          * @brief Create the output TTree with the name specified in the
          * configuration file.
@@ -187,8 +189,9 @@ namespace sys::trees_gundam
          * process streamlines the copying of the values from the input TTree to
          * the output TTree.
          */
-        //TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
-	TTree * output_tree = new TTree("SelectedEvents_NSigmas", "SelectedEvents_NSigmas");
+        TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
+	//std::unique_ptr<TTree> output_tree = std::make_unique<TTree>(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
+	//TTree * output_tree = new TTree("SelectedEvents_NSigmas", "SelectedEvents_NSigmas");
 	TH1D *POT = (TH1D*) _POT->Clone("POT");
 	TH1D *Livetime = (TH1D*) _Livetime->Clone("Livetime");
 	directory->WriteObject(POT, "POT");
@@ -202,6 +205,7 @@ namespace sys::trees_gundam
 	        output_tree->Branch(input_tree->GetListOfBranches()->At(i)->GetName(), br+i);
 	    }
 	}
+	
         output_tree->Branch("Run", &run);
         output_tree->Branch("Subrun", &subrun);
         output_tree->Branch("Evt", &event);
@@ -292,7 +296,7 @@ namespace sys::trees_gundam
 		{
 		    systsMultisim.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name"), t.get_int_field("index")));
 		    weightsMultisim.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
-		    systrees[s]->Branch(t.get_string_field("name").c_str(), &weightsMultisim[t.get_int_field("index")]);
+		    //systrees[s]->Branch(t.get_string_field("name").c_str(), &weightsMultisim[t.get_int_field("index")]);
 		}
 		// Multisigma
 		else if(!strcmp(s.c_str(), "multisigma"))
@@ -300,6 +304,7 @@ namespace sys::trees_gundam
 		    systsMultisigma.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name_short"), t.get_int_field("index")));
 		    sigmasMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
 		    weightsMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+		    if(!strcmp(sel_or_truth.c_str(), "truth")) output_tree->Branch(t.get_string_field("name_short").c_str(), &weightsMultisigma[t.get_int_field("index")]);
 		    //systrees[s]->Branch(t.get_string_field("name").c_str(), &weightsMultisigma[t.get_int_field("index")]);
 		}  
             }
@@ -310,7 +315,7 @@ namespace sys::trees_gundam
 	{  
 	    arrMultisigma[sysIdx1] = new TClonesArray("TGraph", 1);
 	    //systrees["multisigma"]->Branch((keyShort).c_str(), &arrMultisigma[sysIdx1], 32000, -1);
-	    output_tree->Branch(key.c_str(), &arrMultisigma[sysIdx1], 32000, -1);
+	    if(!strcmp(sel_or_truth.c_str(), "sel")) output_tree->Branch(key.c_str(), &arrMultisigma[sysIdx1], 32000, -1);
 	    sysIdx1++;
 	}
 
@@ -325,6 +330,7 @@ namespace sys::trees_gundam
         std::ifstream file_list(config.get_string_field("input.caflist"));
         std::string line;
         while(std::getline(file_list, line))
+	    //std::cout << line << std::endl;
             input_files.push_back(line);
         file_list.close();
 
@@ -337,6 +343,7 @@ namespace sys::trees_gundam
         size_t nprocessed(0);
         for(std::string input_file : input_files)
         {
+
             if(nprocessed % 100 == 0)
                 std::cout << "Processed " << nprocessed << " files." << std::endl;
             /**
@@ -383,7 +390,7 @@ namespace sys::trees_gundam
                 {
                     index_t index(*rrun, *rsubrun, *revt, nu.index);
                     if(candidates.find(index) != candidates.end())
-		    {
+		    {  
                         /**
                          * @brief Retrieve the selected signal candidate and copy
                          * the values to the output TTree.
@@ -411,7 +418,7 @@ namespace sys::trees_gundam
                             for(size_t u(0); u < nu.wgt[value].univ.size(); ++u)
                                 weightsMultisim[value]->push_back(nu.wgt[value].univ[u]);
                         } // End of loop over the configured systematics.
-			
+
 			int sysIdx2(0);
 			for(auto & [key, value] : systsMultisigma)
 			{
@@ -440,7 +447,10 @@ namespace sys::trees_gundam
                             sysIdx2++;
 
 			} // End of loop over the configured systematics.
+
+			//std::cout << sel_or_truth << std::endl;
 			output_tree->Fill();
+			//std::cout << sel_or_truth << std::endl;
                         for(auto & [key, value] : systrees)
                             value->Fill();
                     }
@@ -449,11 +459,14 @@ namespace sys::trees_gundam
             caf->Close();
             nprocessed++;
         } // End of loop over the input CAF files.
-        input->Close();
-        //directory->WriteObject(output_tree, table.get_string_field("name").c_str());
-	directory->WriteObject(output_tree, "SelectedEvents_NSigmas");
+
+        directory->WriteObject(output_tree, table.get_string_field("name").c_str());
         for(auto & [key, value] : systrees)
             directory->WriteObject(value, (key+"Tree").c_str());
+
+	//input_tree->Reset();
+	//input_tree->ResetBranchAddresses();
+	//input->Close();
     }   
 }
 #endif

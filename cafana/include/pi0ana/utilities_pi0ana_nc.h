@@ -18,8 +18,8 @@
 #include "include/cuts.h"
 #include "include/beaminfo_nc.h"
 
-#define MIN_MUON_ENERGY 143.425
-#define MIN_PHOTON_ENERGY 25
+#define MIN_MUON_ENERGY 30
+#define MIN_PHOTON_ENERGY 40
 
 struct truth_inter_nc {
   int num_primary_muons;

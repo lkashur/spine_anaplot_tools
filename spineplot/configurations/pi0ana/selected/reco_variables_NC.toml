@@ -1,0 +1,49 @@
+[variables]
+
+[variables.pi0_leading_photon_energy]
+key = 'pi0_leading_photon_energy'
+range = [0,1000]
+nbins = 40
+xlabel = 'Reconstructed $\pi^{0}$ Leading Photon Energy [MeV]'
+
+[variables.pi0_leading_photon_conv_dist]
+key = 'pi0_leading_photon_conv_dist'
+range = [0,100]
+nbins = 25
+xlabel = 'Reconstructed $\pi^{0}$ Leading Photon Conversion Distance [cm]'
+
+[variables.pi0_subleading_photon_energy]
+key = 'pi0_subleading_photon_energy'
+range = [0,1000]
+nbins = 40
+xlabel = 'Reconstructed $\pi^{0}$ Subleading Photon Energy [MeV]'
+
+[variables.pi0_subleading_photon_conv_dist]
+key = 'pi0_subleading_photon_conv_dist'
+range = [0,100]
+nbins =	25
+xlabel = 'Reconstructed $\pi^{0}$ Subleading Photon Conversion Distance [cm]'
+
+[variables.pi0_momentum_mag]
+key = 'pi0_momentum_mag'
+range = [0,2000]
+nbins = 50
+xlabel = 'Reconstructed $\pi^{0}$ Momentum [MeV/c]'
+
+[variables.pi0_beam_costheta]
+key = 'pi0_beam_costheta'
+range = [-1,1]
+nbins =	40
+xlabel = 'Reconstructed $\cos(\theta_{\pi^{0}})$'
+
+[variables.pi0_mass]
+key = 'pi0_mass'
+range = [0,400]
+nbins = 40
+xlabel = 'Reconstructed $\pi^{0}$ Invariant Mass [MeV/c$^{2}$]'
+
+[variables.true_neutrino_energy]
+key = 'true_edep'
+range = [0,6]
+nbins = 30
+xlabel = 'True Neutrino Energy [GeV]'

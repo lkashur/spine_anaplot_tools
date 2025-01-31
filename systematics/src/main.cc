@@ -77,7 +77,7 @@ int main(int argc, char * argv[])
      * analysis framework. The output ROOT file is the file that will contain
      * the TTrees that are produced by this code.
      */
-    TFile * input = TFile::Open(config.get_string_field("input.path").c_str(), "READ");
+    //TFile * input = TFile::Open(config.get_string_field("input.path").c_str(), "READ");
     TFile * output = TFile::Open(config.get_string_field("output.path").c_str(), "RECREATE");
     
     /**
@@ -94,6 +94,11 @@ int main(int argc, char * argv[])
     std::string format = config.get_string_field("output.format");
     for(sys::cfg::ConfigurationTable & table : tables)
     {
+        // Completely hacky way to run "copy_with_weight_systematics" twice in a loop...
+        // Otherwise, the input tree gets borked in the first iteration, leading to segault in the second iteration
+        TFile * input = TFile::Open(config.get_string_field("input.path").c_str(), "READ");
+
+        std::string treetype(table.get_string_field("treetype"));
         std::string type(table.get_string_field("action"));
         if(type == "copy")
             sys::trees::copy_tree(table, output, input);
@@ -105,10 +110,16 @@ int main(int argc, char * argv[])
 	    }
 	    else if(!strcmp(format.c_str(), "gundam"))
 	    {
-	        sys::trees_gundam::copy_with_weight_systematics(config, table, output, input);
+	        //std::cout << treetype << std::endl;
+	        //TFile * input = TFile::Open(config.get_string_field("input.path").c_str(), "READ");
+	        sys::trees_gundam::copy_with_weight_systematics(config, table, output, input, treetype);
+		//input->Close();
 	    }
 	}
+
+	input->Close();
     }
+    //input->Close();
     output->Close();
 
     return 0;

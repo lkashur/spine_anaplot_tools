@@ -1,9 +1,9 @@
 [[this_includes]]
-file = 'configurations/pi0ana/selected/reco_variables.toml'
+file = 'configurations/pi0ana/selected/reco_variables_NC.toml'
 
 [[this_includes]]
 file = 'configurations/pi0ana/samples.toml'
-choose = {'samples' = ['mctrad']}
+choose = {'samples' = ['mc_nc']}
 
 [[this_includes]]
 file = 'configurations/pi0ana/styles.toml'
@@ -12,24 +12,12 @@ file = 'configurations/pi0ana/styles.toml'
 path = '/exp/icarus/app/users/lkashur/SPINEAna/spine_anaplot_tools/spineplot/'
 
 [analysis]
-ordinate_sample = 'mctrad'
+ordinate_sample = 'mc_nc'
 category_branch = 'category_topology'
-category_assignment = [[0], [1], [2], [3], [4], [5], [6], [7]]
-category_labels = ['1$\mu$0$\pi^{±}$1$\pi^{0}$', '1$\mu$0$\pi^{±}$1$\pi^{0}$ (OOPS)', '1$\mu$N$\pi^{±}$1$\pi^{0}$', '1$\mu$N$\pi^{±}$0$\pi^{0}$', '1$\mu$N$\pi^{0}$', 'NC 1$\pi^{0}$ ', 'Other $\nu$', 'Cosmic']
-category_colors = ['#1b9e77', '#dea0fd', '#4c78a8', '#e5c494', '#e45756', '#17becf', '#f58518', '#a6761d']
-category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
-
-[[figure]]
-name = 'muon_momentum_mag'
-type = 'SimpleFigure'
-artists = [{'type' = 'SpineSpectra1D', 'variable' = 'muon_momentum_mag'},]
-style = 'selected_icarus'
-
-[[figure]]
-name = 'muon_beam_costheta'
-type = 'SimpleFigure'
-artists = [{'type' = 'SpineSpectra1D', 'variable' = 'muon_beam_costheta'},]
-style = 'selected_icarus'
+category_assignment = [[0], [1], [2], [3], [4], [5]]
+category_labels = ['0$\mu$1$\pi^{0}$', '0mu1pi0_oops', '0muNpi0', 'CC1pi0', 'other_nu', 'cosmic']
+category_colors = ['#1b9e77', '#dea0fd', '#4c78a8', '#e5c494', '#e45756', '#17becf']
+category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
 
 [[figure]]
 name = 'pi0_leading_photon_energy'

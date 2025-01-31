@@ -57,7 +57,7 @@ void pi0MCAna()
     vars_selected_nu_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_phase::cut_type, &CUT, &TCUT)}); // GUNDAM
     vars_selected_nu_phase.insert({"IsSignal", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_phase::is_signal, &CUT, &TCUT)}); // GUNDAM
-    vars_selected_nu_phase.insert({"IsData", SrVar<RTYPE,RTYPE>(&vars::pi0ana_phase::muon_momentum_mag, &CUT, &TCUT)}); // GUNDAM
+    vars_selected_nu_phase.insert({"IsData", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_phase::is_not_data, &CUT, &TCUT)}); // GUNDAM
     vars_selected_nu_phase.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_phase::category, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_phase::category_topology, &CUT, &TCUT)});
@@ -80,6 +80,9 @@ void pi0MCAna()
     #undef TCUT
     #define TCUT cuts::cosmic
     vars_selected_cos_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_phase::cut_type, &CUT, &TCUT)}); // GUNDAM
+    vars_selected_cos_phase.insert({"IsSignal", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_phase::is_signal, &CUT, &TCUT)}); // GUNDAM
+    vars_selected_cos_phase.insert({"IsData", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_phase::is_not_data, &CUT, &TCUT)}); // GUNDAM
     vars_selected_cos_phase.insert({"baseline", SpineVar<TTYPE,RTYPE>(&vars::true_neutrino_baseline, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_phase::category, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_phase::category_topology, &CUT, &TCUT)});
@@ -114,6 +117,9 @@ void pi0MCAna()
     #define SIGCUT cuts::pi0ana_phase::signal_1mu0pi1pi0
     std::map<std::string, ana::SpillMultiVar> vars_signal_phase;
     vars_signal_phase.insert({"nu_id", SpineVar<TTYPE,TTYPE>(&vars::neutrino_id, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"CutType", SpineVar<TTYPE,TTYPE>(&vars::pi0ana_phase::cut_type, &SIGCUT, &SIGCUT)}); // GUNDAM
+    vars_signal_phase.insert({"IsSignal", SpineVar<TTYPE,TTYPE>(&vars::pi0ana_phase::is_signal, &SIGCUT, &SIGCUT)}); // GUNDAM
+    vars_signal_phase.insert({"IsData", SpineVar<TTYPE,TTYPE>(&vars::pi0ana_phase::is_not_data, &SIGCUT, &SIGCUT)}); // GUNDAM
     vars_signal_phase.insert({"baseline", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"pdg", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"cc", SpineVar<TTYPE,TTYPE>(&vars::true_neutrino_cc, &SIGCUT, &SIGCUT)});

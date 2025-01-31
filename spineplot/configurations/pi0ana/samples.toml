@@ -7,12 +7,17 @@ trees = ['SelectedNu_TradCuts', 'SelectedCos_TradCuts']
 [samples.mcphase]
 key = "mc"
 exposure_type = "pot"
-trees = ['SelectedNu_PhaseCuts','SelectedCos_PhaseCuts']
+trees = ['SelectedNu_PhaseCuts', 'SelectedCos_PhaseCuts']
 
 [samples.mcnophase]
 key = "mc"
 exposure_type = "pot"
 trees = ['SelectedNu_NoPhaseCuts','SelectedCos_NoPhaseCuts']
+
+[samples.mc_nc]
+key = "mc"
+exposure_type = "pot"
+trees = ['SelectedNu_NCCuts','SelectedCos_NCCuts']
 
 [samples.mcsignal]
 key = "mc"
