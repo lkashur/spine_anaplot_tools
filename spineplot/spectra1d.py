@@ -158,7 +158,7 @@ class SpineSpectra1D(SpineSpectra):
         
         if style.get_invert_stack_order():
             h, l = ax.get_legend_handles_labels()
-            ax.legend(h[::-1], l[::-1], ncol=2) #ncol
+            ax.legend(h[::-1], l[::-1], ncol=1) #ncol
         else:
             ax.legend(ncol=1) #ncol
         if style.get_mark_pot():

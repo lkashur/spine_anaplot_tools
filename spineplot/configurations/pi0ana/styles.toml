@@ -3,11 +3,11 @@
 style_sheet = "configurations/pi0ana/styles/pi0ana.mplstyle"
 default_figsize = [9,7]
 #default_figsize = [6.4,4.8]
-#title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
 title = ''
 mark_pot = true
 mark_preliminary = '$\bf{ICARUS}$ Simulation Work-in-Progress'
-mark_title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+#mark_title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+mark_title = 'Selected NC $\pi^{0}$'
 show_component_number = true
 show_component_percentage = true
 invert_stack_order = true

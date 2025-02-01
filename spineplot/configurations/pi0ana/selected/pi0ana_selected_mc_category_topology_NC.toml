@@ -15,7 +15,7 @@ path = '/exp/icarus/app/users/lkashur/SPINEAna/spine_anaplot_tools/spineplot/'
 ordinate_sample = 'mc_nc'
 category_branch = 'category_topology'
 category_assignment = [[0], [1], [2], [3], [4], [5]]
-category_labels = ['0$\mu$1$\pi^{0}$', '0mu1pi0_oops', '0muNpi0', 'CC1pi0', 'other_nu', 'cosmic']
+category_labels = ['0$\mu$1$\pi^{0}$', '0$\mu$1$\pi^{0}$ (OOPS)', '0$\mu$N$\pi^{0}$', 'CC1$\pi^{0}$', 'Other $\nu$', 'Cosmic']
 category_colors = ['#1b9e77', '#dea0fd', '#4c78a8', '#e5c494', '#e45756', '#17becf']
 category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
 
