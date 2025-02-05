@@ -14,6 +14,8 @@
 #define MUON_MASS 105.6583745
 #define PION_MASS 139.57039
 #define PROTON_MASS 938.2720813
+#define PROTON_BINDING_ENERGY 30.9
+#define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
 
 #include "sbnanaobj/StandardRecord/Proxy/SRProxy.h"
 #include "sbnanaobj/StandardRecord/SRInteractionDLP.h"
@@ -90,9 +92,36 @@ namespace vars
                 if(pcuts::final_state_signal(p))
                 {
                     energy += pvars::energy(p);
-                    if(p.pid == 2) energy += MUON_MASS;
-                    else if(p.pid == 3) energy += PION_MASS;
+                    if(p.pid == 4) energy -= PROTON_MASS - PROTON_BINDING_ENERGY;
                 }
+            }
+            return energy/1000.0;
+        }
+
+    /**
+     * @brief Variable for total visible energy of interaction, including
+     * sub-threshold particles.
+     * @details This function calculates the total visible energy of the
+     * interaction by summing the energy of all particles that are identified
+     * as counting towards the final state of the interaction. Sub-threshold
+     * particles are included calorimetrically.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj interaction to apply the variable on.
+     * @return the total visible energy of the interaction.
+     */
+    template<class T>
+        double visible_energy_calosub(const T & obj)
+        {
+            double energy(0);
+            for(const auto & p : obj.particles)
+            {
+                if(pcuts::final_state_signal(p))
+                {
+                    energy += pvars::energy(p);
+                    if(p.pid == 4) energy -= PROTON_MASS - PROTON_BINDING_ENERGY;
+                }
+                else if(pcuts::is_primary(p))
+                    energy += p.calo_ke;
             }
             return energy/1000.0;
         }

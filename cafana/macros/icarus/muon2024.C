@@ -69,6 +69,8 @@ void muon2024()
     vars_selected_nu.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
     vars_selected_nu.insert({"true_edep", SpineVar<TTYPE,RTYPE>(&vars::visible_energy, &CUT, &TCUT)});
     vars_selected_nu.insert({"reco_edep", SpineVar<RTYPE,RTYPE>(&vars::visible_energy, &CUT, &TCUT)});
+    vars_selected_nu.insert({"true_edep_calosub", SpineVar<TTYPE,RTYPE>(&vars::visible_energy_calosub, &CUT, &TCUT)});
+    vars_selected_nu.insert({"reco_edep_calosub", SpineVar<RTYPE,RTYPE>(&vars::visible_energy_calosub, &CUT, &TCUT)});
     vars_selected_nu.insert({"true_muon_x", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"reco_muon_x", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"true_muon_y", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::end_y, &CUT, &TCUT, &utilities::leading_muon_index)});
@@ -144,6 +146,8 @@ void muon2024()
     vars_selected_cos.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
     vars_selected_cos.insert({"true_edep", SpineVar<TTYPE,RTYPE>(&vars::visible_energy, &CUT, &TCUT)});
     vars_selected_cos.insert({"reco_edep", SpineVar<RTYPE,RTYPE>(&vars::visible_energy, &CUT, &TCUT)});
+    vars_selected_cos.insert({"true_edep_calosub", SpineVar<TTYPE,RTYPE>(&vars::visible_energy_calosub, &CUT, &TCUT)});
+    vars_selected_cos.insert({"reco_edep_calosub", SpineVar<RTYPE,RTYPE>(&vars::visible_energy_calosub, &CUT, &TCUT)});
     vars_selected_cos.insert({"true_muon_x", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"reco_muon_x", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_x, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"true_muon_y", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::end_y, &CUT, &TCUT, &utilities::leading_muon_index)});
@@ -212,6 +216,7 @@ void muon2024()
     vars_purity_nu.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::muon2024::category, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"reco_edep", SpineVar<RTYPE,RTYPE>(&vars::visible_energy, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"reco_edep_calosub", SpineVar<RTYPE,RTYPE>(&vars::visible_energy_calosub, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"reco_muon_x", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_x, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_nu.insert({"reco_muon_y", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_y, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_nu.insert({"reco_muon_z", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_z, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
@@ -266,6 +271,7 @@ void muon2024()
     vars_purity_cos.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::muon2024::category, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"reco_edep", SpineVar<RTYPE,RTYPE>(&vars::visible_energy, &cuts::no_cut, &TCUT)});
+    vars_purity_cos.insert({"reco_edep_calosub", SpineVar<RTYPE,RTYPE>(&vars::visible_energy_calosub, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"reco_muon_x", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_x, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_cos.insert({"reco_muon_y", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_y, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_cos.insert({"reco_muon_z", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::end_z, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
@@ -332,6 +338,7 @@ void muon2024()
     vars_signal.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::muon2024::category, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_energy", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_energy, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_edep", SpineVar<TTYPE,TTYPE>(&vars::visible_energy, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_edep_calosub", SpineVar<TTYPE,TTYPE>(&vars::visible_energy_calosub, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_muon_x", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::end_x, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_muon_y", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::end_y, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_muon_z", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::end_z, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});

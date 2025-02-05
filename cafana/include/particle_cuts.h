@@ -56,9 +56,9 @@ namespace pcuts
         bool final_state_signal(const T & p)
         {
             bool passes(false);
-            if(p.is_primary)
+            if(is_primary(p))
             {
-                double energy(pvars::energy(p));
+                double energy(pvars::ke(p));
                 if((p.pid == 2 && energy > 143.425) || (p.pid != 2 && p.pid < 4 && energy > 25) || (p.pid == 4 && energy > 50))
                     passes = true;
             }

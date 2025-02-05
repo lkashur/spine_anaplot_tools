@@ -31,37 +31,6 @@
 namespace pvars
 {
     /**
-     * @brief Variable for the best estimate of the particle energy.
-     * @details At the most basic decision level, this is based on the
-     * shower/track designation. Showers can only be reconstructed
-     * calorimetrically, while tracks can be reconstructed calorimetrically,
-     * by range (if contained), or by multiple scattering (if exiting).
-     * @tparam T the type of particle.
-     * @param p the particle to apply the variable on.
-     * @return the best estimate of the particle energy.
-     */
-    template<class T>
-        double energy(const T & p)
-        {
-            double energy = 0;
-            if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
-            {
-                energy += p.energy_deposit;
-            }
-            else
-            {
-                // Check if the particle is a shower.
-                if(p.pid < 2) energy += p.calo_ke;
-                else
-                {
-                    if(p.is_contained) energy += p.csda_ke;
-                    else energy += p.mcs_ke;
-                }
-            }
-            return energy;
-        }
-
-    /**
      * @brief Variable for true particle starting kinetic energy.
      * @details The starting kinetic energy is defined as the total energy
      * minus the rest mass energy of the particle.
@@ -75,29 +44,34 @@ namespace pvars
             double energy(0);
             if constexpr (std::is_same_v<T, caf::SRParticleTruthDLPProxy>)
             {
-                energy = p.energy_init;
-                switch(p.pid)
-                {
-                    case 1:
-                        energy -= ELECTRON_MASS;
-                        break;
-                    case 2:
-                        energy -= MUON_MASS;
-                        break;
-                    case 3:
-                        energy -= PION_MASS;
-                        break;
-                    case 4:
-                        energy -= PROTON_MASS;
-                        break;
-                    default:
-                        break;
-                }
+                energy = p.energy_init - p.mass;
             }
             else
             {
-                energy = pvars::energy(p);
+                if(p.pid < 2) energy += p.calo_ke;
+                else
+                {
+                    if(p.is_contained) energy += p.csda_ke;
+                    else energy += p.mcs_ke;
+                }
             }
+            return energy;
+        }
+
+    /**
+     * @brief Variable for the best estimate of the particle energy.
+     * @details At the most basic decision level, this is based on the
+     * shower/track designation. Showers can only be reconstructed
+     * calorimetrically, while tracks can be reconstructed calorimetrically,
+     * by range (if contained), or by multiple scattering (if exiting).
+     * @tparam T the type of particle.
+     * @param p the particle to apply the variable on.
+     * @return the best estimate of the particle energy.
+     */
+    template<class T>
+        double energy(const T & p)
+        {
+            double energy = ke(p) + p.mass;
             return energy;
         }
 
