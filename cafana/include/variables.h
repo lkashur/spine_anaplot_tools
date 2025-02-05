@@ -14,8 +14,6 @@
 #define MUON_MASS 105.6583745
 #define PION_MASS 139.57039
 #define PROTON_MASS 938.2720813
-#define PROTON_BINDING_ENERGY 30.9
-#define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
 
 #include "sbnanaobj/StandardRecord/Proxy/SRProxy.h"
 #include "sbnanaobj/StandardRecord/SRInteractionDLP.h"
@@ -141,7 +139,7 @@ namespace vars
         {
             if(obj.flash_times.size() > 0)
                 return obj.flash_times[0];
-            return -1;
+            return PLACEHOLDERVALUE;
         }
 
     /**

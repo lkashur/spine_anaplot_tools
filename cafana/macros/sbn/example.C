@@ -22,6 +22,16 @@
 #include "TDirectory.h"
 #include "TFile.h"
 
+/**
+ * @brief Block of preprocessor definitions for the analysis.
+ * @details This block of preprocessor definitions is used to configure the
+ * analysis. The definitions control the behavior of the analysis, such as
+ * which beam is used, which cuts are applied, and which trees are created.
+ */
+#define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
+//#define ISNUMI
+//#define PURITY_TREES
+
 void example()
 {
     /**
