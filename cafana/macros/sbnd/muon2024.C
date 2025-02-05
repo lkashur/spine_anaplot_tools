@@ -31,8 +31,8 @@
  */
 #define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
 #define PROTON_BINDING_ENERGY 30.9 // MeV
-//#define ISNUMI
-//#define PURITY_TREES
+#define BEAM_IS_NUMI false
+#define WRITE_PURITY_TREES false
 
 void muon2024()
 {
@@ -284,9 +284,8 @@ void muon2024()
     vars_purity_nu.insert({"has_single_muon", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_single_muon), &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"has_multiple_protons", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_nonzero_protons), &cuts::no_cut, &TCUT)});
 
-    #ifdef PURITY_TREES
-    analysis.AddTree("purityNu", vars_purity_nu, false);
-    #endif
+    if constexpr(WRITE_PURITY_TREES)
+        analysis.AddTree("purityNu", vars_purity_nu, false);
 
     #undef TCUT
     #define TCUT cuts::cosmic
@@ -343,9 +342,8 @@ void muon2024()
     vars_purity_cos.insert({"has_single_muon", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_single_muon), &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"has_multiple_protons", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_nonzero_protons), &cuts::no_cut, &TCUT)});
 
-    #ifdef PURITY_TREES
-    analysis.AddTree("purityCos", vars_purity_cos, false);
-    #endif
+    if constexpr(WRITE_PURITY_TREES)
+        analysis.AddTree("purityCos", vars_purity_cos, false);
 
     /**
      * @brief Add a set of variables for signal interactions to the analysis.

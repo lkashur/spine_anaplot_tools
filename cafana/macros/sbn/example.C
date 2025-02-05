@@ -30,8 +30,8 @@
  */
 #define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
 #define PROTON_BINDING_ENERGY 30.9 // MeV
-//#define ISNUMI
-//#define PURITY_TREES
+#define BEAM_IS_NUMI false
+#define WRITE_PURITY_TREES false
 
 void example()
 {

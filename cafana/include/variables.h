@@ -242,7 +242,7 @@ namespace vars
      * @param obj the interaction to apply the variable on.
      * @return the transverse momentum of the primary particles.
      * @note The switch to the NuMI beam direction instead of the BNB axis is
-     * applied by the definition of the preprocessor macro ISNUMI.
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
      */
     template<class T>
         double dpT(const T & obj)
@@ -275,7 +275,7 @@ namespace vars
      * @param obj the interaction to apply the variable on.
      * @return the phi_T of the interaction.
      * @note The switch to the NuMI beam direction instead of the BNB axis is
-     * applied by the definition of the preprocessor macro ISNUMI.
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
      */
     template<class T>
         double phiT(const T & obj)
@@ -313,7 +313,7 @@ namespace vars
      * @param obj the interaction to apply the variable on.
      * @return the alpha_T of the interaction.
      * @note The switch to the NuMI beam direction instead of the BNB axis is
-     * applied by the definition of the preprocessor macro ISNUMI.
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
      */
     template<class T>
         double alphaT(const T & obj)
@@ -348,7 +348,7 @@ namespace vars
      * @param obj the interaction to apply the variable on.
      * @return the missing longitudinal momentum of the interaction.
      * @note The switch to the NuMI beam direction instead of the BNB axis is
-     * applied by the definition of the preprocessor macro ISNUMI.
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
      */
     template<class T>
         double dpL(const T & obj)
@@ -382,6 +382,8 @@ namespace vars
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to apply the variable on.
      * @return the estimate of the momentum of the struck nucleon.
+     * @note The switch to the NuMI beam direction instead of the BNB axis is
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
      */
     template<class T>
         double pn(const T & obj) { return std::sqrt(std::pow(vars::dpT(obj), 2) + std::pow(vars::dpL(obj), 2)); }

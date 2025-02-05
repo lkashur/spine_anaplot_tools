@@ -97,7 +97,7 @@ namespace utilities
      * in detector coordinates is given by the vector (315.120380, 33.644912,
      * 733.632532) in meters. We then need to offset this by the position of
      * the interaction vertex to get the best estimate of the neutrino direction.
-     * A preprocessor macro is used to define the beam (#ifndef ISNUMI).
+     * A preprocessor macro is used to define the beam direction.
      * @param p the momentum of the particle as a tuple (three-vector).
      * @param vtx the position of the interaction vertex as a tuple (three-vector).
      * @return the transverse momentum (three-vector) of the particle as a
@@ -105,13 +105,13 @@ namespace utilities
      */
     three_vector transverse_momentum(three_vector & p, three_vector & vtx)
     {
-        #ifndef ISNUMI
-        three_vector unit(0, 0, 1);
-        #endif
-        #ifdef ISNUMI
-        three_vector beam(315.120380 + std::get<0>(vtx), 33.644912 + std::get<1>(vtx), 733.632532 + std::get<2>(vtx));
-        three_vector unit = normalize(beam);
-        #endif
+        if constexpr(!BEAM_IS_NUMI)
+            three_vector unit(0, 0, 1);
+        else
+        {
+            three_vector beam(315.120380 + std::get<0>(vtx), 33.644912 + std::get<1>(vtx), 733.632532 + std::get<2>(vtx));
+            three_vector unit = normalize(beam);
+        }
         double scale = dot_product(p, unit);
         return subtract(p, std::make_tuple(scale*std::get<0>(unit), scale*std::get<1>(unit), scale*std::get<2>(unit)));
     }
@@ -126,8 +126,7 @@ namespace utilities
      * in detector coordinates is given by the vector (315.120380, 33.644912,
      * 733.632532) in meters. We then need to offset this by the position of
      * the interaction vertex to get the best estimate of the neutrino
-     * direction. A preprocessor macro is used to define the beam (#ifndef
-     * ISNUMI). 
+     * direction. A preprocessor macro is used to define the beam direction.
      * @param p the momentum of the particle as a tuple (three-vector).
      * @param vtx the position of the interaction vertex as a tuple (three-vector).
      * @return the longitudinal momentum (three-vector) of the particle as a
@@ -135,13 +134,13 @@ namespace utilities
      */
     three_vector longitudinal_momentum(three_vector & p, three_vector & vtx)
     {
-        #ifndef ISNUMI
-        three_vector unit(0, 0, 1);
-        #endif
-        #ifdef ISNUMI
-        three_vector beam(315.120380 + std::get<0>(vtx), 33.644912 + std::get<1>(vtx), 733.632532 + std::get<2>(vtx));
-        three_vector unit = normalize(beam);
-        #endif
+        if constexpr(!BEAM_IS_NUMI)
+            three_vector unit(0, 0, 1);
+        else
+        {
+            three_vector beam(315.120380 + std::get<0>(vtx), 33.644912 + std::get<1>(vtx), 733.632532 + std::get<2>(vtx));
+            three_vector unit = normalize(beam);
+        }
         double scale = dot_product(p, unit);
         return std::make_tuple(scale*std::get<0>(unit), scale*std::get<1>(unit), scale*std::get<2>(unit));
     }
