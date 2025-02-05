@@ -8,6 +8,18 @@
  * and reduces the amount of boilerplate code needed to run the analysis.
  * @author mueller@fnal.gov
 */
+
+/**
+ * @brief Block of preprocessor definitions for the analysis.
+ * @details This block of preprocessor definitions is used to configure the
+ * analysis. The definitions control the behavior of the analysis, such as
+ * which beam is used, which cuts are applied, and which trees are created.
+ */
+#define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
+#define PROTON_BINDING_ENERGY 30.9 // MeV
+#define BEAM_IS_NUMI false
+#define WRITE_PURITY_TREES false
+
 #include "include/mctruth.h"
 #include "include/variables.h"
 #include "include/muon2024/variables_muon2024.h"
@@ -22,17 +34,6 @@
 #include "sbnana/CAFAna/Core/Spectrum.h"
 #include "TDirectory.h"
 #include "TFile.h"
-
-/**
- * @brief Block of preprocessor definitions for the analysis.
- * @details This block of preprocessor definitions is used to configure the
- * analysis. The definitions control the behavior of the analysis, such as
- * which beam is used, which cuts are applied, and which trees are created.
- */
-#define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
-#define PROTON_BINDING_ENERGY 30.9 // MeV
-#define BEAM_IS_NUMI false
-#define WRITE_PURITY_TREES false
 
 void muon2024()
 {
