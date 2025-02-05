@@ -84,6 +84,17 @@ namespace cuts
     bool cosmic(const caf::SRInteractionTruthDLPProxy & obj) { return !neutrino(obj); }
 
     /**
+     * @brief Apply a cut to select charged current interactions.
+     * @details This function applies a cut to select charged current
+     * interactions. This cut makes use of the `current_type` attribute in the
+     * true interaction object and is intended to be used to identify charged
+     * current interactions.
+     * @param obj the interaction to select on.
+     * @return true if the interaction is a charged current interaction.
+     */
+    bool iscc(const caf::SRInteractionTruthDLPProxy & obj) { return obj.current_type == 0; }
+
+    /**
      * @brief Apply a fiducial volume cut; the interaction vertex must be
      * reconstructed within the fiducial volume.
      * @details The fiducial volume cut is applied on the reconstructed
