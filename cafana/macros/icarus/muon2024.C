@@ -23,6 +23,9 @@
 #include "TDirectory.h"
 #include "TFile.h"
 
+//#define ISNUMI
+//#define PURITY_TREES
+
 void muon2024()
 {
     /**
@@ -32,7 +35,7 @@ void muon2024()
      * and therefore the name of the output file, is specified as an argument
      * to the constructor.
      */
-    ana::Analysis analysis("muon2024_dev");
+    ana::Analysis analysis("muon2024_tki");
 
     /**
      * @brief Add samples to the analysis.
@@ -43,11 +46,32 @@ void muon2024()
      * AddLoader function is used to create a directory in the output ROOT file
      * to store the results of the analysis.
      */
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/prod_v2b/nominal/flat/*210*.root");
+    //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/spineprod/data/bnbmajority_onbeam_prescaled/flat/*21*.root");
+    //analysis.AddLoader("onbeam", &onbeam, false);
+
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/nominal/flat/*21*.root");
     analysis.AddLoader("mc", &mc, true);
 
-    ana::SpectrumLoader var01("/pnfs/icarus/persistent/users/mueller/spineprod/prod_v2b/var01/flat/*210*.root");
-    analysis.AddLoader("var01", &var01, true);
+    //ana::SpectrumLoader var00("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var00/flat/*.root");
+    //analysis.AddLoader("var00", &var00, true);
+
+    //ana::SpectrumLoader var01("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var01/flat/*.root");
+    //analysis.AddLoader("var01", &var01, true);
+
+    //ana::SpectrumLoader var01low("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var01low/flat/*.root");
+    //analysis.AddLoader("var01low", &var01low, true);
+
+    //ana::SpectrumLoader var02m("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var02m/flat/*.root");
+    //analysis.AddLoader("var02m", &var02m, true);
+
+    //ana::SpectrumLoader var02p("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var02p/flat/*.root");
+    //analysis.AddLoader("var02p", &var02p, true);
+
+    //ana::SpectrumLoader var03("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var03/flat/*.root");
+    //analysis.AddLoader("var03", &var03, true);
+
+    //ana::SpectrumLoader var04("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/var04/flat/*.root");
+    //analysis.AddLoader("var04", &var04, true);
 
     /**
      * @brief Add a set of variables for selected interactions to the analysis.
@@ -91,22 +115,26 @@ void muon2024()
     vars_selected_nu.insert({"reco_tproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::ke, &CUT, &TCUT, &utilities::leading_proton_index)});
     vars_selected_nu.insert({"true_lproton", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::length, &CUT, &TCUT, &utilities::leading_proton_index)});
     vars_selected_nu.insert({"reco_lproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::length, &CUT, &TCUT, &utilities::leading_proton_index)});
-    vars_selected_nu.insert({"true_ptmuon", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_muon_index)});
-    vars_selected_nu.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_muon_index)});
-    vars_selected_nu.insert({"true_ptproton", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_proton_index)});
-    vars_selected_nu.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_proton_index)});
+    vars_selected_nu.insert({"true_ptmuon", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_muon_index)});
+    vars_selected_nu.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_muon_index)});
+    vars_selected_nu.insert({"true_ptproton", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_proton_index)});
+    vars_selected_nu.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_proton_index)});
     vars_selected_nu.insert({"true_theta_mu", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::polar_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"reco_theta_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::polar_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"true_phi_mu", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::azimuthal_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"reco_phi_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::azimuthal_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_nu.insert({"true_opening_angle", SpineVar<TTYPE,RTYPE>(&vars::muon2024::opening_angle, &CUT, &TCUT)});
     vars_selected_nu.insert({"reco_opening_angle", SpineVar<RTYPE,RTYPE>(&vars::muon2024::opening_angle, &CUT, &TCUT)});
-    vars_selected_nu.insert({"true_dpT", SpineVar<TTYPE,RTYPE>(&vars::interaction_pt, &CUT, &TCUT)});
-    vars_selected_nu.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::interaction_pt, &CUT, &TCUT)});
+    vars_selected_nu.insert({"true_dpT", SpineVar<TTYPE,RTYPE>(&vars::dpT, &CUT, &TCUT)});
+    vars_selected_nu.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::dpT, &CUT, &TCUT)});
     vars_selected_nu.insert({"true_dphiT", SpineVar<TTYPE,RTYPE>(&vars::phiT, &CUT, &TCUT)});
     vars_selected_nu.insert({"reco_dphiT", SpineVar<RTYPE,RTYPE>(&vars::phiT, &CUT, &TCUT)});
-    vars_selected_nu.insert({"true_edalphaT", SpineVar<TTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
-    vars_selected_nu.insert({"reco_edalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
+    vars_selected_nu.insert({"true_dalphaT", SpineVar<TTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
+    vars_selected_nu.insert({"reco_dalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
+    vars_selected_nu.insert({"true_dpL", SpineVar<TTYPE,RTYPE>(&vars::dpL, &CUT, &TCUT)});
+    vars_selected_nu.insert({"reco_dpL", SpineVar<RTYPE,RTYPE>(&vars::dpL, &CUT, &TCUT)});
+    vars_selected_nu.insert({"true_pn", SpineVar<TTYPE,RTYPE>(&vars::pn, &CUT, &TCUT)});
+    vars_selected_nu.insert({"reco_pn", SpineVar<RTYPE,RTYPE>(&vars::pn, &CUT, &TCUT)});
     vars_selected_nu.insert({"true_vertex_x", SpineVar<TTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_nu.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_nu.insert({"true_vertex_y", SpineVar<TTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
@@ -168,22 +196,26 @@ void muon2024()
     vars_selected_cos.insert({"reco_tproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::ke, &CUT, &TCUT, &utilities::leading_proton_index)});
     vars_selected_cos.insert({"true_lproton", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::length, &CUT, &TCUT, &utilities::leading_proton_index)});
     vars_selected_cos.insert({"reco_lproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::length, &CUT, &TCUT, &utilities::leading_proton_index)});
-    vars_selected_cos.insert({"true_ptmuon", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_muon_index)});
-    vars_selected_cos.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_muon_index)});
-    vars_selected_cos.insert({"true_ptproton", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_proton_index)});
-    vars_selected_cos.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &CUT, &TCUT, &utilities::leading_proton_index)});
+    vars_selected_cos.insert({"true_ptmuon", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_muon_index)});
+    vars_selected_cos.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_muon_index)});
+    vars_selected_cos.insert({"true_ptproton", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_proton_index)});
+    vars_selected_cos.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &CUT, &TCUT, &utilities::leading_proton_index)});
     vars_selected_cos.insert({"true_theta_mu", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::polar_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"reco_theta_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::polar_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"true_phi_mu", SpineVar<TTYPEP,RTYPE,TTYPE>(&pvars::azimuthal_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"reco_phi_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::azimuthal_angle, &CUT, &TCUT, &utilities::leading_muon_index)});
     vars_selected_cos.insert({"true_opening_angle", SpineVar<TTYPE,RTYPE>(&vars::muon2024::opening_angle, &CUT, &TCUT)});
     vars_selected_cos.insert({"reco_opening_angle", SpineVar<RTYPE,RTYPE>(&vars::muon2024::opening_angle, &CUT, &TCUT)});
-    vars_selected_cos.insert({"true_dpT", SpineVar<TTYPE,RTYPE>(&vars::interaction_pt, &CUT, &TCUT)});
-    vars_selected_cos.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::interaction_pt, &CUT, &TCUT)});
+    vars_selected_cos.insert({"true_dpT", SpineVar<TTYPE,RTYPE>(&vars::dpT, &CUT, &TCUT)});
+    vars_selected_cos.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::dpT, &CUT, &TCUT)});
     vars_selected_cos.insert({"true_dphiT", SpineVar<TTYPE,RTYPE>(&vars::phiT, &CUT, &TCUT)});
     vars_selected_cos.insert({"reco_dphiT", SpineVar<RTYPE,RTYPE>(&vars::phiT, &CUT, &TCUT)});
-    vars_selected_cos.insert({"true_edalphaT", SpineVar<TTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
-    vars_selected_cos.insert({"reco_edalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
+    vars_selected_cos.insert({"true_dalphaT", SpineVar<TTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
+    vars_selected_cos.insert({"reco_dalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &CUT, &TCUT)});
+    vars_selected_cos.insert({"true_dpL", SpineVar<TTYPE,RTYPE>(&vars::dpL, &CUT, &TCUT)});
+    vars_selected_cos.insert({"reco_dpL", SpineVar<RTYPE,RTYPE>(&vars::dpL, &CUT, &TCUT)});
+    vars_selected_cos.insert({"true_pn", SpineVar<TTYPE,RTYPE>(&vars::pn, &CUT, &TCUT)});
+    vars_selected_cos.insert({"reco_pn", SpineVar<RTYPE,RTYPE>(&vars::pn, &CUT, &TCUT)});
     vars_selected_cos.insert({"true_vertex_x", SpineVar<TTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_cos.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_cos.insert({"true_vertex_y", SpineVar<TTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
@@ -227,14 +259,16 @@ void muon2024()
     vars_purity_nu.insert({"reco_lmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::length, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_nu.insert({"reco_tproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::ke, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
     vars_purity_nu.insert({"reco_lproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::length, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
-    vars_purity_nu.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
-    vars_purity_nu.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
+    vars_purity_nu.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
+    vars_purity_nu.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
     vars_purity_nu.insert({"reco_theta_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::polar_angle, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_nu.insert({"reco_phi_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::azimuthal_angle, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_nu.insert({"reco_opening_angle", SpineVar<RTYPE,RTYPE>(&vars::muon2024::opening_angle, &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::interaction_pt, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::dpT, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"reco_dphiT", SpineVar<RTYPE,RTYPE>(&vars::phiT, &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"reco_edalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"reco_dalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"reco_dpL", SpineVar<RTYPE,RTYPE>(&vars::dpL, &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"reco_pn", SpineVar<RTYPE,RTYPE>(&vars::pn, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
@@ -263,7 +297,9 @@ void muon2024()
     vars_purity_nu.insert({"has_single_muon", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_single_muon), &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"has_multiple_protons", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_nonzero_protons), &cuts::no_cut, &TCUT)});
 
+    #ifdef PURITY_TREES
     analysis.AddTree("purityNu", vars_purity_nu, false);
+    #endif
 
     #undef TCUT
     #define TCUT cuts::cosmic
@@ -282,14 +318,16 @@ void muon2024()
     vars_purity_cos.insert({"reco_lmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::length, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_cos.insert({"reco_tproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::ke, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
     vars_purity_cos.insert({"reco_lproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::length, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
-    vars_purity_cos.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
-    vars_purity_cos.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::transverse_momentum, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
+    vars_purity_cos.insert({"reco_ptmuon", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
+    vars_purity_cos.insert({"reco_ptproton", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::dpT, &cuts::no_cut, &TCUT, &utilities::leading_proton_index)});
     vars_purity_cos.insert({"reco_theta_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::polar_angle, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_cos.insert({"reco_phi_mu", SpineVar<RTYPEP,RTYPE,RTYPE>(&pvars::azimuthal_angle, &cuts::no_cut, &TCUT, &utilities::leading_muon_index)});
     vars_purity_cos.insert({"reco_opening_angle", SpineVar<RTYPE,RTYPE>(&vars::muon2024::opening_angle, &cuts::no_cut, &TCUT)});
-    vars_purity_cos.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::interaction_pt, &cuts::no_cut, &TCUT)});
+    vars_purity_cos.insert({"reco_dpT", SpineVar<RTYPE,RTYPE>(&vars::dpT, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"reco_dphiT", SpineVar<RTYPE,RTYPE>(&vars::phiT, &cuts::no_cut, &TCUT)});
-    vars_purity_cos.insert({"reco_edalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &cuts::no_cut, &TCUT)});
+    vars_purity_cos.insert({"reco_dalphaT", SpineVar<RTYPE,RTYPE>(&vars::alphaT, &cuts::no_cut, &TCUT)});
+    vars_purity_cos.insert({"reco_dpL", SpineVar<RTYPE,RTYPE>(&vars::dpL, &cuts::no_cut, &TCUT)});
+    vars_purity_cos.insert({"reco_pn", SpineVar<RTYPE,RTYPE>(&vars::pn, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
@@ -318,7 +356,9 @@ void muon2024()
     vars_purity_cos.insert({"has_single_muon", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_single_muon), &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"has_multiple_protons", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_nonzero_protons), &cuts::no_cut, &TCUT)});
 
+    #ifdef PURITY_TREES
     analysis.AddTree("purityCos", vars_purity_cos, false);
+    #endif
 
     /**
      * @brief Add a set of variables for signal interactions to the analysis.
@@ -349,14 +389,16 @@ void muon2024()
     vars_signal.insert({"true_lmuon", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::length, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_tproton", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::ke, &SIGCUT, &SIGCUT, &utilities::leading_proton_index)});
     vars_signal.insert({"true_lproton", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::length, &SIGCUT, &SIGCUT, &utilities::leading_proton_index)});
-    vars_signal.insert({"true_ptmuon", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::transverse_momentum, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
-    vars_signal.insert({"true_ptproton", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::transverse_momentum, &SIGCUT, &SIGCUT, &utilities::leading_proton_index)});
+    vars_signal.insert({"true_ptmuon", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::dpT, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
+    vars_signal.insert({"true_ptproton", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::dpT, &SIGCUT, &SIGCUT, &utilities::leading_proton_index)});
     vars_signal.insert({"true_theta_mu", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::polar_angle, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_phi_mu", SpineVar<TTYPEP,TTYPE,TTYPE>(&pvars::azimuthal_angle, &SIGCUT, &SIGCUT, &utilities::leading_muon_index)});
     vars_signal.insert({"true_opening_angle", SpineVar<TTYPE,TTYPE>(&vars::muon2024::opening_angle, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"true_dpT", SpineVar<TTYPE,TTYPE>(&vars::interaction_pt, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_dpT", SpineVar<TTYPE,TTYPE>(&vars::dpT, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_dphiT", SpineVar<TTYPE,TTYPE>(&vars::phiT, &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"true_edalphaT", SpineVar<TTYPE,TTYPE>(&vars::alphaT, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_dalphaT", SpineVar<TTYPE,TTYPE>(&vars::alphaT, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_dpL", SpineVar<TTYPE,TTYPE>(&vars::dpL, &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"true_pn", SpineVar<TTYPE,TTYPE>(&vars::pn, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_vertex_x", SpineVar<TTYPE,TTYPE>(&vars::vertex_x, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_vertex_y", SpineVar<TTYPE,TTYPE>(&vars::vertex_y, &SIGCUT, &SIGCUT)});
     vars_signal.insert({"true_vertex_z", SpineVar<TTYPE,TTYPE>(&vars::vertex_z, &SIGCUT, &SIGCUT)});
@@ -396,7 +438,7 @@ void muon2024()
     vars_pid_muon.insert({"muon_mip_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::mip_softmax, primary_muon, &cuts::no_cut)});
     vars_pid_muon.insert({"muon_hadron_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::hadron_softmax, primary_muon, &cuts::no_cut)});
     vars_pid_muon.insert({"true_tmuon", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::ke, primary_muon, &cuts::no_cut)});
-    vars_pid_muon.insert({"true_ptmuon", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::transverse_momentum, primary_muon, &cuts::no_cut)});
+    vars_pid_muon.insert({"true_ptmuon", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::dpT, primary_muon, &cuts::no_cut)});
     vars_pid_muon.insert({"true_theta_mu", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::polar_angle, primary_muon, &cuts::no_cut)});
     vars_pid_muon.insert({"true_phi_mu", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::azimuthal_angle, primary_muon, &cuts::no_cut)});
     vars_pid_muon.insert({"pid", SpineVar<RTYPEP,TTYPEP,TTYPE>(pid, primary_muon, &cuts::no_cut)});
@@ -416,7 +458,7 @@ void muon2024()
     vars_pid_proton.insert({"proton_mip_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::mip_softmax, primary_proton, &cuts::no_cut)});
     vars_pid_proton.insert({"proton_hadron_softmax", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::hadron_softmax, primary_proton, &cuts::no_cut)});
     vars_pid_proton.insert({"true_tproton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::ke, primary_proton, &cuts::no_cut)});
-    vars_pid_proton.insert({"true_ptproton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::transverse_momentum, primary_proton, &cuts::no_cut)});
+    vars_pid_proton.insert({"true_ptproton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::dpT, primary_proton, &cuts::no_cut)});
     vars_pid_proton.insert({"true_theta_proton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::polar_angle, primary_proton, &cuts::no_cut)});
     vars_pid_proton.insert({"true_phi_proton", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::azimuthal_angle, primary_proton, &cuts::no_cut)});
     vars_pid_proton.insert({"pid", SpineVar<RTYPEP,TTYPEP,TTYPE>(pid, primary_proton, &cuts::no_cut)});

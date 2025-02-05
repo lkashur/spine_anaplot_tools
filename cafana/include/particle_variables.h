@@ -15,6 +15,8 @@
 #define PION_MASS 139.57039
 #define PROTON_MASS 938.2720813
 
+#include "include/particle_utilities.h"
+
 /**
  * @namespace pvars
  * @brief Namespace for organizing generic variables which act on single
@@ -87,52 +89,6 @@ namespace pvars
         double length(const T & p)
         {
             return p.length;
-        }
-    
-    /**
-     * @brief Variable for the transverse momentum of a particle.
-     * @details The transverse momentum is defined as the square root of the
-     * sum of the squares of the x and y components of the momentum. This
-     * variable is useful for identifying particles which are produced in a
-     * transverse direction to the beam.
-     * @tparam T the type of particle (true or reco).
-     * @param p the particle to apply the variable on.
-     * @return the transverse momentum of the particle.
-     */
-    template<class T>
-        double transverse_momentum(const T & p)
-        {
-            return std::sqrt(std::pow(p.momentum[0], 2) + std::pow(p.momentum[1], 2));
-        }
-
-    /**
-     * @brief Variable for the polar angle (w.r.t the z-axis) of the particle.
-     * @details The polar angle is defined as the arccosine of the z-component
-     * of the momentum vector. This variable is useful for identifying particles
-     * which are produced transversely to the beam.
-     * @tparam T the type of particle (true or reco).
-     * @param p the particle to apply the variable on.
-     * @return the polar angle of the particle.
-     */
-    template<class T>
-        double polar_angle(const T & p)
-        {
-            return std::acos(p.start_dir[2]);
-        }
-
-    /**
-     * @brief Variable for the azimuthal angle (w.r.t the z-axis) of the particle.
-     * @details The azimuthal angle is defined as the arccosine of the x-component
-     * of the momentum vector divided by the square root of the sum of the squares
-     * of the x and y components of the momentum vector.
-     * @tparam T the type of particle (true or reco).
-     * @param p the particle to apply the variable on.
-     * @return the azimuthal angle of the particle.
-     */
-    template<class T>
-        double azimuthal_angle(const T & p)
-        {
-            return std::acos(p.start_dir[0] / std::sqrt(std::pow(p.start_dir[0], 2) + std::pow(p.start_dir[1], 2)));
         }
 
     /**
@@ -214,6 +170,96 @@ namespace pvars
         double end_z(const T & p)
         {
             return p.end_point[2];
+        }
+
+    /**
+     * @brief Variable for the x-component of the particle momentum.
+     * @details The momentum is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the x-component of the particle momentum.
+     */
+    template<class T>
+        double px(const T & p)
+        {
+            return p.momentum[0];
+        }
+    
+    /**
+     * @brief Variable for the y-component of the particle momentum.
+     * @details The momentum is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the x-component of the particle momentum.
+     */
+    template<class T>
+        double py(const T & p)
+        {
+            return p.momentum[1];
+        }
+
+    /**
+     * @brief Variable for the z-component of the particle momentum.
+     * @details The momentum is predicted upstream in the SPINE reconstruction.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the z-component of the particle momentum.
+     */
+    template<class T>
+        double pz(const T & p)
+        {
+            return p.momentum[2];
+        }
+    
+    /**
+     * @brief Variable for the transverse momentum of a particle.
+     * @details This function calculates the transverse momentum of the
+     * particle with respect to the assumed neutrino direction. The neutrino
+     * direction is assumed to either be the BNB axis direction (z-axis) or the
+     * unit vector pointing from the NuMI target to the interaction vertex.
+     * See @ref utilities::transverse_momentum for details on the extraction of
+     * the transverse momentum.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the transverse momentum of the particle.
+     */
+    template<class T>
+        double dpT(const T & p)
+        {
+            utilities::three_vector momentum = {pvars::px(p), pvars::py(p), pvars::pz(p)};
+            utilities::three_vector vtx = {pvars::start_x(p), pvars::start_y(p), pvars::start_z(p)};
+            utilities::three_vector pt = utilities::transverse_momentum(momentum, vtx);
+            return utilities::magnitude(pt);
+        }
+
+    /**
+     * @brief Variable for the polar angle (w.r.t the z-axis) of the particle.
+     * @details The polar angle is defined as the arccosine of the z-component
+     * of the momentum vector. This variable is useful for identifying particles
+     * which are produced transversely to the beam.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the polar angle of the particle.
+     */
+    template<class T>
+        double polar_angle(const T & p)
+        {
+            return std::acos(p.start_dir[2]);
+        }
+
+    /**
+     * @brief Variable for the azimuthal angle (w.r.t the z-axis) of the particle.
+     * @details The azimuthal angle is defined as the arccosine of the x-component
+     * of the momentum vector divided by the square root of the sum of the squares
+     * of the x and y components of the momentum vector.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the azimuthal angle of the particle.
+     */
+    template<class T>
+        double azimuthal_angle(const T & p)
+        {
+            return std::acos(p.start_dir[0] / std::sqrt(std::pow(p.start_dir[0], 2) + std::pow(p.start_dir[1], 2)));
         }
 
     /**
