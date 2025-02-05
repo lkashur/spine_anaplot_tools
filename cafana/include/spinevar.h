@@ -250,11 +250,13 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
             bool is_mc(sr->ndlp_true != 0);
             for(auto const& i : sr->dlp)
             {
-                if(fcut(i) && ((i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]])) || !is_mc))
+                if(fcut(i) && i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]]))
                 {
                     size_t index(pident(sr->dlp_true[i.match_ids[0]]));
-                    var.push_back(fvar(sr->dlp_true[i.match_ids[0]].particles[index]));
+                    var.push_back(i.match_ids.size() > 0 ? fvar(sr->dlp_true[i.match_ids[0]].particles[index]) : -1.0);
                 }
+                else if(fcut(i) && !is_mc)
+                    var.push_back(-1.0);
             }
             return var;
         });
