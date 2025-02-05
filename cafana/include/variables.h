@@ -263,6 +263,55 @@ namespace vars
         }
 
     /**
+     * @brief Variable for the transverse momentum of the interaction counting
+     * only the leading charged lepton and proton.
+     * @details This function calculates the transverse momentum of the
+     * interaction by summing the transverse momentum of the leading charged
+     * lepton and proton. The neutrino direction is assumed to either be the
+     * BNB axis direction (z-axis) or the unit vector pointing from the NuMI
+     * target to the interaction vertex. See @ref utilities::transverse_momentum
+     * for details on the extraction of the transverse momentum.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the transverse momentum of the leading charged lepton and proton.
+     * @note The switch to the NuMI beam direction instead of the BNB axis is
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
+     */
+    template<class T>
+        double dpT_lp(const T & obj)
+        {
+            
+            utilities::three_vector l_pt = {0, 0, 0};
+            utilities::three_vector p_pt = {0, 0, 0};
+            double l_ke(0), p_ke(0);
+            for(const auto & p : obj.particles)
+            {
+                if(pcuts::final_state_signal(p))
+                {
+                    // Find the leading charged lepton and proton
+                    if((p.pid == 1 || p.pid == 2) && pvars::ke(p) > l_ke)
+                    {
+                        l_ke = pvars::ke(p);
+                        utilities::three_vector momentum = {pvars::px(p), pvars::py(p), pvars::pz(p)};
+                        utilities::three_vector vtx = {pvars::start_x(p), pvars::start_y(p), pvars::start_z(p)};
+                        l_pt = utilities::transverse_momentum(momentum, vtx);
+                    }
+                    else if(p.pid == 4 && pvars::ke(p) > p_ke)
+                    {
+                        p_ke = pvars::ke(p);
+                        utilities::three_vector momentum = {pvars::px(p), pvars::py(p), pvars::pz(p)};
+                        utilities::three_vector vtx = {pvars::start_x(p), pvars::start_y(p), pvars::start_z(p)};
+                        p_pt = utilities::transverse_momentum(momentum, vtx);
+                    }
+                }
+            }
+            if(l_ke == 0 || p_ke == 0)
+                return PLACEHOLDERVALUE;
+            else
+                return utilities::magnitude(utilities::add(l_pt, p_pt));
+        }
+
+    /**
      * @brief Variable for phi_T of the interaction.
      * @details phi_T is a transverse kinematic imbalance variable defined
      * using the transverse momentum of the leading muon and the total hadronic
@@ -375,6 +424,53 @@ namespace vars
         }
 
     /**
+     * @brief Variable for the missing longitudinal momentum of the interaction
+     * counting only the leading charged lepton and proton.
+     * @details The missing longitudinal momentum is calculated as the
+     * difference between the total longitudinal momentum of the leading charged
+     * lepton and proton and the best estimate of the neutrino energy. The
+     * neutrino energy is calculated using @ref vars::visible_energy.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the missing longitudinal momentum of the leading charged lepton
+     * and proton.
+     * @note The switch to the NuMI beam direction instead of the BNB axis is
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
+     */
+    template<class T>
+        double dpL_lp(const T & obj)
+        {
+            utilities::three_vector l_pl = {0, 0, 0};
+            utilities::three_vector p_pl = {0, 0, 0};
+            double l_ke(0), p_ke(0);
+            for(const auto & p : obj.particles)
+            {
+                if(pcuts::final_state_signal(p))
+                {
+                    // Find the leading charged lepton and proton
+                    if((p.pid == 1 || p.pid == 2) && pvars::ke(p) > l_ke)
+                    {
+                        l_ke = pvars::ke(p);
+                        utilities::three_vector momentum = {pvars::px(p), pvars::py(p), pvars::pz(p)};
+                        utilities::three_vector vtx = {pvars::start_x(p), pvars::start_y(p), pvars::start_z(p)};
+                        l_pl = utilities::longitudinal_momentum(momentum, vtx);
+                    }
+                    else if(p.pid == 4 && pvars::ke(p) > p_ke)
+                    {
+                        p_ke = pvars::ke(p);
+                        utilities::three_vector momentum = {pvars::px(p), pvars::py(p), pvars::pz(p)};
+                        utilities::three_vector vtx = {pvars::start_x(p), pvars::start_y(p), pvars::start_z(p)};
+                        p_pl = utilities::longitudinal_momentum(momentum, vtx);
+                    }
+                }
+            }
+            if(l_ke == 0 || p_ke == 0)
+                return PLACEHOLDERVALUE;
+            else
+                return utilities::magnitude(utilities::add(l_pl, p_pl)) - 1000*vars::visible_energy(obj);
+        }
+
+    /**
      * @brief Variable for the estimate of the momentum of the struck nucleon.
      * @details The estimate of the momentum of the struck nucleon is calculated
      * as the quadrature sum of the transverse momentum (see @ref vars::dpT) and
@@ -387,5 +483,20 @@ namespace vars
      */
     template<class T>
         double pn(const T & obj) { return std::sqrt(std::pow(vars::dpT(obj), 2) + std::pow(vars::dpL(obj), 2)); }
+
+    /**
+     * @brief Variable for the estimate of the momentum of the struck nucleon
+     * counting only the leading charged lepton and proton.
+     * @details The estimate of the momentum of the struck nucleon is calculated
+     * as the quadrature sum of the transverse momentum (see @ref vars::dpT_lp)
+     * and the missing longitudinal momentum (see @ref vars::dpL_lp).
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the estimate of the momentum of the struck nucleon.
+     * @note The switch to the NuMI beam direction instead of the BNB axis is
+     * applied by the definition of a preprocessor macro (BEAM_IS_NUMI).
+     */
+    template<class T>
+        double pn_lp(const T & obj) { return std::sqrt(std::pow(vars::dpT_lp(obj), 2) + std::pow(vars::dpL_lp(obj), 2)); }
 }
 #endif // VARIABLES_H
