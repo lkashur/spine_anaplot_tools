@@ -46,21 +46,23 @@ namespace vars::muon2024
      * 3: 1muNp (N > 1, not contained or fiducial)
      * 4: 1muX (not 1muNp, contained and fiducial)
      * 5: 1muX (not 1muNp, not contained or fiducial)
-     * 6: Other nu
-     * 7: cosmic
+     * 6: Other CC nu
+     * 7: Other NC nu
+     * 8: Cosmic
      * @param obj The interaction to apply the variable on.
      * @return the enumerated category of the interaction.
     */
     double category(const caf::SRInteractionTruthDLPProxy & obj)
     {
-        double cat(7);
+        double cat(8);
         if(cuts::muon2024::signal_1mu1p(obj)) cat = 0;
         else if(cuts::muon2024::nonsignal_1mu1p(obj)) cat = 1;
         else if(cuts::muon2024::signal_1muNp(obj)) cat = 2;
         else if(cuts::muon2024::nonsignal_1muNp(obj)) cat = 3;
         else if(cuts::muon2024::signal_1muX(obj)) cat = 4;
         else if(cuts::muon2024::nonsignal_1muX(obj)) cat = 5;
-        else if(cuts::neutrino(obj)) cat = 6;
+        else if(cuts::neutrino(obj) && cuts::iscc(obj)) cat = 6;
+        else if(cuts::neutrino(obj) && !cuts::iscc(obj)) cat = 7;
         return cat;
     }
 
