@@ -42,8 +42,8 @@ void example()
      * AddLoader function is used to create a directory in the output ROOT file
      * to store the results of the analysis.
      */
-    ana::SpectrumLoader var00("/pnfs/icarus/persistent/users/mueller/fall2024/nominal/flat/*.root");
-    analysis.AddLoader("nominal", &var00, true);
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/spineprod/mcsim/nominal/flat/*.root");
+    analysis.AddLoader("nominal", &mc, true);
     
     /**
      * @brief Add a set of variables for selected interactions to the analysis.
