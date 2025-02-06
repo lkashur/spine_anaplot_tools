@@ -90,7 +90,7 @@ namespace cuts::muon2024
      * @note This cut is intended to be used for the muon2024 analysis.
      */
     template<class T>
-        bool all_1mu1p_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1mu1p_cut<T>(obj); }
+        bool all_1mu1p_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut<T>(obj) && topological_1mu1p_cut<T>(obj); }
 
     /**
      * @brief Apply a fiducial volume, containment, flash time (BNB), and 1muNp
@@ -105,7 +105,7 @@ namespace cuts::muon2024
      * @note This cut is intended to be used for the muon2024 analysis.
      */
     template<class T>
-        bool all_1muNp_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1muNp_cut<T>(obj); }
+        bool all_1muNp_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut<T>(obj) && topological_1muNp_cut<T>(obj); }
 
     /**
      * @brief Apply a fiducial volume, containment, flash time (BNB), and 1muX
@@ -120,7 +120,7 @@ namespace cuts::muon2024
      * @note This cut is intended to be used for the muon2024 analysis.
      */
     template<class T>
-        bool all_1muX_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1muX_cut<T>(obj); }
+        bool all_1muX_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut<T>(obj) && topological_1muX_cut<T>(obj); }
 
     /**
      * @brief Apply a cut to select the 1mu1p signal.

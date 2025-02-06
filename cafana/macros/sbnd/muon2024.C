@@ -294,7 +294,7 @@ void muon2024()
     vars_purity_nu.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"fiducial_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::fiducial_cut), &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"containment_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::containment_cut), &cuts::no_cut, &TCUT)});
-    vars_purity_nu.insert({"flash_cut_bnb", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &cuts::no_cut, &TCUT)});
+    vars_purity_nu.insert({"flash_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::flash_cut), &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"has_no_charged_pions", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::no_charged_pions), &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"has_no_showers", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::no_showers), &cuts::no_cut, &TCUT)});
     vars_purity_nu.insert({"has_single_muon", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_single_muon), &cuts::no_cut, &TCUT)});
@@ -355,7 +355,7 @@ void muon2024()
     vars_purity_cos.insert({"flash_hypothesis", SpineVar<RTYPE,RTYPE>(&vars::flash_hypothesis, &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"fiducial_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::fiducial_cut), &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"containment_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::containment_cut), &cuts::no_cut, &TCUT)});
-    vars_purity_cos.insert({"flash_cut_bnb", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &cuts::no_cut, &TCUT)});
+    vars_purity_cos.insert({"flash_cut", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::flash_cut), &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"has_no_charged_pions", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::no_charged_pions), &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"has_no_showers", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::no_showers), &cuts::no_cut, &TCUT)});
     vars_purity_cos.insert({"has_single_muon", SpineVar<RTYPE,RTYPE>(WRAP_BOOL(cuts::has_single_muon), &cuts::no_cut, &TCUT)});
@@ -425,7 +425,7 @@ void muon2024()
     vars_signal.insert({"proton_hadron_softmax", SpineVar<RTYPEP,TTYPE,TTYPE>(&pvars::hadron_softmax, &SIGCUT, &SIGCUT, &utilities::leading_proton_index)});
     vars_signal.insert({"fiducial_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::fiducial_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"containment_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::containment_cut), &SIGCUT, &SIGCUT)});
-    vars_signal.insert({"flash_cut_bnb", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::flash_cut_bnb), &SIGCUT, &SIGCUT)});
+    vars_signal.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::flash_cut), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"has_no_charged_pions", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::no_charged_pions), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"has_no_showers", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::no_showers), &SIGCUT, &SIGCUT)});
     vars_signal.insert({"has_single_muon", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::has_single_muon), &SIGCUT, &SIGCUT)});
