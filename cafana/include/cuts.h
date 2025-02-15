@@ -84,6 +84,17 @@ namespace cuts
     bool cosmic(const caf::SRInteractionTruthDLPProxy & obj) { return !neutrino(obj); }
 
     /**
+     * @brief Apply a cut to select charged current interactions.
+     * @details This function applies a cut to select charged current
+     * interactions. This cut makes use of the `current_type` attribute in the
+     * true interaction object and is intended to be used to identify charged
+     * current interactions.
+     * @param obj the interaction to select on.
+     * @return true if the interaction is a charged current interaction.
+     */
+    bool iscc(const caf::SRInteractionTruthDLPProxy & obj) { return obj.current_type == 0; }
+
+    /**
      * @brief Apply a fiducial volume cut; the interaction vertex must be
      * reconstructed within the fiducial volume.
      * @details The fiducial volume cut is applied on the reconstructed
@@ -148,41 +159,24 @@ namespace cuts
     /**
      * @brief Apply a flash time cut on the interaction.
      * @details The flash time cut is applied on the interaction. The flash time
-     * is required to be within the beam window, which is defined as 0 to 1.6
-     * microseconds. This cut is intended to reduce the impact of cosmogenic
-     * interactions on analyses.
+     * is required to be within the beam window, which is expected to be
+     * [0 us, 1.6 us] for BNB and [0 us, 9.6 us] for NuMI. This cut is intended
+     * to reduce the impact of cosmogenic interactions on analyses.
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to select on.
      * @return true if the interaction has been matched to an in-time flash.
-     * @note This cut is intended to be used for BNB analyses.
+     * @note The switch to the NuMI beam window is applied by the definition of
+     * a preprocessor macro (BEAM_IS_NUMI).
      * @note The cut window has been widened to reconcile the beam window as
      * observed in data and simulation.
      */
     template<class T>
-        bool flash_cut_bnb(const T & obj)
+        bool flash_cut(const T & obj)
         {
             if(!valid_flashmatch(obj))
                 return false;
-            else
+            else if constexpr(!BEAM_IS_NUMI)
                 return (obj.flash_times[0] >= -0.5) && (obj.flash_times[0] <= 1.6);
-        }
-    
-    /**
-     * @brief Apply a flash time cut on the interaction.
-     * @details The flash time cut is applied on the interaction. The flash time
-     * is required to be within the beam window, which is defined as 0 to 9.6
-     * microseconds. This cut is intended to reduce the impact of cosmogenic
-     * interactions on analyses.
-     * @tparam T the type of interaction (true or reco).
-     * @param obj the interaction to select on.
-     * @return true if the interaction has been matched to an in-time flash.
-     * @note This cut is intended to be used for NuMI analyses.
-     */
-    template<class T>
-        bool flash_cut_numi(const T & obj)
-        {
-            if(!valid_flashmatch(obj))
-                return false;
             else
                 return (obj.flash_times[0] >= 0) && (obj.flash_times[0] <= 9.6);
         }
@@ -199,35 +193,21 @@ namespace cuts
         bool fiducial_containment_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj); }
 
     /**
-     * @brief Apply a fiducial, containment, and flash time cut (BNB) (logical
-     * "and" of each).
-     * @details This function applies a fiducial, containment, and flash time cut
-     * (BNB) on the interaction using the logical "and" of each previously
+     * @brief Apply a fiducial, containment, and flash time cut (logical "and"
+     * of each).
+     * @details This function applies a fiducial, containment, and flash time
+     * cut on the interaction using the logical "and" of each previously
      * defined cut.
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to select on.
      * @return true if the interaction passes the fiducial, containment, and
      * flash time cut.
-     * @note This cut is intended to be used for BNB analyses.
+     * @note The switch to the NuMI beam window for the flash cut is applied by
+     * the definition of a preprocessor macro (BEAM_IS_NUMI).
      */
     template<class T>
-        bool fiducial_containment_flash_cut_bnb(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_bnb<T>(obj); }
-
-    /**
-     * @brief Apply a fiducial, containment, and flash time cut (NuMI) (logical
-     * "and" of each).
-     * @details This function applies a fiducial, containment, and flash time cut
-     * (NuMI) on the interaction using the logical "and" of each previously
-     * defined cut.
-     * @tparam T the type of interaction (true or reco).
-     * @param obj the interaction to select on.
-     * @return true if the interaction passes the fiducial, containment, and
-     * flash time cut.
-     * @note This cut is intended to be used for NuMI analyses.
-     */
-    template<class T>
-        bool fiducial_containment_flash_cut_numi(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut_numi<T>(obj); }
-
+        bool fiducial_containment_flash_cut(const T & obj) { return fiducial_cut<T>(obj) && containment_cut<T>(obj) && flash_cut<T>(obj); }
+        
     /**
      * @brief Apply a fiducial and neutrino cut (logical "and" of each).
      * @details This function applies a fiducial and neutrino cut on the

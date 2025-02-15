@@ -69,10 +69,10 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
                 if(fcut(i) && i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]]))
                 {
                     int64_t nu_id = sr->dlp_true[i.match_ids[0]].nu_id;
-                    var.push_back(nu_id >= 0 ? fvar(sr->mc.nu[nu_id]) : -1.0);
+                    var.push_back(nu_id >= 0 ? fvar(sr->mc.nu[nu_id]) : PLACEHOLDERVALUE);
                 }
                 else if(fcut(i) && !is_mc)
-                    var.push_back(-1.0);
+                    var.push_back(PLACEHOLDERVALUE);
             }
             return var;
         });
@@ -98,7 +98,7 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
                 if(fcut(i) && i.match_ids.size() > 0 && fcat(i))
                 {
                     int64_t nu_id = i.nu_id;
-                    var.push_back(nu_id >= 0 ? fvar(sr->mc.nu[nu_id]) : -1.0);
+                    var.push_back(nu_id >= 0 ? fvar(sr->mc.nu[nu_id]) : PLACEHOLDERVALUE);
                 }
             }
             return var;
@@ -126,7 +126,7 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
             for(auto const& i : sr->dlp)
             {
                 if(fcut(i) && ((i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]])) || !is_mc))
-                    var.push_back(i.match_ids.size() > 0 ? fvar(sr->dlp_true[i.match_ids[0]]) : -1.0);
+                    var.push_back(i.match_ids.size() > 0 ? fvar(sr->dlp_true[i.match_ids[0]]) : PLACEHOLDERVALUE);
             }
             return var;
         });
@@ -250,11 +250,13 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
             bool is_mc(sr->ndlp_true != 0);
             for(auto const& i : sr->dlp)
             {
-                if(fcut(i) && ((i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]])) || !is_mc))
+                if(fcut(i) && i.match_ids.size() > 0 && fcat(sr->dlp_true[i.match_ids[0]]))
                 {
                     size_t index(pident(sr->dlp_true[i.match_ids[0]]));
-                    var.push_back(fvar(sr->dlp_true[i.match_ids[0]].particles[index]));
+                    var.push_back(i.match_ids.size() > 0 ? fvar(sr->dlp_true[i.match_ids[0]].particles[index]) : PLACEHOLDERVALUE);
                 }
+                else if(fcut(i) && !is_mc)
+                    var.push_back(PLACEHOLDERVALUE);
             }
             return var;
         });
@@ -345,7 +347,7 @@ ana::SpillMultiVar SpineVar(double (*fvar)(const VARTYPE &), bool (*fcut)(const 
                     size_t index(pident(i));
                     if(i.particles[index].match_ids.size() > 0)
                         var.push_back(fvar(*reco_particles[i.particles[index].match_ids[0]]));
-                    else var.push_back(-1.0);
+                    else var.push_back(PLACEHOLDERVALUE);
                 }
             }
             return var;

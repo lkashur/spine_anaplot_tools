@@ -1,7 +1,7 @@
 /**
  * @file utilities.h
- * @brief Header file for definitions of utility functions for supporting
- * analysis variables and cuts.
+ * @brief Header file for definitions of utility functions acting on
+ * interactions.
  * @details This file contains definitions of utility functions which are used
  * to support the implementation of analysis variables and cuts. These functions
  * are intended to be used to simplify the implementation of variables and cuts
@@ -50,7 +50,7 @@ namespace utilities
             }
             return counts;
         }
-    
+
     /**
      * @brief Finds the index corresponding to the leading particle of the specifed
      * particle type.
