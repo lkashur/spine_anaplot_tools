@@ -160,7 +160,7 @@ namespace pvars
             }
             else
             {
-                if(p.pid < 2) energy += p.calo_ke;
+                if(PIDFUNC(p) < 2) energy += p.calo_ke;
                 else
                 {
                     if(p.is_contained) energy += p.csda_ke_per_pid[PIDFUNC(p)];
