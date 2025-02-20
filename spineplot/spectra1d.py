@@ -166,7 +166,7 @@ class SpineSpectra1D(SpineSpectra):
             self.mark_pot(ax)
         if style.get_mark_preliminary() is not None:
             self.mark_preliminary(ax, style.get_mark_preliminary())
-        if style.get_mark_title() is not None:
-            self.mark_title(ax, style.get_mark_title())
+        #if style.get_mark_title() is not None:
+        #    self.mark_title(ax, style.get_mark_title())
         if style.get_title() is not None:
             ax.set_title(style.get_title())

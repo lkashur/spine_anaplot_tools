@@ -35,6 +35,12 @@ exposure_type = "pot"
 override_category = -100
 trees = ['selectedNu',]
 
+[samples.onbeamphase]
+key = "onbeam"
+exposure_type = "pot"
+override_category = -100
+trees = ['SelectedNu_PhaseCuts',]
+
 [samples.intime]
 key = "intime"
 exposure_type = "livetime"

@@ -16,7 +16,7 @@
 #include <vector>
 #include <TVector3.h>
 #include "include/cuts.h"
-#include "include/beaminfo.h"
+//#include "include/beaminfo.h"
 
 #define MIN_MUON_MOMENTUM 226
 #define MIN_PION_MOMENTUM 0
@@ -41,7 +41,7 @@ struct truth_inter_phase {
   double pi0_leading_photon_conv_dist;
   double pi0_subleading_photon_energy;
   double pi0_subleading_photon_conv_dist;
-  double pi0_costheta;
+  double pi0_photons_costheta;
   double pi0_mass;
   double pi0_momentum_mag;
   double pi0_beam_costheta;
@@ -57,7 +57,7 @@ struct reco_inter_phase {
   double pi0_subleading_photon_energy;
   double pi0_subleading_photon_cosphi;
   double pi0_subleading_photon_conv_dist;
-  double pi0_costheta;
+  double pi0_photons_costheta;
   double pi0_mass;
   double pi0_momentum_mag;
   double pi0_beam_costheta;
@@ -145,7 +145,18 @@ namespace utilities_pi0ana_phase
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir(BEAMDIR);
+	TVector3 beamdir;
+	if constexpr(!BEAM_IS_NUMI){
+	    beamdir.SetX(0);
+	    beamdir.SetY(0);
+	    beamdir.SetZ(1);
+	  }
+	else{
+	  beamdir.SetX(315.120380 + vertex[0]);
+	  beamdir.SetY(33.644912 + vertex[1]);
+	  beamdir.SetZ(733.632532 + vertex[2]);
+	}
+	//TVector3 beamdir(BEAMDIR);
 	  
 	// Initialize output variables
 	int primary_muon_count(0);
@@ -168,7 +179,7 @@ namespace utilities_pi0ana_phase
 	double pi0_subleading_photon_energy;
 	TVector3 pi0_subleading_photon_dir;
 	double pi0_subleading_photon_conv_dist;
-	double pi0_costheta;
+	double pi0_photons_costheta;
 	double pi0_mass;
 	TVector3 pi0_momentum;
 	double pi0_beam_costheta;
@@ -330,8 +341,8 @@ namespace utilities_pi0ana_phase
 	  //std::cout << " " << std::endl;
 	  pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
 
-	  pi0_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
-	  pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_costheta));
+	  pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
+	  pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
 	        
 	  s.muon_momentum_mag = muon_momentum_mag;
 	  s.muon_beam_costheta = muon_beam_costheta;
@@ -339,7 +350,7 @@ namespace utilities_pi0ana_phase
 	  s.pi0_leading_photon_conv_dist = pi0_leading_photon_conv_dist;
 	  s.pi0_subleading_photon_energy = pi0_subleading_photon_energy;
 	  s.pi0_subleading_photon_conv_dist = pi0_subleading_photon_conv_dist;
-	  s.pi0_costheta = pi0_costheta;
+	  s.pi0_photons_costheta = pi0_photons_costheta;
 	  s.pi0_mass = pi0_mass;
 	  s.pi0_momentum_mag = pi0_momentum.Mag();
 	  s.pi0_beam_costheta = pi0_beam_costheta;
@@ -352,7 +363,7 @@ namespace utilities_pi0ana_phase
           s.pi0_leading_photon_conv_dist = -5;
           s.pi0_subleading_photon_energy = -5;
           s.pi0_subleading_photon_conv_dist = -5;
-          s.pi0_costheta = -5;
+          s.pi0_photons_costheta = -5;
           s.pi0_mass = -5;
           s.pi0_momentum_mag = -5;
           s.pi0_beam_costheta = -5;
@@ -393,7 +404,18 @@ namespace utilities_pi0ana_phase
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir(BEAMDIR);
+        TVector3 beamdir;
+        if constexpr(!BEAM_IS_NUMI){
+            beamdir.SetX(0);
+            beamdir.SetY(0);
+            beamdir.SetZ(1);
+          }
+        else{
+          beamdir.SetX(315.120380 + vertex[0]);
+          beamdir.SetY(33.644912 + vertex[1]);
+          beamdir.SetZ(733.632532 + vertex[2]);
+        }
+	//TVector3 beamdir(BEAMDIR);
 
 	// Initialize output variables
 	double pT0(0), pT1(0), pT2(0);
@@ -611,8 +633,8 @@ namespace utilities_pi0ana_phase
 	TVector3 pi0_subleading_photon_momentum = pi0_subleading_photon_energy * pi0_subleading_photon_dir;
 
 	// Get neutral pion info
-	double pi0_cos_opening_angle = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
-	double pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_cos_opening_angle));
+	double pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
+	double pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
 	TVector3 pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
 	double pi0_momentum_mag = pi0_momentum.Mag();
 	double pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
@@ -627,7 +649,7 @@ namespace utilities_pi0ana_phase
 	s.pi0_subleading_photon_energy = pi0_subleading_photon_energy;
 	s.pi0_subleading_photon_cosphi = pi0_subleading_photon_cosphi;
 	s.pi0_subleading_photon_conv_dist = pi0_subleading_photon_conv_dist;
-	s.pi0_costheta = pi0_cos_opening_angle;
+	s.pi0_photons_costheta = pi0_photons_costheta;
 	s.pi0_mass = pi0_mass;
 	s.pi0_momentum_mag = pi0_momentum_mag;
 	s.pi0_beam_costheta = pi0_beam_costheta;

@@ -148,6 +148,21 @@ namespace vars::pi0ana_nophase
 
 	  return cat;
         }
+
+
+    template<class T>
+      double is_not_data(const T & obj)
+      {
+	double cat(0);
+	return cat;
+      }
+
+    template<class T>
+      double is_data(const T & obj)
+      {
+	double cat(1);
+	return cat;
+      }
  
     /**
      * @brief Variable for leading muon momentum magnitude.
@@ -332,6 +347,30 @@ namespace vars::pi0ana_nophase
 		return s.pi0_beam_costheta;
 	    }
         }
+
+    /**
+     * @brief Variable for neutral pion (photons) opening angle.
+     * @details Variable for the openign angle between neutral pion
+     * photons, as calculated using the interaction vertex and shower
+     * start points.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     */
+    template<class T>
+      double pi0_photons_costheta(const T & obj)
+      {
+	if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+		       {
+			 truth_inter_nophase s = utilities_pi0ana_nophase::truth_interaction_info(obj);
+			 return s.pi0_photons_costheta;
+		       }
+	else
+	  {
+	    reco_inter_nophase s = utilities_pi0ana_nophase::reco_interaction_info(obj);
+	    return s.pi0_photons_costheta;
+	  }
+
+      }
 
     /**
      * @brief Variable for neutral pion mass.

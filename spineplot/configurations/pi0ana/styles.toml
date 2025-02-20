@@ -7,10 +7,25 @@ title = ''
 mark_pot = true
 mark_preliminary = '$\bf{ICARUS}$ Simulation Work-in-Progress'
 #mark_title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
-mark_title = 'Selected NC $\pi^{0}$'
+#mark_title = 'Selected NC $\pi^{0}$'
 show_component_number = true
 show_component_percentage = true
 invert_stack_order = true
+plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
+
+[styles.selected_icarus_data]
+style_sheet = "configurations/pi0ana/styles/pi0ana.mplstyle"
+default_figsize = [9,7]
+#default_figsize = [6.4,4.8]
+title = ''
+mark_pot = true
+mark_preliminary = '$\bf{ICARUS}$ Simulation Work-in-Progress'
+#mark_title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+#mark_title = 'Selected NC $\pi^{0}$'
+show_component_number = true
+show_component_percentage = true
+invert_stack_order = true
+plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
 
 [styles.signal_icarus]
 style_sheet = "styles/muon2024.mplstyle"
@@ -18,10 +33,11 @@ default_figsize = [6.4,4.8]
 title = '$\bf{ICARUS}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
 mark_preliminary = '$\bf{ICARUS}$ Simulation Work-in-Progress'
-mark_title = ''
+#mark_title = ''
 show_component_number = true
 show_component_percentage = false
 invert_stack_order = false
+plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
 
 [styles.selected_sbnd]
 style_sheet = "styles/muon2024.mplstyle"
@@ -29,10 +45,11 @@ default_figsize = [6.4,4.8]
 title = '$\bf{SBND}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
 mark_preliminary = '$\bf{SBND}$ Simulation Work-in-Progress'
-mark_title = ''
+#mark_title = ''
 show_component_number = true
 show_component_percentage = true
 invert_stack_order = false
+plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
 
 [styles.signal_sbnd]
 style_sheet = "styles/muon2024.mplstyle"
@@ -40,7 +57,8 @@ default_figsize = [6.4,4.8]
 title = '$\bf{SBND}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
 mark_preliminary = '$\bf{SBND}$ Simulation Work-in-Progress'
-mark_title = ''
+#mark_title = ''
 show_component_number = true
 show_component_percentage = false
 invert_stack_order = false
+plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}

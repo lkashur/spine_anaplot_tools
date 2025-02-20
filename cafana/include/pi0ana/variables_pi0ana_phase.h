@@ -86,10 +86,10 @@ namespace vars::pi0ana_phase
     {
       truth_inter_phase s = utilities_pi0ana_phase::truth_interaction_info(obj);
 
-      // Cosmic                                                                                                                                                                                                                                                                                                
+      // Cosmic                                                                                                              
       uint16_t cat(4);
 
-      // Nu                                                                                                                                                                                                                                                                                                    
+      // Nu                                                                                                                         
       if(s.is_neutrino)
         {
 	  // Signal
@@ -351,6 +351,30 @@ namespace vars::pi0ana_phase
 		return s.pi0_beam_costheta;
 	    }
         }
+
+    /**
+     * @brief Variable for neutral pion (photons) opening angle.
+     * @details Variable for the openign angle between neutral pion
+     * photons, as calculated using the interaction vertex and shower
+     * start points.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     */
+    template<class T>
+        double pi0_photons_costheta(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_pi0ana_phase::truth_interaction_info(obj);
+			       return s.pi0_photons_costheta;
+			   }
+	    else
+	    {
+	        reco_inter_phase s = utilities_pi0ana_phase::reco_interaction_info(obj);
+		return s.pi0_photons_costheta;
+	    }
+
+	}
 
     /**
      * @brief Variable for neutral pion mass.

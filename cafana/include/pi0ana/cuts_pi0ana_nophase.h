@@ -59,35 +59,26 @@ namespace cuts::pi0ana_nophase
             return c[0] >= 2 && c[0] < 4 && c[2] == 1 && c[3] == 0;
         }
 
-    /**
-     * @brief Apply a charged pion (final state) cut.
-     * @details The interaction must not contain any charged pions as defined by
-     * the conditions in the @ref count_primaries() function.
-     * @tparam T the type of interaction (true or reco).
-     * @param obj the interaction to select on.
-     * @return true if the interaction contains zero charged pions.
-     */
     template<class T>
-        bool no_charged_pions(const T & obj)
-        {
-	    std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
-	    return c[3] == 0;
-	}
+      bool zero_charged_pions_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
+	return c[3] == 0;
+      }
 
-    /**
-     * @brief Apply a single muon (final state) cut.
-     * @details The interaction must contain exactly one muon as defined by
-     * the conditions in the @ref count_primaries() function.
-     * @tparam T the type of interaction (true or reco).
-     * @param obj the interaction to select on.
-     * @return true if the interaction contains exactly one muon.
-     */
     template<class T>
-        bool single_muon(const T & obj)
-        {
-	    std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
-	    return c[2] == 1;
-        }
+      bool one_muon_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
+	return c[2] == 1;
+      }
+
+    template<class T>
+      bool two_or_three_photons_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
+	return c[0] > 1 & c[0] < 4;
+      }
 
       
     /**
@@ -107,10 +98,10 @@ namespace cuts::pi0ana_nophase
 	}
 
     /**
-     * @brief Apply a fiducial volume, containment, flash time (BNB), 1mu0pi2gamma
+     * @brief Apply a fiducial volume, containment, flash time, 1mu0pi2gamma
      * topological, and pi0 mass cut (logical "and" of each).
-     * @details This function applies a fiducial volume, containment, flash time
-     * (BNB), 1mu0pi2gamma topological, and pi0 mass cut on the interaction using the logical "and"
+     * @details This function applies a fiducial volume, containment, flash time,
+     * 1mu0pi2gamma topological, and pi0 mass cut on the interaction using the logical "and"
      * of each previously defined cut.
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to select on.
@@ -119,10 +110,7 @@ namespace cuts::pi0ana_nophase
      * @note This cut is intended to be used for the pi0ana analysis. 
      */
     template<class T>
-        bool all_1mu0pi2gamma_bnb_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
-    
-    template<class T>
-        bool all_1mu0pi2gamma_numi_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut_numi<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+        bool all_1mu0pi2gamma_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
 
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.
