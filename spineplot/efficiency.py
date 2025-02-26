@@ -83,7 +83,7 @@ class SpineEfficiency(SpineArtist):
         # Lambda formatter to round the values to two decimal
         # places, display as percentage, and add super and 
         # subscripts for the error values.
-        formatter = lambda x,y,z: f'${100*x:.2f}^{{\ +{100*y:.2f}}}_{{\ -{100*z:.2f}}}$'
+        formatter = lambda x,y,z: rf'${100*x:.2f}^{{\ +{100*y:.2f}}}_{{\ -{100*z:.2f}}}$'
 
         if show_option == 'table':
 
