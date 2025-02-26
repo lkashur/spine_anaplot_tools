@@ -129,9 +129,16 @@ class Analysis:
             raise ConfigException(f"Sample '{sample_name}' not found in sample list when attempting to override exposure. Please check the sample configuration block in the TOML file ('{self._toml_path}').")
         self._samples[sample_name].override_exposure(exposure, exposure_type)
 
-    def run(self) -> None:
+    def run(self, close_figs=True) -> None:
         """
         Runs the analysis on the samples.
+
+        Parameters
+        ----------
+        close_figs : bool
+            Whether to close the figures after saving them. The default
+            is True. This is a useful toggle between two use cases:
+            interactive mode (False) and batch mode (True).
 
         Returns
         -------
@@ -150,7 +157,8 @@ class Analysis:
         for figname, figure in self._figures.items():
             figure.create()
             figure.figure.savefig(f"{self._output_path}/{figname}.png")
-            figure.close()
+            if close_figs:
+                figure.close()
 
     @staticmethod
     def handle_include(config, table):
