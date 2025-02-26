@@ -1,7 +1,12 @@
 numpy
+scipy
 pandas
 matplotlib
 uproot
 toml
+<<<<<<< HEAD
 doxypypy
 scipy
+=======
+uproot
+>>>>>>> upstream/feature/mueller_spineprod2024
