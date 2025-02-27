@@ -1,3 +1,4 @@
+import os
 import toml
 import uproot
 from matplotlib import pyplot as plt
@@ -154,6 +155,9 @@ class Analysis:
             for sample in self._samples.values():
                 artist.add_sample(sample, sample==ordinate)
 
+        # Check if the output path exists. If not, create it.
+        if not os.path.exists(self._output_path):
+            os.makedirs(self._output_path)
         for figname, figure in self._figures.items():
             figure.create()
             figure.figure.savefig(f"{self._output_path}/{figname}.png")
