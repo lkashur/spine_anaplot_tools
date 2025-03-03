@@ -1,6 +1,7 @@
 [styles]
 [styles.selected_icarus]
 style_sheet = "styles/muon2024.mplstyle"
+markers = ['o', '^', 's', 'P', 'D']
 default_figsize = [6.4,4.8]
 title = '$\bf{ICARUS}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
@@ -12,6 +13,7 @@ plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
 
 [styles.signal_icarus]
 style_sheet = "styles/muon2024.mplstyle"
+markers = ['o', '^', 's', 'P', 'D']
 default_figsize = [6.4,4.8]
 title = '$\bf{ICARUS}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
@@ -23,6 +25,7 @@ plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
 
 [styles.selected_sbnd]
 style_sheet = "styles/muon2024.mplstyle"
+markers = ['o', '^', 's', 'P', 'D']
 default_figsize = [6.4,4.8]
 title = '$\bf{SBND}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
@@ -34,6 +37,7 @@ plot_kwargs = {'histtype' = 'barstacked', 'stacked' = true}
 
 [styles.signal_sbnd]
 style_sheet = "styles/muon2024.mplstyle"
+markers = ['o', '^', 's', 'P', 'D']
 default_figsize = [6.4,4.8]
 title = '$\bf{SBND}$ $1\mu Np$ CC0$\pi$'
 mark_pot = true
