@@ -176,10 +176,11 @@ def main(args):
     # Config
     plot_config = {'include_mc' : True,
                    'include_mc_err': True,
-                   'fit_mc': True,
+                   'fit_mc': False,
                    'include_onbeam' : True,
-                   'fit_onbeam': True,
+                   'fit_onbeam': False,
                    'normalization' : 'data'}
+    #plot_histogram(pi0_config, plot_config, 'pi0_mass', sel_mc_df, pot_mc)
     plot_histogram(pi0_config, plot_config, 'pi0_mass', sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam)
     
 

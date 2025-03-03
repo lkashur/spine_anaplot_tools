@@ -170,6 +170,30 @@ namespace pvars
             return energy;
         }
 
+    template<class T>
+        double csda_ke(const T & p)
+        {
+	    return p.csda_ke;
+        }
+
+    template<class T>
+        double calo_ke(const T & p)
+        {
+	    return p.calo_ke;
+	}
+
+    template<class T>
+        double calo_ke_pre_corr(const T & p)
+        {
+	    return (1/1.2359) * p.calo_ke;
+        }
+
+    template<class T>
+        double mcs_ke(const T & p)
+        {
+	    return p.mcs_ke;
+        }
+
     /**
      * @brief Variable for the best estimate of the particle energy.
      * @details At the most basic decision level, this is based on the

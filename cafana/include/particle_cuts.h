@@ -42,6 +42,12 @@ namespace pcuts
             return p.is_primary;
         }
 
+    template<class T>
+        bool is_contained(const T & p)
+        {
+	    return p.is_contained;
+        }
+
     /**
      * @brief Check if the particle meets final state signal requirements.
      * @details must be primary and have an energy above threshold.
