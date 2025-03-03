@@ -101,7 +101,8 @@ class Analysis:
                             self._artists.append(art)
                         elif x['type'] == 'SpineEfficiency':
                             show_option = x.get('draw_kwargs', {}).get('show_option', 'table')
-                            art = SpineEfficiency(self._variables[x['variable']], self._categories, x['cuts'], show_option)
+                            npts = x.get('draw_kwargs', {}).get('npts', 1e6)
+                            art = SpineEfficiency(self._variables[x['variable']], self._categories, x['cuts'], show_option, npts)
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
 

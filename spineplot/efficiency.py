@@ -28,6 +28,8 @@ class SpineEfficiency(SpineArtist):
         A dictionary mapping the cut key to the cut label.
     _show_option : str
         The option to use when showing the artist.
+    _npts : int
+        The number of points to use when calculating the efficiency.
     _posteriors : dict
         A dictionary containing the posterior distributions for the
         efficiency calculation.
@@ -38,7 +40,7 @@ class SpineEfficiency(SpineArtist):
         A dictionary containing the number of successful events in each
         bin of the variable.
     """
-    def __init__(self, variable, categories, cuts, show_option='table'):
+    def __init__(self, variable, categories, cuts, show_option='table', npts=1e6):
         """
         Parameters
         ----------
@@ -51,19 +53,23 @@ class SpineEfficiency(SpineArtist):
         show_option : str, optional
             The option to use when showing the artist. The default is
             'table.'
+        npts : int, optional
+            The number of points to use when calculating the efficiency.
+            The default is 1e6.
         """
         self._variable = variable
         self._samples = list()
         self._categories = categories
         self._cuts = cuts
         self._show_option = show_option
+        self._npts = int(npts)
         self._posteriors = dict()
         self._totals = dict()
         self._successes = dict()
 
     def draw(   self, ax, show_option, groups=None, percentage=True,
                 override_title=None, show_seqeff=True, show_unseqeff=True,
-                yrange=None, style=None):
+                yrange=None, npts=1e6, style=None):
         """
         Draw the artist on the given axis.
 
@@ -95,6 +101,9 @@ class SpineEfficiency(SpineArtist):
             efficiency should be shown. The default is True.
         yrange : tuple, optional
             The range of the y-axis. The default is None.
+        npts : int, optional
+            The number of points to use when calculating the efficiency.
+            The default is 1e6.
         style : Style, optional
             The style to use when drawing the artist. The default is
             None. This is intended to be used in cases where the artist
@@ -327,7 +336,7 @@ class SpineEfficiency(SpineArtist):
         """
         # Create a linear space of efficiencies to calculate the
         # posterior distribution.
-        efficiencies = np.linspace(0.0, 1, int(1e6))
+        efficiencies = np.linspace(0.0, 1, self._npts)
 
         # Get the data for the binning variable and the configured
         # cuts. The data is returned as a dictionary with the key
@@ -434,7 +443,7 @@ class SpineEfficiency(SpineArtist):
             If the group is not in the list of groups configured
             in the analysis block.
         """
-        efficiencies = np.linspace(0.0, 1, int(1e6))
+        efficiencies = np.linspace(0.0, 1, self._npts)
         
         # If the group is not in the list of groups configured in
         # the analysis block, raise an exception. Otherwise,
