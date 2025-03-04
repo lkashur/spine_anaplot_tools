@@ -171,6 +171,62 @@ namespace pvars
         }
 
     /**
+     * @brief Variable for particle CSDA kinetic energy.
+     * @details The kinetic energy as calculated upstream in SPINE
+     * using the continuous slowing down approximation.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the particle CSDA kinetic energy.
+     */
+    template<class T>
+        double csda_ke(const T & p)
+        {
+	    return p.csda_ke;
+        }
+
+    /**
+     * @brief Variable for particle calorimetric kinetic energy.
+     * @details The kinetic energy as calculated upstream in SPINE
+     * using the sum of calorimetric energy deposits.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the particle calorimetric kinetic energy.
+     */
+    template<class T>
+        double calo_ke(const T & p)
+        {
+	    return p.calo_ke;
+	}
+
+    /**
+     * @brief Variable for particle calorimetric kinetic energy, pre-shower correction.
+     * @details The kinetic energy as calculated upstream in SPINE
+     * using the sum of calorimetric energy deposits, without applying a shower correction factor.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the particle calorimetric kinetic energy, pre-shower correction.
+     */
+    template<class T>
+        double calo_ke_pre_corr(const T & p)
+        {
+	    return (1/1.2359) * p.calo_ke;
+        }
+
+    /**
+     * @brief Variable for particle MCS kinetic energy.
+     * @details The kinetic energy as calculated upstream in SPINE
+     * using multiple coulomb scattering.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to apply the variable on.
+     * @return the particle MCS kinetic energy.
+     */
+    template<class T>
+        double mcs_ke(const T & p)
+        {
+	    return p.mcs_ke;
+        }
+
+    /**
      * @brief Variable for the best estimate of the particle energy.
      * @details At the most basic decision level, this is based on the
      * shower/track designation. Showers can only be reconstructed

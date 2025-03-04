@@ -41,6 +41,22 @@ namespace pcuts
         {
             return p.is_primary;
         }
+    
+    /**
+     * @brief Check if particle is contained.
+     * @details This function checks if the particle is contained.
+     * Containment designation is handled upstream in SPINE and considers
+     * a 5 cm buffer with regard to the boundaries of the detector.
+     * @tparam T the type of particle (true or reco).
+     * @param p the particle to check.
+     * @return true if the particle is contained.
+     *
+     */
+    template<class T>
+        bool is_contained(const T & p)
+        {
+	    return p.is_contained;
+        }
 
     /**
      * @brief Check if the particle meets final state signal requirements.
