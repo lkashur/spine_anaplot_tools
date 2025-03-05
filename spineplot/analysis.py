@@ -91,7 +91,7 @@ class Analysis:
         for fig in self._config['figure']:
             if fig['type'] == 'SimpleFigure':
                 with self._styles[fig['style']] as style:
-                    self._figures[fig['name']] = SimpleFigure(style, fig.get('figsize', style.default_figsize))
+                    self._figures[fig['name']] = SimpleFigure(fig.get('figsize', style.default_figsize), style, fig.get('title', style.default_title))
                     for x in fig['artists']:
 
                         # Check if the artist is restricted to certain
@@ -112,7 +112,7 @@ class Analysis:
                                 raise ConfigException(f"Variable '{x['variable']}' not found in all samples ({' '.join(missing_samples)}).")
                             
                             # Create the artist
-                            art = SpineSpectra1D(self._variables[x['variable']], restrict_categories, self._colors, self._category_types)
+                            art = SpineSpectra1D(self._variables[x['variable']], restrict_categories, self._colors, self._category_types, x.get('title', None))
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
                         elif x['type'] == 'SpineSpectra2D':
@@ -122,7 +122,7 @@ class Analysis:
                                 raise ConfigException(f"Variable '{x['xvariable']}' or '{x['yvariable']}' not found in all samples ({' '.join(missing_samples)}).")
                             
                             # Create the artist
-                            art = SpineSpectra2D([self._variables[x['xvariable']], self._variables[x['yvariable']]], restrict_categories, self._colors, self._category_types)
+                            art = SpineSpectra2D([self._variables[x['xvariable']], self._variables[x['yvariable']]], restrict_categories, self._colors, self._category_types, x.get('title', None))
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
                         elif x['type'] == 'SpineEfficiency':
@@ -136,7 +136,7 @@ class Analysis:
                             npts = x.get('draw_kwargs', {}).get('npts', 1e6)
                             
                             # Create the artist
-                            art = SpineEfficiency(self._variables[x['variable']], restrict_categories, x['cuts'], show_option, npts)
+                            art = SpineEfficiency(self._variables[x['variable']], restrict_categories, x['cuts'], x.get('title', None), show_option, npts)
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
 
