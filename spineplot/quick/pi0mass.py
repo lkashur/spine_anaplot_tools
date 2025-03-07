@@ -110,11 +110,15 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
     h, l = ax.get_legend_handles_labels()
     if plot_cfg['include_mc'] == True and plot_cfg['include_mc_err'] == True and plot_cfg['include_onbeam'] == False:
         h_mc, l_mc = h[:-1], l[:-1]
+        # test
+        l_mc = [f'{l} ({np.sum(contents_mc[::-1][li]):.0f}, {np.sum(contents_mc[::-1][li]) / np.sum(contents_mc):.02%})'for li, l in enumerate(l_mc)]
+        # end test
         h_mc = h_mc[::-1]
         h_syst, l_syst = [h[-1]], [l[-1]]
         h, l = h_mc + h_syst, l_mc + l_syst
     elif plot_cfg['include_mc'] == True and plot_cfg['include_mc_err'] == True and plot_cfg['include_onbeam'] == True:
         h_mc, l_mc = h[:-2], l[:-2]
+        l_mc = [f'{l} ({np.sum(contents_mc[::-1][li]):.0f}, {np.sum(contents_mc[::-1][li]) / np.sum(contents_mc):.02%})'for li, l in enumerate(l_mc)]
         h_mc = h_mc[::-1]
         h_syst, l_syst = [h[-2]], [l[-2]]
         h_onbeam, l_onbeam = [h[-1]], [l[-1]]
@@ -144,7 +148,11 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
         plt.gca().add_artist(l1)
 
     ax.legend(h,l, ncols=2)
-    add_plot_labels(ax, pot_onbeam, adj_y=0.025, title=cfg['variables'][var]['title'])
+    if plot_cfg['normalization'] == 'data':
+        pot_label = pot_onbeam
+    else:
+        pot_label = pot_mc
+    add_plot_labels(ax, pot_label, adj_y=0.025, title=cfg['variables'][var]['title'])
     ax.set_xlabel(cfg['variables'][var]['xlabel'])
     ax.set_ylabel(cfg['variables'][var]['ylabel'])
     ax.set_ylim(bottom=0)

@@ -35,14 +35,15 @@
 void pi0AnaData()
 {
 
-    ana::Analysis analysis("pi0ana_data_26_feb_2025");
+    ana::Analysis analysis("pi0ana_data_07_march_2025");
     
     ///////////////////////////////////////////
     /// Data (on-beam)
     ///////////////////////////////////////////
     //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/spineprod/data/bnb_majority_onbeam_prescaled/flat/*.root");
     //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/lkashur/bnb_majority_onbeam_prescaled_merged/flatcaf*.root");
-    ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.flat.root");
+    //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.flat.root");
+    ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.root"); // on-beam upstream calibration
     analysis.AddLoader("onbeam", &onbeam, false);
 
     ///////////////////////////////////////////

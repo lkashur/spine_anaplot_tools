@@ -32,9 +32,10 @@ void energycalib()
 {
 
     // Configure analysis 
-    ana::Analysis analysis("energycalib_26_feb_2025");
+    ana::Analysis analysis("energycalib_bnb_cv_05_march_2025");
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/bnb_nu_cosmic_cv_merged/flatcaf*.root"); // old CV
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/test/nominal_v4/flat/input*.flat.root"); // BNB nu + cosmic CV, upstream calibration fixed
     analysis.AddLoader("mc", &mc, true);
 
     /**

@@ -35,15 +35,16 @@
 void pi0AnaMC()
 {
 
-    ana::Analysis analysis("pi0ana_mc_26_feb_2025");
+    ana::Analysis analysis("pi0ana_bnb_cv_07_mar_2025");
 
     ///////////////////////////////////////////
     /// Monte Carlo (CV)
     ///////////////////////////////////////////
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/bnb_nu_cosmic_cv_merged/flatcaf*.root"); // BNB
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV"
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV"
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/NuMI_nu_v09_89_01_01p03/flat/*.root"); // NuMI
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/NuMI_nu_v09_89_01_01p03/flat/prodcorsika_genie_protononly_icarus_numi_gen_g4_71567695_0-163b2f1e-c022-4045-a546-4db951aa37fd.spine.caf.flat.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.root"); // BNB nu + cosmic CV, upstream calibration fixed
     analysis.AddLoader("mc", &mc, true);
 
     ///////////////////////////////////////////
