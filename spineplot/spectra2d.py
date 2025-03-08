@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 from spectra import SpineSpectra
 from style import Style
@@ -181,8 +182,8 @@ class SpineSpectra2D(SpineSpectra):
             self._binedges_diagonal[self._categories[category]] = h[1]
 
     def draw(self, ax, style, show_option='2d', draw_identity=True,
-             invert_stack_order=False, fit_type=None,
-             logx=False, logy=False) -> None:
+             draw_colorbar=True, invert_stack_order=False,
+             fit_type=None, logx=False, logy=False, logz=False) -> None:
         """
         Plots the data for the SpineSpectra2D object.
 
@@ -201,6 +202,9 @@ class SpineSpectra2D(SpineSpectra):
         draw_identity : bool
             A flag to indicate if the identity line should be drawn on
             the plot. The default is True.
+        draw_colorbar : bool
+            A flag to indicate if a colorbar should be drawn on the plot.
+            The default is True
         invert_stack_order : bool
             A flag to indicate if the stack order in the legend should
             be inverted. The default is False.
@@ -215,6 +219,9 @@ class SpineSpectra2D(SpineSpectra):
         logy : bool
             A flag to indicate if the y-axis should be logarithmic.
             The default is False.
+        logz : bool
+            A flag to indicate if the z-axis (colorbar) should be
+            logarithmic. The default is False.
         
         Returns
         -------
@@ -225,7 +232,17 @@ class SpineSpectra2D(SpineSpectra):
         if show_option == '2d' and self._plotdata is not None:
             values = np.sum([v for v in self._plotdata.values()], axis=0)
             binedges = self._binedges[list(self._plotdata.keys())[0]]
-            ax.imshow(values.T, extent=(binedges[0], binedges[-1], binedges[0], binedges[-1]), aspect='auto', origin='lower')
+            
+            # Find the minimum power of ten that is higher than the
+            # maximum value in the plot. This will be used to set the
+            # colorbar limits. The power of vmax is then given by the
+            # maximum of this value and 3.
+            max_power = np.floor(np.log10(np.max(values)))
+            max_power = max([max_power, 2])
+            ln = LogNorm(vmin=1, vmax=10**max_power)
+
+            ax.imshow(values.T, extent=(binedges[0], binedges[-1], binedges[0], binedges[-1]),
+                      aspect='auto', origin='lower', norm=ln if logz else None)
             ax.set_xlabel(self._variables[0]._xlabel if self._xtitle is None else self._xtitle)
             ax.set_ylabel(self._variables[1]._xlabel)
             
@@ -236,6 +253,12 @@ class SpineSpectra2D(SpineSpectra):
                 min_range = min([binedges[0], binedges[-1]])
                 max_range = max([binedges[0], binedges[-1]])
                 ax.plot([min_range, max_range], [min_range, max_range], 'k--')
+
+            # Draw the colorbar if requested. The color axis may also
+            # be logarithmic if requested.
+            if draw_colorbar:
+                cbar = plt.colorbar(ax.images[0], ax=ax)
+                cbar.set_label('Entries')
 
         if show_option == 'projection' and self._plotdata_diagonal is not None:
             labels, data = zip(*self._plotdata_diagonal.items())
