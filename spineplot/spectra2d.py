@@ -245,6 +245,7 @@ class SpineSpectra2D(SpineSpectra):
                       aspect='auto', origin='lower', norm=ln if logz else None)
             ax.set_xlabel(self._variables[0]._xlabel if self._xtitle is None else self._xtitle)
             ax.set_ylabel(self._variables[1]._xlabel)
+            ax.set_aspect('equal')
             
             # Draw the identity line. This must span the full range
             # of the plot, so we need to find the minimum and maximum
