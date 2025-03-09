@@ -300,7 +300,7 @@ class SpineSpectra2D(SpineSpectra):
                 ax.legend(h, l)
         
         if style.mark_pot:
-            self.mark_pot(ax)
+            self.mark_pot(ax, style.mark_pot_horizontal)
         if style.mark_preliminary is not None:
             self.mark_preliminary(ax, style.mark_preliminary)
 
