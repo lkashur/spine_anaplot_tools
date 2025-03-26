@@ -94,12 +94,12 @@ namespace utilities_pi0ana_nophase
 	    TVector3 momentum(p.momentum[0], p.momentum[1], p.momentum[2]);
 	    double momentum_mag(momentum.Mag());
 
-	    if(p.pid == 0) passes = true; // Photons
-	    if(p.pid == 1) passes = true; // Electrons
-	    if(p.pid == 2 && momentum_mag >= MIN_MUON_MOMENTUM) passes = true; // Muons
-	    if(p.pid == 3 && momentum_mag >= MIN_PION_MOMENTUM) passes = true; // Pions
-	    if(p.pid == 4) passes = true; // Protons
-	    if(p.pid == 5) passes = true; // Kaons
+	    if(PIDFUNC(p) == 0) passes = true; // Photons
+	    if(PIDFUNC(p) == 1) passes = true; // Electrons
+	    if(PIDFUNC(p) == 2 && momentum_mag >= MIN_MUON_MOMENTUM) passes = true; // Muons
+	    if(PIDFUNC(p) == 3 && momentum_mag >= MIN_PION_MOMENTUM) passes = true; // Pions
+	    if(PIDFUNC(p) == 4) passes = true; // Protons
+	    if(PIDFUNC(p) == 5) passes = true; // Kaons
 	  }
           return passes;
 	}
@@ -118,7 +118,7 @@ namespace utilities_pi0ana_nophase
           {
 
             if(final_state_signal(p))
-              ++counts[p.pid];
+              ++counts[PIDFUNC(p)];
           }
 	  return counts;
 	}
@@ -198,7 +198,7 @@ namespace utilities_pi0ana_nophase
 	    pT2 += pT[2];
 		      
 	    // Muons
-	    if(p.pid == 2)
+	    if(PIDFUNC(p) == 2)
 	    {
 	      primary_muon_count++;
 	      if(p.ke > max_muon_ke)
@@ -208,7 +208,7 @@ namespace utilities_pi0ana_nophase
 	      }
 	    }
 	    // Pions
-	    if(p.pid == 3)
+	    if(PIDFUNC(p) == 3)
 	    {
 	      primary_pion_count++;
 	    }
@@ -403,7 +403,7 @@ namespace utilities_pi0ana_nophase
 	    TVector3 pT = _p - pL;
 
 	    // Muons
-	    if(p.pid == 2)
+	    if(PIDFUNC(p) == 2)
 	    {
 		if(p.ke > max_muon_ke)
 		{
@@ -413,7 +413,7 @@ namespace utilities_pi0ana_nophase
 	    }
 
 	    // Photons
-	    if(p.pid == 0)
+	    if(PIDFUNC(p) == 0)
 	    {
 		// Don't use default momentum for photons
 		TVector3 _p(p.start_point[0] - vertex[0], p.start_point[1] - vertex[1], p.start_point[2] - vertex[2]);
@@ -435,7 +435,7 @@ namespace utilities_pi0ana_nophase
 	  {
 	    // First photon
 	    const auto & p = obj.particles[i];
-	    if(p.pid != 0 || !p.is_primary) continue;
+	    if(PIDFUNC(p) != 0 || !p.is_primary) continue;
 
 	    TVector3 sh0_start(p.start_point[0], p.start_point[1], p.start_point[2]);
 	    TVector3 sh0_start_dir = (sh0_start - vertex).Unit();

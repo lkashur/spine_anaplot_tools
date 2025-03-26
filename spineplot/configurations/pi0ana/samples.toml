@@ -33,7 +33,7 @@ trees = ['selectedNu',]
 key = "onbeam"
 exposure_type = "pot"
 override_category = -100
-trees = ['selectedNu_PhaseCuts',]
+trees = ['SelectedNu_PhaseCuts',]
 
 [samples.intime]
 key = "intime"

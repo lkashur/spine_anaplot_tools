@@ -105,16 +105,40 @@ namespace vars::pi0ana_phase
       return cat;
     }
 
+    double category_topology_simple(const caf::SRInteractionTruthDLPProxy & obj)
+    {
+        truth_inter_phase s = utilities_pi0ana_phase::truth_interaction_info(obj);
+
+	// Cosmic
+	uint16_t cat(5);
+	
+	// Neutrino
+	if(s.is_neutrino)
+	{
+	    // 1mu 0pi 1pi0 (in-phase)
+	    if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 0;
+	    // 1mu 0pi Npi0
+	    else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh > 1 && s.is_cc) cat = 1;
+	    // 1mu Npi
+	    else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh > 0 && s.is_cc) cat = 2;
+	    // Other CC nu
+	    else if(s.is_cc) cat = 3;
+	    // NC nu
+	    else cat = 4;
+	}
+	return cat;
+    }
+
 
     double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
     {
-      truth_inter_phase s = utilities_pi0ana_phase::truth_interaction_info(obj);
+        truth_inter_phase s = utilities_pi0ana_phase::truth_interaction_info(obj);
 
-      // Cosmic
-      uint16_t cat(7);
+	// Cosmic
+	uint16_t cat(7);
 
-      // Neutrino
-      if(s.is_neutrino)
+	// Neutrino
+	if(s.is_neutrino)
 	{
 	  // 1mu0pi1pi0 (in-phase)
 	  if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 0;
@@ -398,5 +422,30 @@ namespace vars::pi0ana_phase
 	        return s.pi0_mass;
 	    }
 	} 
+
+    /**
+     * @brief Variable for total visible energy of interaction.        
+     * @details This function calculates the total visible energy of the   
+     * interaction by summing the energy of all particles that are identified                  
+     * as counting towards the final state of the interaction.                        
+     * @tparam T the type of interaction (true or reco).                         
+     * @param obj interaction to apply the variable on.                     
+     * @return the total visible energy of the interaction.                                                                         
+     */
+    template<class T>
+        double visible_energy(const T & obj)
+        {
+	    double energy(0);
+	    for(const auto & p : obj.particles)
+	    {
+	        if(utilities_pi0ana_phase::final_state_signal(p))
+		{
+		    energy += pvars::energy(p);
+		    if(PIDFUNC(p) == 4) energy -= pvars::mass(p) - PROTON_BINDING_ENERGY;
+		}
+	    }
+	    return energy/1000.0;
+        }
+
 }
 #endif // VARS_PI0ANA_PHASE_H

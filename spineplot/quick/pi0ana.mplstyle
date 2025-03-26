@@ -47,7 +47,7 @@ grid.linestyle: --
 grid.linewidth: 0.5
 
 ## LEGEND
-legend.fontsize: 12
+legend.fontsize: 14
 legend.frameon: False
 
 ## LINES

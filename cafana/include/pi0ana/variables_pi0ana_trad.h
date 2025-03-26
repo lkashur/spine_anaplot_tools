@@ -105,6 +105,31 @@ namespace vars::pi0ana_trad
       return cat;
     }
 
+    double category_topology_simple(const caf::SRInteractionTruthDLPProxy & obj)
+    {
+      truth_inter_trad s = utilities_pi0ana_trad::truth_interaction_info(obj);
+
+      // Cosmic                                                                                                                                       
+      uint16_t cat(5);
+
+      // Neutrino                                                                                                                                     
+      if(s.is_neutrino)
+        {
+	  // 1mu 0pi 1pi0 (in-phase)                                                                                                                  
+	  if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 0;
+	  // 1mu 0pi Npi0                                                                                                                             
+	  else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh > 1 && s.is_cc) cat = 1;
+	  // 1mu Npi                                                                                                                                  
+	  else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh > 0 && s.is_cc) cat = 2;
+	  // Other CC nu                                                                                                                              
+	  else if(s.is_cc) cat = 3;
+	  // NC nu                                                                                                                                    
+	  else cat = 4;
+        }
+      return cat;
+    }
+
+
 
     double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
     {
@@ -189,6 +214,37 @@ namespace vars::pi0ana_trad
 		return s.muon_momentum_mag;
             }
         }
+
+    template<class T>
+        double muon_csda_ke(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_trad s = utilities_pi0ana_trad::truth_interaction_info(obj);
+			       return s.muon_csda_ke;
+			   }
+	    else
+	    {
+                reco_inter_trad s = utilities_pi0ana_trad::reco_interaction_info(obj);
+                return s.muon_csda_ke;
+	    }
+	}
+
+    template<class T>
+        double muon_calo_ke(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_trad s = utilities_pi0ana_trad::truth_interaction_info(obj);
+			       return s.muon_calo_ke;
+			   }
+	    else
+	    {
+	        reco_inter_trad s = utilities_pi0ana_trad::reco_interaction_info(obj);
+	        return s.muon_calo_ke;
+	    }
+	}
+
 
     /**
      * @brief Variable for leading muon angle with beam.

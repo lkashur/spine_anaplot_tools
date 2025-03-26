@@ -32,10 +32,12 @@ void energycalib()
 {
 
     // Configure analysis 
-    ana::Analysis analysis("energycalib_bnb_cv_05_march_2025");
+    ana::Analysis analysis("energycalib_bnb_cv_14_march_2025");
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/bnb_nu_cosmic_cv_merged/flatcaf*.root"); // old CV
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/test/nominal_v4/flat/input*.flat.root"); // BNB nu + cosmic CV, upstream calibration fixed
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/test/nominal_v4/flat/input*.flat.root"); // BNB nu + cosmic CV, upstream calibration fixed
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.root"); // BNB nu + coscmic CV, upstream calibration
+    //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.root"); // on-beam upstream calibration
     analysis.AddLoader("mc", &mc, true);
 
     /**
@@ -48,7 +50,9 @@ void energycalib()
     std::map<std::string, ana::SpillMultiVar> vars_muon;
     auto primary_muon = [](const TTYPEP & p) { return p.pid == 2 && p.is_primary && (0.001*p.t < 1.6 && 0.001*p.t > 0);};
     auto primary_muon_reco = [](const RTYPEP & p) -> double { return p.pid == 2 && p.is_primary; };
-    vars_muon.insert({"true_muon_ke", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::ke, primary_muon, &cuts::no_cut)});
+    vars_muon.insert({"true_ke", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::ke, primary_muon, &cuts::no_cut)});
+    vars_muon.insert({"true_calo_ke", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::calo_ke, primary_muon, &cuts::no_cut)});
+    vars_muon.insert({"true_csda_ke", SpineVar<TTYPEP,TTYPEP,TTYPE>(&pvars::csda_ke, primary_muon, &cuts::no_cut)});
     vars_muon.insert({"reco_csda_ke", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::csda_ke, primary_muon, &cuts::no_cut)});
     vars_muon.insert({"reco_calo_ke", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::calo_ke, primary_muon, &cuts::no_cut)});
     vars_muon.insert({"reco_mcs_ke", SpineVar<RTYPEP,TTYPEP,TTYPE>(&pvars::mcs_ke, primary_muon, &cuts::no_cut)});

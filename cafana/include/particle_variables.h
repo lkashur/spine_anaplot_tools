@@ -66,7 +66,7 @@ namespace pvars
             }
             else
             {
-                if(p.pid_scores[2] > 0.10)
+                if(p.pid_scores[2] > 0.10 && p.pid_scores[4] < 0.75)
                     pid = 2;
                 else
                 {

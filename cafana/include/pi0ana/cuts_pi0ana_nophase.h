@@ -74,6 +74,13 @@ namespace cuts::pi0ana_nophase
       }
 
     template<class T>
+      bool two_photons_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
+        return c[0] == 2;
+      }
+
+    template<class T>
       bool two_or_three_photons_cut(const T & obj)
       {
 	std::vector<uint32_t> c(utilities_pi0ana_nophase::count_primaries(obj));
