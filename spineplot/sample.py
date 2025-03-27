@@ -25,7 +25,9 @@ class Sample:
     _data : pd.DataFrame
         The data comprising the sample.
     """
-    def __init__(self, name, rf, category_branch, key, exposure_type, trees, precompute=None, presel=None, override_category=None) -> None:
+    def __init__(self, name, rf, category_branch, key, exposure_type,
+                 trees, override_exposure=None, precompute=None,
+                 presel=None, override_category=None) -> None:
         """
         Initializes the Sample object with the given name and key.
 
@@ -50,6 +52,9 @@ class Sample:
         trees : list
             The list of TTree names in the ROOT file to load for the
             sample.
+        override_exposure : float, optional
+            The exposure value to override the exposure in the ROOT file
+            with. The default is None.
         precompute : dict, optional
             A dictionary of new branches to compute from the existing
             branches in the sample. The keys are the names of the new
@@ -73,6 +78,9 @@ class Sample:
         self._exposure_livetime = self._file_handle['Livetime'].to_numpy()[0][0]
         self._category_branch = category_branch
 
+        if override_exposure is not None:
+            self.override_exposure(override_exposure, exposure_type)
+
         self._data = pd.concat([self._file_handle[tree].arrays(library='pd') for tree in trees])
         if self._category_branch not in self._data.columns:
             self._data[self._category_branch] = 0
@@ -85,6 +93,12 @@ class Sample:
         
         if presel is not None:
             self._data = self._data[self._data.eval(presel)]
+
+        # Check category branch for NaNs
+        if np.isnan(self._data[self._category_branch]).any():
+            occurrences = len(self._data[self._data[self._category_branch].isna()])
+            print(f'Found NaN category in Sample `{self._name}` with {occurrences} occurrence(s). Masking NaNs...')
+            self._data = self._data[~self._data[self._category_branch].isna()]
 
     def override_exposure(self, exposure, exposure_type='pot') -> None:
         """
@@ -135,7 +149,7 @@ class Sample:
             self._data['weight'] = (target._exposure_livetime / self._exposure_livetime)
             print(f"Setting weight for {self._name} to {target._exposure_livetime / self._exposure_livetime:.2e}")
 
-    def get_data(self, variables) -> dict:
+    def get_data(self, variables, with_mask=None) -> dict:
         """
         Returns the data for the given variable(s) in the sample. The
         data is returned as a dictionary with the category as the key
@@ -145,6 +159,8 @@ class Sample:
         ----------
         variables : list[str]
             The names of the variables to retrieve.
+        with_mask : str, optional
+            A mask formula to apply to the variable. The default is None.
 
         Returns
         -------
@@ -159,12 +175,20 @@ class Sample:
         """
         data = {}
         weights = {}
+        if with_mask is not None:
+            mask = self._data.eval(with_mask).to_numpy(dtype=bool)
+        else:
+            mask = np.ones(len(self._data), dtype=bool)
         for category in np.unique(self._data[self._category_branch]):
+            if np.isnan(category):
+                occurrences = len(self._data[self._data[self._category_branch].isna()])
+                print(f'Found NaN category in {self._name} ({occurrences} occurrences). Masking NaNs...')
+                continue
             data[int(category)] = list()
             for v in variables:
-                data[int(category)].append(self._data[self._data[self._category_branch] == category][v])  
+                data[int(category)].append(self._data[((self._data[self._category_branch] == category) & mask)][v])  
             if 'weight' in self._data.columns:  
-                weights[int(category)] = self._data[self._data[self._category_branch] == category]['weight']
+                weights[int(category)] = self._data[((self._data[self._category_branch] == category) & mask)]['weight']
             else:
                 weights[int(category)] = None
         return data, weights
@@ -186,3 +210,18 @@ class Sample:
         res += f'\n{"POT:":<15}{self._exposure_pot:.2e}'
         res += f'\n{"Livetime:":<15}{self._exposure_livetime:.2e}'
         return res
+
+    def evaluate_formula(self, formula) -> pd.Series:
+        """
+        Evaluates the given formula for the sample data.
+
+        Parameters
+        ----------
+        formula : str
+            The formula to evaluate.
+
+        Returns
+        -------
+        result : pd.Series
+        """
+        return self._data.eval(formula)

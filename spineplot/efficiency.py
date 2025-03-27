@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from artists import SpineArtist
 from style import Style
 from variable import Variable
+from utilities import mark_pot, mark_preliminary
 
 class SpineEfficiency(SpineArtist):
     """
@@ -18,6 +19,15 @@ class SpineEfficiency(SpineArtist):
 
     Attributes
     ----------
+    _title : str
+        The title of the artist. This will be placed at the top of the
+        axis assigned to the artist.
+    _xrange : tuple
+        The range of the x-axis. If None, the range is taken from the
+        Variable object.
+    _xtitle : str
+        The title of the x-axis. If None, the title is taken from the
+        Variable object.
     _variable : Variable
         The variable to calculate the efficiency with respect to.
     _samples : list
@@ -40,7 +50,9 @@ class SpineEfficiency(SpineArtist):
         A dictionary containing the number of successful events in each
         bin of the variable.
     """
-    def __init__(self, variable, categories, cuts, show_option='table', npts=1e6):
+    def __init__(self, variable, categories, cuts, title,
+                 xrange=None, xtitle=None, show_option='table',
+                 npts=1e6):
         """
         Parameters
         ----------
@@ -50,6 +62,14 @@ class SpineEfficiency(SpineArtist):
             A dictionary mapping the category key to the category name.
         cuts : dict
             A dictionary mapping the cut key to the cut label.
+        title : str
+            The title of the artist.
+        xrange : tuple, optional
+            The range of the x-axis. If None, the range is taken from
+            the Variable object. The default is None.
+        xtitle : str, optional
+            The title of the x-axis. If None, the title is taken from
+            the Variable object. The default is None.
         show_option : str, optional
             The option to use when showing the artist. The default is
             'table.'
@@ -57,6 +77,9 @@ class SpineEfficiency(SpineArtist):
             The number of points to use when calculating the efficiency.
             The default is 1e6.
         """
+        super().__init__(title)
+        self._xrange = xrange
+        self._xtitle = xtitle
         self._variable = variable
         self._samples = list()
         self._categories = categories
@@ -67,9 +90,9 @@ class SpineEfficiency(SpineArtist):
         self._totals = dict()
         self._successes = dict()
 
-    def draw(   self, ax, show_option, percentage=True, override_title=None,
-                show_seqeff=True, show_unseqeff=True, yrange=None, npts=1e6,
-                style=None, logx=False, logy=False):
+    def draw(self, ax, show_option, percentage=True, show_seqeff=True,
+             show_unseqeff=True, yrange=None, npts=1e6, style=None,
+             logx=False, logy=False):
         """
         Draw the artist on the given axis.
 
@@ -85,10 +108,6 @@ class SpineEfficiency(SpineArtist):
         percentage : bool, optional
             A flag to indicate if the efficiency should be displayed
             as a percentage. The default is True.
-        override_title : str, optional
-            A string to use as the title of the plot. The default is
-            None. If None, the title will be set to the natural title
-            of the artist.
         show_seqeff : bool, optional
             A flag to indicate if the sequential (cumulative)
             efficiency should be shown. The default is True.
@@ -115,7 +134,17 @@ class SpineEfficiency(SpineArtist):
         -------
         None.
         """
-        groups = list(set([v for v in self._categories.values()]))
+        ax.set_title(self._title)
+
+        # Get a list of the groups, while respecting the order of the
+        # groups as they are configured in the analysis block. It is
+        # possible that duplicates exist (multiple categories within
+        # the same group), so care must be taken to ensure that the
+        # groups are unique AND in the correct order.
+        groups = list()
+        for category in self._categories.values():
+            if category not in groups:
+                groups.append(category)
 
         if show_option == 'table':
             # Lambda formatter to round the values to two decimal
@@ -132,7 +161,6 @@ class SpineEfficiency(SpineArtist):
 
             # Clear up the axis because we are going to draw a table
             # on it (no need for any other plot elements).
-            ax.axis('tight')
             ax.axis('off')
 
             # Create the table data.
@@ -168,7 +196,7 @@ class SpineEfficiency(SpineArtist):
             # efficiency to show.
             if show_seqeff and not show_unseqeff:
                 results.rename(columns={cumu_key : 'Efficiency [%]' if percentage else 'Efficiency'}, inplace=True)
-
+            
             table_data = [results.columns.to_list()] + results.values.tolist()
             table = ax.table(cellText=table_data, colLabels=None, loc='center', cellLoc='center', edges='T')
             table.scale(1, 2.75)
@@ -176,15 +204,31 @@ class SpineEfficiency(SpineArtist):
                 if i == len(table_data) - 1:
                     for j in range(len(table_data[i])):
                         table[i, j].visible_edges = 'B'
-                        #table[i, j].set_height(0.1)
                 else:
                     for j in range(len(table_data[i])):
                         table[i, j].visible_edges = 'open'
                     if i in group_endpoint.values():
                         table[i, 0].visible_edges = 'B'
-            
-            if override_title is not None:
-                ax.set_title(override_title)
+
+            def calc_bbox_yext(obj):
+                figure = plt.gcf()
+                bbox = obj.get_window_extent(renderer=figure.canvas.get_renderer())
+                p0, p1 = figure.transFigure.inverted().transform(bbox)
+                return p1[1] - p0[1]
+
+            scale = 2.75
+            while calc_bbox_yext(table) > 0.92:
+                table.scale(1, 1/scale)
+                scale -= 0.05
+                table.scale(1, scale)
+            if scale < 2.0:
+                print(f'Warning: Table with title `{self._title}` is too large to fit on the figure (scale = {scale:.2f}). Consider extending the figure vertically.')
+
+            # Mark the POT and preliminary information on the plot.
+            if style.mark_pot:
+                mark_pot(ax, self._exposure, style.mark_pot_horizontal, vadj=0.1)
+            if style.mark_preliminary is not None:
+                mark_preliminary(ax, style.mark_preliminary, vadj=0.1)
 
         elif show_option == 'differential':
             # Lambda formatter to round the values to two decimal
@@ -202,13 +246,10 @@ class SpineEfficiency(SpineArtist):
             # sequential efficiency.
             if show_seqeff:
                 key_base = 'binned_seq_'
-                title = 'Cumulative Efficiency'
             elif show_unseqeff:
                 key_base = 'binned_unseq_'
-                title = 'Differential Efficiency'
             else:
                 key_base = 'binned_seq_'
-                title = 'Cumulative Efficiency'
 
             # Note: if the user requests a differential plot, the
             # clarity of the plot is highly dependent on the number
@@ -240,9 +281,9 @@ class SpineEfficiency(SpineArtist):
                                     fmt=style.get_marker(ci), color=style.get_color(gi),
                                     label=f'{group} : {cutname}')
 
-            ax.set_xlabel(self._variable._xlabel)
+            ax.set_xlabel(self._variable._xlabel if self._xtitle is None else self._xtitle)
             ax.set_ylabel('Efficiency [%]' if percentage else 'Efficiency')
-            ax.set_xlim(self._variable._range)
+            ax.set_xlim(self._variable._range if self._xrange is None else self._xrange)
             if yrange is not None:
                 ax.set_ylim(yrange)
 
@@ -252,16 +293,22 @@ class SpineEfficiency(SpineArtist):
                 # is greater than zero. The lower edge needs to be at least
                 # 3 orders of magnitude less than the maximum value in the
                 # plot.
-                if self._variable._range[0] == 0:    
-                    xhigh_exporder = np.floor(np.log10(self._variable._range[1]))
+                xr = self._variable._range if self._xrange is None else self._xrange
+                if xr == 0:    
+                    xhigh_exporder = np.floor(np.log10(xr[1]))
                     xlow = xhigh_exporder - 3
-                    ax.set_xlim(10**xlow, self._variable._range[1])
+                    ax.set_xlim(10**xlow, xr[1])
                 ax.set_xscale('log')
             if logy:
                 ax.set_yscale('log')
 
             ax.legend()
-            ax.set_title(title if override_title is None else override_title)
+
+            # Mark the POT and preliminary information on the plot.
+            if style.mark_pot:
+                mark_pot(ax, self._exposure, style.mark_pot_horizontal)
+            if style.mark_preliminary is not None:
+                mark_preliminary(ax, style.mark_preliminary)
 
     def add_sample(self, sample, is_ordinate):
         """
@@ -358,7 +405,7 @@ class SpineEfficiency(SpineArtist):
         # cuts. The data is returned as a dictionary with the key
         # being the category and the value consisting of the variable
         # and the cuts.
-        data, _ = sample.get_data([self._variable._key, *self._cuts.keys()])
+        data, _ = sample.get_data([self._variable._key, *self._cuts.keys()], with_mask=self._variable.mask)
         for category, values in data.items():
             if category not in self._categories:
                 continue
@@ -412,15 +459,17 @@ class SpineEfficiency(SpineArtist):
                     indices = np.digitize(values[0][np.all(values[1:ci+2], axis=0)], bin_edges, right=False)
                     success = np.bincount(indices, minlength=len(bin_edges)+1)[1:-1]
                     self._successes[self._categories[category]][f'binned_seq_{cut}'] += success
-                    binomialpmf = [binom.pmf(success[i], self._totals[self._categories[category]][i], efficiencies) for i in range(nbins)]
-                    self._posteriors[self._categories[category]][f'binned_seq_{cut}'] = SpineEfficiency.multiply_posteriors(self._posteriors[self._categories[category]][f'binned_seq_{cut}'], binomialpmf)
+                    binomialpmf = [binom.pmf(self._successes[self._categories[category]][f'binned_seq_{cut}'][i],
+                                             self._totals[self._categories[category]][i], efficiencies) for i in range(nbins)]
+                    self._posteriors[self._categories[category]][f'binned_seq_{cut}'] = np.array(binomialpmf)
 
                     # Non-sequential cuts (binned)
                     indices = np.digitize(values[0][values[ci+1] == 1], bin_edges, right=False)
                     success = np.bincount(indices, minlength=len(bin_edges)+1)[1:-1]
                     self._successes[self._categories[category]][f'binned_unseq_{cut}'] += success
-                    binomialpmf = [binom.pmf(success[i], self._totals[self._categories[category]][i], efficiencies) for i in range(nbins)]
-                    self._posteriors[self._categories[category]][f'binned_unseq_{cut}'] = SpineEfficiency.multiply_posteriors(self._posteriors[self._categories[category]][f'binned_unseq_{cut}'], binomialpmf)
+                    binomialpmf = [binom.pmf(self._successes[self._categories[category]][f'binned_unseq_{cut}'][i],
+                                             self._totals[self._categories[category]][i], efficiencies) for i in range(nbins)]
+                    self._posteriors[self._categories[category]][f'binned_unseq_{cut}'] = np.array(binomialpmf)
 
     def reduce(self, group, significance=0.6827):
         """
@@ -485,6 +534,7 @@ class SpineEfficiency(SpineArtist):
 
         for key in final_posteriors.keys():
             if len(final_posteriors[key].shape) == 1:
+                final_posteriors[key] /= np.sum(final_posteriors[key])
                 cv[key] = efficiencies[int(np.argmax(final_posteriors[key]))]
                 cumulative = np.cumsum(final_posteriors[key])
                 msigma[key] = cv[key]-efficiencies[int(np.argmax(cumulative > sig[0]))]
@@ -501,6 +551,7 @@ class SpineEfficiency(SpineArtist):
                     psigma[key] = 0
 
             else:
+                final_posteriors[key] /= np.sum(final_posteriors[key], axis=1)[:, np.newaxis]
                 cv[key] = efficiencies[np.argmax(final_posteriors[key], axis=1).astype(int)]
                 cumulative = np.cumsum(final_posteriors[key], axis=1)
                 msigma[key] = cv[key]-efficiencies[np.argmax(cumulative > sig[0], axis=1)]

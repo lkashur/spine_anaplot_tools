@@ -4,10 +4,11 @@ import uproot
 from matplotlib import pyplot as plt
 
 from sample import Sample
-from figure import SimpleFigure
+from figure import SpineFigure, SimpleFigure
 from spectra1d import SpineSpectra1D
 from spectra2d import SpineSpectra2D
 from efficiency import SpineEfficiency
+from roc import ROCCurve
 from style import Style
 from variable import Variable
 
@@ -91,7 +92,7 @@ class Analysis:
         for fig in self._config['figure']:
             if fig['type'] == 'SimpleFigure':
                 with self._styles[fig['style']] as style:
-                    self._figures[fig['name']] = SimpleFigure(style, fig.get('figsize', style.default_figsize))
+                    self._figures[fig['name']] = SimpleFigure(fig.get('figsize', style.default_figsize), style, fig.get('title', style.default_title))
                     for x in fig['artists']:
 
                         # Check if the artist is restricted to certain
@@ -112,7 +113,10 @@ class Analysis:
                                 raise ConfigException(f"Variable '{x['variable']}' not found in all samples ({' '.join(missing_samples)}).")
                             
                             # Create the artist
-                            art = SpineSpectra1D(self._variables[x['variable']], restrict_categories, self._colors, self._category_types)
+                            art = SpineSpectra1D(self._variables[x['variable']], restrict_categories,
+                                                 self._colors, self._category_types, x.get('title', None),
+                                                 x.get('xrange', None), x.get('xtitle', None),
+                                                 x.get('yrange', None), x.get('ytitle', None))
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
                         elif x['type'] == 'SpineSpectra2D':
@@ -122,7 +126,10 @@ class Analysis:
                                 raise ConfigException(f"Variable '{x['xvariable']}' or '{x['yvariable']}' not found in all samples ({' '.join(missing_samples)}).")
                             
                             # Create the artist
-                            art = SpineSpectra2D([self._variables[x['xvariable']], self._variables[x['yvariable']]], restrict_categories, self._colors, self._category_types)
+                            art = SpineSpectra2D([self._variables[x['xvariable']], self._variables[x['yvariable']]],
+                                                  restrict_categories, self._colors, self._category_types,
+                                                  x.get('title', None), x.get('xrange', None), x.get('xtitle', None),
+                                                  x.get('yrange', None), x.get('ytitle', None))
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
                         elif x['type'] == 'SpineEfficiency':
@@ -136,9 +143,25 @@ class Analysis:
                             npts = x.get('draw_kwargs', {}).get('npts', 1e6)
                             
                             # Create the artist
-                            art = SpineEfficiency(self._variables[x['variable']], restrict_categories, x['cuts'], show_option, npts)
+                            art = SpineEfficiency(self._variables[x['variable']], restrict_categories,
+                                                  x['cuts'], x.get('title', None), x.get('xrange', None),
+                                                  x.get('xtitle', None), show_option, npts)
                             self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
                             self._artists.append(art)
+
+                        elif x['type'] == 'ROCCurve':
+                            # Check if the discriminant scores are present in all samples
+                            if not all([self._variables[disc]._validity_check.values() for disc in x['discriminant_scores']]):
+                                missing_samples = [k for k, v in self._variables[disc]._validity_check.items() if not v for disc in x['discriminant_scores']]
+                                raise ConfigException(f"Variable '{disc}' not found in all samples ({' '.join(missing_samples)}).")
+                            
+                            # Create the artist
+                            disc = {g : self._variables[x['discriminant_scores'][i]] for i, g in enumerate(x['groups'])}
+                            art = ROCCurve(restrict_categories, x['labels'], x['pos_label'], disc,
+                                           x.get('background', None), x.get('title', None))
+                            self._figures[fig['name']].register_spine_artist(art, draw_kwargs=x.get('draw_kwargs', {}))
+                            self._artists.append(art)
+                            
 
     def override_exposure(self, sample_name, exposure, exposure_type='pot') -> None:
         """
@@ -199,6 +222,34 @@ class Analysis:
             figure.figure.savefig(f"{self._output_path}/{figname}.png")
             if close_figs:
                 figure.close()
+
+    def run_interactively(self, figure) -> SpineFigure:
+        """
+        Runs the analysis on the samples and creates the figure. This
+        method is useful for interactive plotting in a Jupyter notebook.
+
+        Parameters
+        ----------
+        figure : str
+            The name of the figure to create.
+        
+        Returns
+        -------
+        SpineFigure
+            The figure object.
+        """
+        if self._config['analysis']['ordinate_sample'] not in self._samples.keys():
+            raise ConfigException(f"Ordinate sample '{self._config['analysis']['ordinate_sample']}' not found in sample list. Please check the sample configuration block (table='samples') in the TOML file ('{self._toml_path}').")
+        ordinate = self._samples[self._config['analysis']['ordinate_sample']]
+        for s in self._samples.values():
+            s.set_weight(target=ordinate)
+
+        for artist in self._artists:
+            for sample in self._samples.values():
+                artist.add_sample(sample, sample==ordinate)
+
+        self._figures[figure].create()
+        return self._figures[figure].figure
 
     @staticmethod
     def handle_include(config, table):
