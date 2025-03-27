@@ -12,6 +12,7 @@
 //#define PIDFUNC pvars::custom_pid
 #define PROTON_BINDING_ENERGY 30.9 // MeV
 #define BEAM_IS_NUMI false
+#define WRITE_PURITY_TREES false
 
 #include "include/mctruth.h"
 #include "include/variables.h"
@@ -22,8 +23,6 @@
 #include "include/pi0ana/cuts_pi0ana_nophase.h"
 #include "include/pi0ana/variables_pi0ana_trad.h"
 #include "include/pi0ana/cuts_pi0ana_trad.h"
-#include "include/pi0ana/variables_pi0ana_2showers.h"
-#include "include/pi0ana/cuts_pi0ana_2showers.h"
 
 #include "include/spinevar.h"
 #include "include/analysis.h"
@@ -35,11 +34,25 @@
 #include "TDirectory.h"
 #include "TFile.h"
 
-void pi0AnaMC()
+void pi0Ana()
 {
 
-    //ana::Analysis analysis("pi0ana_bnb_hlt_argmax_14_mar_2025");
-    ana::Analysis analysis("test_26_mar_2025");
+    ana::Analysis analysis("offbeam_27_mar_2025");
+
+    //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.flat.root");
+    //analysis.AddLoader("onbeam", &onbeam, false);
+
+    ana::SpectrumLoader offbeam("/pnfs/icarus/persistent/users/mueller/production/data/offbeam/flat/input*.flat.root"); 
+    analysis.AddLoader("offbeam", &offbeam, false);
+
+    //ana::SpectrumLoader run9435("/pnfs/icarus/persistent/users/mueller/production/data/onbeam_run9435/flat/input.flat.root");
+    //analysis.AddLoader("run9435", &run9435, false);
+                         
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root");
+    //analysis.AddLoader("mc", &mc, true);
+
+
+
 
     ///////////////////////////////////////////
     /// Monte Carlo (CV)
@@ -48,11 +61,11 @@ void pi0AnaMC()
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV"
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/NuMI_nu_v09_89_01_01p03/flat/*.root"); // NuMI
     //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/NuMI_nu_v09_89_01_01p03/flat/prodcorsika_genie_protononly_icarus_numi_gen_g4_71567695_0-163b2f1e-c022-4045-a546-4db951aa37fd.spine.caf.flat.root");
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.root"); // BNB nu + cosmic CV, upstream calibration fixed
+    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.root"); // BNB nu + cosmic CV, upstream calibration fixed
 
     //ana::SpectrumLoader var01("/pnfs/icarus/persistent/users/mueller/production/simulation/var01/flat/input*.root");
     
-    analysis.AddLoader("mc", &mc, true);
+    //analysis.AddLoader("mc", &mc, true);
     //analysis.AddLoader("var01", &var01, true);
 
     ///////////////////////////////////////////
@@ -96,7 +109,7 @@ void pi0AnaMC()
     vars_selected_nu_phase.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedNu_PhaseCuts", vars_selected_nu_phase, true);
+    analysis.AddTree("SelectedNu_PhaseCuts", vars_selected_nu_phase, false);
 
     #undef TCUT
     #define TCUT cuts::cosmic
@@ -124,7 +137,7 @@ void pi0AnaMC()
     vars_selected_cos_phase.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedCos_PhaseCuts", vars_selected_cos_phase, true);
+    analysis.AddTree("SelectedCos_PhaseCuts", vars_selected_cos_phase, false);
 
     #undef TCUT
     #define TCUT cuts::no_cut
@@ -143,7 +156,9 @@ void pi0AnaMC()
     vars_purity_phase.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &cuts::no_cut, &TCUT)});
     vars_purity_phase.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &cuts::no_cut, &TCUT)});
     vars_purity_phase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
-    analysis.AddTree("Purity_PhaseCuts", vars_purity_phase, true);
+    if constexpr(WRITE_PURITY_TREES)
+		  analysis.AddTree("Purity_PhaseCuts", vars_purity_phase, false);
+    //analysis.AddTree("Purity_PhaseCuts", vars_purity_phase, true);
 
     #define SIGCUT cuts::pi0ana_phase::signal_1mu0pi1pi0
     std::map<std::string, ana::SpillMultiVar> vars_signal_phase;
@@ -216,7 +231,7 @@ void pi0AnaMC()
     vars_selected_nu_nophase.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_nu_nophase.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_nu_nophase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedNu_NoPhaseCuts", vars_selected_nu_nophase, true);
+    analysis.AddTree("SelectedNu_NoPhaseCuts", vars_selected_nu_nophase, false);
 
     #undef TCUT
     #define TCUT cuts::cosmic
@@ -242,7 +257,7 @@ void pi0AnaMC()
     vars_selected_cos_nophase.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_cos_nophase.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_cos_nophase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedCos_NoPhaseCuts", vars_selected_cos_nophase, true);
+    analysis.AddTree("SelectedCos_NoPhaseCuts", vars_selected_cos_nophase, false);
 
     #undef TCUT
     #define TCUT cuts::no_cut
@@ -261,7 +276,8 @@ void pi0AnaMC()
     vars_purity_nophase.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &cuts::no_cut, &TCUT)});
     vars_purity_nophase.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &cuts::no_cut, &TCUT)});
     vars_purity_nophase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
-    analysis.AddTree("Purity_NoPhaseCuts", vars_purity_nophase, true);
+    if constexpr(WRITE_PURITY_TREES)
+		  analysis.AddTree("Purity_NoPhaseCuts", vars_purity_nophase, false);
 
     #undef SIGCUT
     #define SIGCUT cuts::pi0ana_nophase::signal_1mu0pi1pi0
@@ -336,7 +352,7 @@ void pi0AnaMC()
     vars_selected_nu_trad.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_nu_trad.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_nu_trad.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedNu_TradCuts", vars_selected_nu_trad, true);
+    analysis.AddTree("SelectedNu_TradCuts", vars_selected_nu_trad, false);
 
     #undef TCUT
     #define TCUT cuts::cosmic
@@ -363,7 +379,7 @@ void pi0AnaMC()
     vars_selected_cos_trad.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_cos_trad.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_cos_trad.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedCos_TradCuts", vars_selected_cos_trad, true);
+    analysis.AddTree("SelectedCos_TradCuts", vars_selected_cos_trad, false);
 
     #undef TCUT
     #define TCUT cuts::no_cut
@@ -383,7 +399,8 @@ void pi0AnaMC()
     vars_purity_trad.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &cuts::no_cut, &TCUT)});
     vars_purity_trad.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &cuts::no_cut, &TCUT)});
     vars_purity_trad.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
-    analysis.AddTree("Purity_TradCuts", vars_purity_trad, true);
+    if constexpr(WRITE_PURITY_TREES)
+		  analysis.AddTree("Purity_TradCuts", vars_purity_trad, false);
 
     #undef SIGCUT
     #define SIGCUT cuts::pi0ana_trad::signal_1mu0pi1pi0
@@ -423,63 +440,6 @@ void pi0AnaMC()
     vars_signal_trad.insert({"true_vertex_z", SpineVar<TTYPE,TTYPE>(&vars::vertex_z, &SIGCUT, &SIGCUT)});
     vars_signal_trad.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::pi0ana_trad::all_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
     analysis.AddTree("Signal_TradCuts", vars_signal_trad, true);
-
-    #undef CUT
-    #define CUT cuts::pi0ana_2showers::all_1mu0pi2gamma_cut
-    #undef TCUT
-    #define TCUT cuts::neutrino
-    std::map<std::string, ana::SpillMultiVar> vars_selected_nu_2showers;
-    vars_selected_nu_2showers.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::cut_type, &CUT, &TCUT)}); // GUNDAM
-    vars_selected_nu_2showers.insert({"IsSignal", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::is_signal, &CUT, &TCUT)}); // GUNDAM
-    vars_selected_nu_2showers.insert({"IsData", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::is_not_data, &CUT, &TCUT)}); // GUNDAM
-    vars_selected_nu_2showers.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::category, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::category_topology, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"category_topology_simple", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::category_topology_simple, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::muon_momentum_mag, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::muon_beam_costheta, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_leading_photon_energy, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_subleading_photon_energy, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_momentum_mag, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_beam_costheta, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_photons_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_photons_costheta, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_mass, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
-    vars_selected_nu_2showers.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedNu_2showersCuts", vars_selected_nu_2showers, true);
-
-    #undef TCUT
-    #define TCUT cuts::cosmic
-    std::map<std::string, ana::SpillMultiVar> vars_selected_cos_2showers;
-    vars_selected_cos_2showers.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::cut_type, &CUT, &TCUT)}); // GUNDAM
-    vars_selected_cos_2showers.insert({"IsSignal", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::is_signal, &CUT, &TCUT)}); // GUNDAM
-    vars_selected_cos_2showers.insert({"IsData", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::is_not_data, &CUT, &TCUT)}); // GUNDAM 
-    vars_selected_cos_2showers.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::category, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"category_topology", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::category_topology, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"category_topology_simple", SpineVar<TTYPE,RTYPE>(&vars::pi0ana_2showers::category_topology_simple, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::muon_momentum_mag, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::muon_beam_costheta, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_leading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_leading_photon_energy, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_subleading_photon_energy, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_momentum_mag, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_beam_costheta, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_photons_costheta", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_photons_costheta, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::pi0ana_2showers::pi0_mass, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
-    vars_selected_cos_2showers.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedCos_2showersCuts", vars_selected_cos_2showers, true);
-
 
     /**
      * @brief Run the analysis.

@@ -243,11 +243,13 @@ namespace pvars
      * @param p the particle to apply the variable on.
      * @return the particle CSDA kinetic energy.
      */
+    /*
     template<class T>
         double csda_ke(const T & p)
         {
 	    return p.csda_ke;
         }
+    */
 
     /**
      * @brief Variable for particle calorimetric kinetic energy.
@@ -257,11 +259,13 @@ namespace pvars
      * @param p the particle to apply the variable on.
      * @return the particle calorimetric kinetic energy.
      */
+    /*
     template<class T>
         double calo_ke(const T & p)
         {
 	    return p.calo_ke;
 	}
+    */
 
     /**
      * @brief Variable for particle calorimetric kinetic energy, pre-shower correction.
@@ -285,11 +289,13 @@ namespace pvars
      * @param p the particle to apply the variable on.
      * @return the particle MCS kinetic energy.
      */
+    /*
     template<class T>
         double mcs_ke(const T & p)
         {
 	    return p.mcs_ke;
         }
+    */
 
     /**
      * @brief Variable for the best estimate of the particle energy.
