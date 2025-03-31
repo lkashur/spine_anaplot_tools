@@ -1,5 +1,5 @@
 /**
- * @file cuts_pi0ana_nc.h
+ * @file cuts_pi0ana_nc_inc.h
  * @brief Header file for definitions of analysis cuts specific to the muonana
  * analysis.
  * @details This file contains definitions of analysis cuts which can be used
@@ -7,8 +7,8 @@
  * intended to be used in conjunction with the generic cuts defined in cuts.h.
  * @author lkashur@colostate.edu
 */
-#ifndef CUTS_PI0ANA_NC_H
-#define CUTS_PI0ANA_NC_H
+#ifndef CUTS_PI0ANA_NC_INC_H
+#define CUTS_PI0ANA_NC_INC_H
 #include <vector>
 #include <numeric>
 #include <cmath>
@@ -17,7 +17,7 @@
 #include "utilities_pi0ana_nc.h"
 
 /**
- * @namespace cuts::pi0ana_nc
+ * @namespace cuts::pi0ana_nc_inc
  * @brief Namespace for organizing cuts specific to the pi0ana analysis.
  * @details This namespace is intended to be used for organizing cuts which act
  * on interactions specific to the pi0ana analysis. Each cut is implemented as
@@ -27,7 +27,7 @@
  * @note The namespace is intended to be used in conjunction with the cuts
  * namespace, which is used for organizing generic cuts which act on interactions.
  */
-namespace cuts::pi0ana_nc
+namespace cuts::pi0ana_nc_inc
 {
     /**
      * @brief Apply data cut.
@@ -52,41 +52,40 @@ namespace cuts::pi0ana_nc
      * @note This cut is intended to be used for the pi0ana analysis.
      */
     template<class T>
-        bool topological_0mu2gamma_cut(const T & obj)
+        bool topological_0mu0pi2gamma_cut(const T & obj)
         {
 	    std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
-            return c[0] == 2 && c[2] == 0;
+	    return c[0] == 2 && c[2] == 0 && c[3] == 0;
         }
 
-    /**
-     * @brief Apply a charged pion (final state) cut.
-     * @details The interaction must not contain any charged pions as defined by
-     * the conditions in the @ref count_primaries() function.
-     * @tparam T the type of interaction (true or reco).
-     * @param obj the interaction to select on.
-     * @return true if the interaction contains zero charged pions.
-     */
     template<class T>
-        bool no_charged_pions(const T & obj)
-        {
-	    std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
-	    return c[3] == 0;
-	}
+      bool zero_charged_pions_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	return c[3] == 0;
+      }
 
-    /**
-     * @brief Apply a single muon (final state) cut.
-     * @details The interaction must contain exactly one muon as defined by
-     * the conditions in the @ref count_primaries() function.
-     * @tparam T the type of interaction (true or reco).
-     * @param obj the interaction to select on.
-     * @return true if the interaction contains exactly one muon.
-     */
     template<class T>
-        bool single_muon(const T & obj)
-        {
-	    std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
-	    return c[2] == 1;
-	}
+      bool one_muon_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	return c[2] == 1;
+      }
+
+    template<class T>
+      bool two_photons_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+        return c[0] == 2;
+      }
+
+    template<class T>
+      bool two_or_three_photons_cut(const T & obj)
+      {
+	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	return c[0] > 1 & c[0] < 4;
+      }
+
       
     /**
      * @brief Apply pi0 mass cut.
@@ -117,10 +116,7 @@ namespace cuts::pi0ana_nc
      * @note This cut is intended to be used for the pi0ana analysis. 
      */
     template<class T>
-        bool all_0mu2gamma_bnb_cut(const T & obj) {return fiducial_cut<T>(obj) && track_containment_cut<T>(obj) && flash_cut_bnb<T>(obj) && topological_0mu2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
-    
-    template<class T>
-        bool all_0mu2gamma_numi_cut(const T & obj) {return fiducial_cut<T>(obj) && track_containment_cut<T>(obj) && flash_cut_numi<T>(obj) && topological_0mu2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+        bool all_0mu0pi2gamma_cut(const T & obj) {return fiducial_cut<T>(obj) && track_containment_cut<T>(obj) && flash_cut<T>(obj) && topological_0mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
 
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.
@@ -131,10 +127,10 @@ namespace cuts::pi0ana_nc
      * and 1mu0pi1pi0 topological cut.
      * @note This cut is intended to be used for the pi0ana analysis.
      */
-    bool signal_0mu1pi0(const caf::SRInteractionTruthDLPProxy & obj)
+    bool signal_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
 	  truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
-	  return s.num_primary_muons_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_neutrino;
+	  return s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_neutrino;
         }
 
     /**
@@ -147,11 +143,11 @@ namespace cuts::pi0ana_nc
      * and non-1mu0pi1pi0 topological cut.
      * @note This cut is intended to be used for the pi0ana analysis.
      */
-    bool other_nu_0mu1pi0(const caf::SRInteractionTruthDLPProxy & obj)
+    bool other_nu_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
 	  truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
-	  return !(s.num_primary_muons_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc) && s.is_neutrino;
+	  return !(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc) && s.is_neutrino;
         }
 
 }
-#endif // CUTS_PI0ANA_NC_H
+#endif // CUTS_PI0ANA_NC_INC_H

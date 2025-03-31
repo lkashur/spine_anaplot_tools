@@ -17,31 +17,28 @@ def get_stat_cov(bins):
     stat_err = np.sqrt(np.diagonal(stat_cov))
     return stat_cov, stat_err
 
-def expo_func(x, m, t, b):
-    return m * np.exp(-(1/t) * x) + b
-
 def add_plot_labels(ax, pot, adj_y=0.025, title=str()):
     yrange = ax.get_ylim()
     usey = yrange[1] + adj_y*(yrange[1] - yrange[0]) #0.025, #0.045 for confusion matrix
     xrange = ax.get_xlim()
-    usex = xrange[0] + 0.025*(xrange[1] - xrange[0]) #0.025
-    prelim_label = r'$\bf{ICARUS}$ Simulation Work-in-Progress'
+    usex = xrange[0] + 0.05*(xrange[1] - xrange[0]) #0.025
+    prelim_label = r'$\bf{ICARUS}$ Work-in-Progress'
     ax.text(x=usex, y=usey, s=prelim_label, fontsize=14, color='#d67a11')
     yrange = ax.get_ylim()
     usey = yrange[1] + adj_y*(yrange[1] - yrange[0]) #0.02, 0.045 for confusion matrix
     xrange = ax.get_xlim()
-    usex = (xrange[1] - xrange[0]) / 2
+    usex = (xrange[1] + xrange[0]) / 2
     ax.text(x=usex, y=usey, s=f'{title}', fontsize=14, fontweight='bold', color='black')
     yrange = ax.get_ylim()
     usey = yrange[1] + adj_y*(yrange[1] - yrange[0]) #0.02, 0.045 for confusion matrix
     xrange = ax.get_xlim()
-    usex = xrange[1] - 0.025*(xrange[1] - xrange[0])
+    usex = xrange[1] - 0.05*(xrange[1] - xrange[0])
     mag = int(np.floor(np.log10(pot)))
     usepot = pot/10**mag
     s = f'{usepot:.2f}'+f'$\\times 10^{{{mag}}}$ POT'
     ax.text(x=usex, y=usey, s=s, fontsize=13, color='black', horizontalalignment='right')
 
-def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot_onbeam=0):
+def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot_onbeam=0, livetime_onbeam=0, df_offbeam=None, livetime_offbeam=0):
     ################
     ### Monte Carlo
     ################
@@ -50,6 +47,8 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
         centers_mc = []
         labels_mc = []
         width_mc = []
+        counts_mc = []
+        frac_mc = []
         bins_mc, edges_mc = np.histogram(df_mc[var], bins=int(cfg['variables'][var]['bins'][0]), range=cfg['variables'][var]['bins'][1:])
         for i,m in enumerate(cfg['analysis_mc']['category_assignment']):
             mask = np.isin(df_mc[cfg['analysis_mc']['category_branch']], m)
@@ -58,6 +57,8 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
             centers_mc.append((e[1:] + e[:-1]) / 2.0)
             width_mc.append(np.diff(e))
             labels_mc.append(cfg['analysis_mc']['category_labels'][i])
+            counts_mc.append(len(df_mc[var][mask]))
+            frac_mc.append( len(df_mc[var][mask]) / len(df_mc[var]) )
         contents_mc = contents_mc[::-1]
         stat_cov_mc, stat_err_mc = get_stat_cov(bins_mc)
         err_mc = stat_err_mc
@@ -66,6 +67,7 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
             frac_stat_cov_mc = np.divide(stat_cov_mc, norm_mc, where=norm_mc!=0)
             bins_mc = (bins_mc / pot_mc) * pot_onbeam
             contents_mc = [(c / pot_mc) * pot_onbeam for c in contents_mc]
+            counts_mc = [(c / pot_mc) * pot_onbeam for c in counts_mc]
             scaled_stat_cov_mc = np.outer(sum(contents_mc), sum(contents_mc)) * frac_stat_cov_mc
             stat_err_mc = np.sqrt(np.diagonal(scaled_stat_cov_mc))
             err_mc = stat_err_mc
@@ -94,6 +96,15 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
                 bins_onbeam = scale_onbeam * bins_onbeam
                 scaled_stat_cov_onbeam = np.outer(bins_onbeam, bins_onbeam) * frac_stat_cov_onbeam
                 stat_err_onbeam  = np.sqrt(np.diag(scaled_stat_cov_onbeam))
+
+    #################
+    ### Off-beam data
+    #################
+    if plot_cfg['include_offbeam'] == True:
+        bins_offbeam, edges_offbeam = np.histogram(df_offbeam[var], bins=int(cfg['variables'][var]['bins'][0]), range=cfg['variables'][var]['bins'][1:])
+        centers_offbeam = (edges_offbeam[1:] + edges_offbeam[:-1]) / 2.0
+        width_offbeam = np.diff(edges_offbeam)
+        stat_cov_offbeam, stat_err_offbeam = get_stat_cov(bins_offbeam)
                 
     # Plot
     fig, ax = plt.subplots(figsize=(10,7))
@@ -101,7 +112,7 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
         colors = cfg['analysis_mc']['category_colors'][::-1]
         ax.hist(centers_mc, weights=contents_mc, bins=int(cfg['variables'][var]['bins'][0]), range=cfg['variables'][var]['bins'][1:], label=labels_mc, color=colors, histtype='barstacked')
         if plot_cfg['include_mc_err'] == True:
-            ax.bar(x=centers_mc[0], height=2*stat_err_mc, bottom=np.sum(contents_mc, axis=0) - err_mc, width=width_mc[0], color='grey', hatch='xx', ec='darkgrey', alpha=0.4, lw=0.25, label='MC Uncertainty')
+            ax.bar(x=centers_mc[0], height=2*stat_err_mc, bottom=np.sum(contents_mc, axis=0) - err_mc, width=width_mc[0], color='grey', hatch='xx', ec='darkgrey', alpha=0.4, lw=0.25, label='MC Uncertainty (Stat.)')
         
 
     if plot_cfg['include_onbeam'] == True:
@@ -110,42 +121,31 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
     h, l = ax.get_legend_handles_labels()
     if plot_cfg['include_mc'] == True and plot_cfg['include_mc_err'] == True and plot_cfg['include_onbeam'] == False:
         h_mc, l_mc = h[:-1], l[:-1]
+        l_mc  = [f'{l} ({counts_mc[li]:.0f}, {frac_mc[li]:.02%} )' for li,l in enumerate(l_mc)]
+        #l_mc = [f'{l} ({np.sum(contents_mc[::-1][li]):.0f}, {np.sum(contents_mc[::-1][li]) / np.sum(contents_mc):.02%})'for li, l in enumerate(l_mc)]
         h_mc = h_mc[::-1]
         h_syst, l_syst = [h[-1]], [l[-1]]
         h, l = h_mc + h_syst, l_mc + l_syst
     elif plot_cfg['include_mc'] == True and plot_cfg['include_mc_err'] == True and plot_cfg['include_onbeam'] == True:
         h_mc, l_mc = h[:-2], l[:-2]
+        l_mc  = [f'{l} ({counts_mc[li]:.0f}, {frac_mc[li]:.02%} )' for li,l in enumerate(l_mc)]
+        #l_mc = [f'{l} ({np.sum(contents_mc[::-1][li]):.0f}, {np.sum(contents_mc[::-1][li]) / np.sum(contents_mc):.02%})'for li, l in enumerate(l_mc)]
         h_mc = h_mc[::-1]
         h_syst, l_syst = [h[-2]], [l[-2]]
         h_onbeam, l_onbeam = [h[-1]], [l[-1]]
         h, l = h_mc + h_syst + h_onbeam, l_mc + l_syst + l_onbeam
 
-    # Fitting
-    fits, fit_labels = [], []
-    if plot_cfg['fit_mc'] == True:
-        xspace=np.linspace(cfg['variables'][var]['bins'][1] + width_mc[0][0], cfg['variables'][var]['bins'][2], 1000)
-        popt_mc, pcov_mc = curve_fit(expo_func, centers_mc[0][1:], bins_mc[1:], p0=(500, 20, 1))
-        y_fit_mc = expo_func(xspace,*popt_mc)
-        mc_fit_label = r'$\bf{MC\ Fit}$: '+f'$\lambda$={round(popt_mc[1],2)} ± {round(np.sqrt(np.diag(pcov_mc))[1],1)} [cm]'
-        mc_fit,=ax.plot(xspace, y_fit_mc, 'b', linewidth=1.5)
-        fits.append(mc_fit)
-        fit_labels.append(mc_fit_label)
-    if plot_cfg['fit_onbeam'] == True:
-        xspace=np.linspace(cfg['variables'][var]['bins'][1] + width_onbeam[0], cfg['variables'][var]['bins'][2], 1000)
-        popt_onbeam, pcov_onbeam = curve_fit(expo_func, centers_onbeam[1:], bins_onbeam[1:], p0=(500, 20, 1), maxfev=100000)
-        y_fit_onbeam = expo_func(xspace,*popt_onbeam)
-        onbeam_fit_label = r'$\bf{Data\ Fit}$: '+f'$\lambda$={round(popt_onbeam[1],2)} ± {round(np.sqrt(np.diag(pcov_onbeam))[1],1)} [cm]'
-        onbeam_fit,=ax.plot(xspace, y_fit_onbeam, 'r', linewidth=1.5)
-        fits.append(onbeam_fit)
-        fit_labels.append(onbeam_fit_label)
-    if plot_cfg['fit_mc'] == True or plot_cfg['fit_onbeam'] == True:
-        l1 = ax.legend(fits, fit_labels, fontsize=14, loc='upper right', bbox_to_anchor=(1, 0.68), frameon=False)
-        plt.gca().add_artist(l1)
-
     ax.legend(h,l, ncols=2)
-    add_plot_labels(ax, pot_onbeam, adj_y=0.025, title=cfg['variables'][var]['title'])
+    if plot_cfg['normalization'] == 'data':
+        pot_label = pot_onbeam
+    else:
+        pot_label = pot_mc
+    add_plot_labels(ax, pot_label, adj_y=0.025, title=cfg['variables'][var]['title'])
+    ax.set_xlim(([cfg['variables'][var]['bins'][1], cfg['variables'][var]['bins'][2]]))
+    ax.set_xlabel(cfg['variables'][var]['xlabel'])
+    ax.set_ylabel(cfg['variables'][var]['ylabel'])
     ax.set_ylim(bottom=0)
-    plt.show()
+    plt.savefig(f'{var}.png')
         
 ######################################################################
 ### Main Analysis
@@ -165,19 +165,30 @@ def main(args):
     sel_cos_mc_df = sel_cos_mc_tree.arrays(library='pd')
     sel_mc_df = pd.concat([sel_nu_mc_df, sel_cos_mc_df])
     pot_mc = rf['events/mc/POT'].to_numpy()[0][0]
+    livetime_mc = rf['events/mc/Livetime'].to_numpy()[0][0]
+
+    sel_offbeam_tree = rf['events/onbeam/SelectedCos_PhaseCuts']
+    sel_offbeam_df = sel_offbeam_tree.arrays(library='pd')
+    pot_offbeam = rf['events/offbeam/POT'].to_numpy()[0][0]
+    livetime_offbeam = rf['events/offbeam/Livetime'].to_numpy()[0][0]
+
     sel_onbeam_tree = rf['events/onbeam/SelectedNu_PhaseCuts']
     sel_onbeam_df = sel_onbeam_tree.arrays(library='pd')
     pot_onbeam = rf['events/onbeam/POT'].to_numpy()[0][0]
+    livetime_onbeam = rf['events/onbeam/Livetime'].to_numpy()[0][0]
 
     # Plotting
-    # Config
+    
     plot_config = {'include_mc' : True,
                    'include_mc_err': True,
-                   'fit_mc': True,
-                   'include_onbeam' : True,
-                   'fit_onbeam': True,
-                   'normalization' : 'data'}
-    plot_histogram(pi0_config, plot_config, 'pi0_leading_photon_conv_dist', sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam)
+                   'include_onbeam' : False,
+                   'include_offbeam' : False,
+                   'normalization' : None}
+    
+    for var in pi0_config['variables']:
+        #plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam, livetime_onbeam, sel_offbeam_df, livetime_offbeam)
+        #plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam)
+        plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc)
     
 
 

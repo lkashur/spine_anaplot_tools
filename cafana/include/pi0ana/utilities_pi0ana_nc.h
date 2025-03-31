@@ -16,17 +16,22 @@
 #include <vector>
 #include <TVector3.h>
 #include "include/cuts.h"
-#include "include/beaminfo_nc.h"
 
-#define MIN_MUON_ENERGY 30
+#define MIN_MUON_ENERGY 25
+#define MIN_PROTON_ENERGY 40
 #define MIN_PHOTON_ENERGY 40
+#define MIN_OTHER_ENERGY 25
 
 struct truth_inter_nc {
   int num_primary_muons;
   int num_primary_muons_thresh;
+  int num_primary_pions;
+  int num_primary_pions_thresh;
   int num_primary_pi0s;
   int num_primary_pi0s_thresh;
   int num_nonprimary_pi0s;
+  int num_primary_protons;
+  int num_primary_protons_thresh;
   double transverse_momentum_mag;
   bool is_fiducial;
   bool has_contained_tracks;
@@ -36,7 +41,7 @@ struct truth_inter_nc {
   double pi0_leading_photon_conv_dist;
   double pi0_subleading_photon_energy;
   double pi0_subleading_photon_conv_dist;
-  double pi0_costheta;
+  double pi0_photons_costheta;
   double pi0_mass;
   double pi0_momentum_mag;
   double pi0_beam_costheta;
@@ -50,7 +55,7 @@ struct reco_inter_nc {
   double pi0_subleading_photon_energy;
   double pi0_subleading_photon_cosphi;
   double pi0_subleading_photon_conv_dist;
-  double pi0_costheta;
+  double pi0_photons_costheta;
   double pi0_mass;
   double pi0_momentum_mag;
   double pi0_beam_costheta;
@@ -88,12 +93,12 @@ namespace utilities_pi0ana_nc
 	  bool passes(false);
 	  if(p.is_primary)
 	  {
-	    if(p.pid == 0 && p.ke >= MIN_PHOTON_ENERGY) passes = true; // Photons
-	    if(p.pid == 1) passes = true; // Electrons
-	    if(p.pid == 2 && p.ke >= MIN_MUON_ENERGY) passes = true; // Muons
-	    if(p.pid == 3) passes = true; // Pions
-	    if(p.pid == 4) passes = true; // Protons
-	    if(p.pid == 5) passes = true; // Kaons
+	    if(PIDFUNC(p) == 0 && p.ke >= MIN_PHOTON_ENERGY) passes = true; // Photons
+	    if(PIDFUNC(p) == 1 && p.ke >= MIN_OTHER_ENERGY) passes = true; // Electrons
+	    if(PIDFUNC(p) == 2 && p.ke >= MIN_MUON_ENERGY) passes = true; // Muons
+	    if(PIDFUNC(p) == 3 && p.ke >= MIN_OTHER_ENERGY) passes = true; // Pions
+	    if(PIDFUNC(p) == 4 && p.ke >= MIN_PROTON_ENERGY) passes = true; // Protons
+	    if(PIDFUNC(p) == 5 && p.ke >= MIN_OTHER_ENERGY) passes = true; // Kaons
 	  }
           return passes;
 	}
@@ -112,7 +117,7 @@ namespace utilities_pi0ana_nc
           {
 
             if(final_state_signal(p))
-              ++counts[p.pid];
+              ++counts[PIDFUNC(p)];
           }
 	  return counts;
 	}
@@ -135,26 +140,45 @@ namespace utilities_pi0ana_nc
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir(BEAMDIR);
+	TVector3 beamdir;
+        if constexpr(!BEAM_IS_NUMI){
+            beamdir.SetX(0);
+            beamdir.SetY(0);
+            beamdir.SetZ(1);
+          }
+        else{
+          beamdir.SetX(315.120380 + vertex[0]);
+          beamdir.SetY(33.644912 + vertex[1]);
+          beamdir.SetZ(733.632532 + vertex[2]);
+        }
+	//TVector3 beamdir(BEAMDIR);
 	  
 	// Initialize output variables
 	int primary_muon_count(0);
 	int primary_muon_count_thresh(0);
+	int primary_pion_count(0);
+	int primary_pion_count_thresh(0);
 	int primary_pi0_count(0);
 	int primary_pi0_count_thresh(0);
 	int nonprimary_pi0_count(0);
+	int primary_proton_count(0);
+	int primary_proton_count_thresh(0);
 	double pT0(0), pT1(0), pT2(0);
 	bool is_neutrino(false);
 	bool is_cc(false);
 	unordered_map<int, vector<pair<size_t, double>> > primary_pi0_map;
 	unordered_map<int, vector<pair<size_t, double>> > nonprimary_pi0_map;
+	double muon_momentum_mag;
+	double muon_csda_ke;
+	double muon_calo_ke;
+	double muon_beam_costheta;
 	double pi0_leading_photon_energy;
 	TVector3 pi0_leading_photon_dir;
 	double pi0_leading_photon_conv_dist;
 	double pi0_subleading_photon_energy;
 	TVector3 pi0_subleading_photon_dir;
 	double pi0_subleading_photon_conv_dist;
-	double pi0_costheta;
+	double pi0_photons_costheta;
 	double pi0_mass;
 	TVector3 pi0_momentum;
 	double pi0_beam_costheta;
@@ -177,7 +201,7 @@ namespace utilities_pi0ana_nc
 	    pT2 += pT[2];
 		      
 	    // Muons
-	    if(p.pid == 2)
+	    if(PIDFUNC(p) == 2)
 	    {
 	      primary_muon_count++;
 	      if(p.ke >= MIN_MUON_ENERGY) primary_muon_count_thresh++;
@@ -188,6 +212,20 @@ namespace utilities_pi0ana_nc
 		leading_muon_index = i;
 	      }
 	    }
+	    // Pions
+	    if(PIDFUNC(p) == 3)
+	    {
+	      primary_pion_count++;
+	      if(p.ke >= MIN_OTHER_ENERGY) primary_pion_count_thresh++;
+	    }
+
+	    // Protons
+	    if(PIDFUNC(p) == 4)
+	    {
+	      primary_proton_count++;
+	      if(p.ke >= MIN_PROTON_ENERGY) primary_proton_count_thresh++;
+	    }
+	    
 	    // Neutral pions
 	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
 	    {
@@ -255,9 +293,9 @@ namespace utilities_pi0ana_nc
 	nonprimary_pi0_count = nonprimary_pi0_map.size();
 
 	// Obtain info about signal particles, if they exist
-	if(primary_muon_count_thresh == 0 && primary_pi0_count_thresh == 1)
+	if(primary_muon_count_thresh == 0 && primary_pion_count_thresh == 0 && primary_pi0_count_thresh == 1)
 	{      
-
+	        
 	  // Get leading/subleading photon info
 	  vector<size_t> pi0_photon_indices;
 	  for(auto const & pi0 : primary_pi0_map)
@@ -302,14 +340,14 @@ namespace utilities_pi0ana_nc
 	  pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
 	  pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
 
-	  pi0_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
-	  pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_costheta));
-	        
+	  pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
+	  pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
+	  
 	  s.pi0_leading_photon_energy = pi0_leading_photon_energy;
 	  s.pi0_leading_photon_conv_dist = pi0_leading_photon_conv_dist;
 	  s.pi0_subleading_photon_energy = pi0_subleading_photon_energy;
 	  s.pi0_subleading_photon_conv_dist = pi0_subleading_photon_conv_dist;
-	  s.pi0_costheta = pi0_costheta;
+	  s.pi0_photons_costheta = pi0_photons_costheta;
 	  s.pi0_mass = pi0_mass;
 	  s.pi0_momentum_mag = pi0_momentum.Mag();
 	  s.pi0_beam_costheta = pi0_beam_costheta;
@@ -320,7 +358,7 @@ namespace utilities_pi0ana_nc
           s.pi0_leading_photon_conv_dist = -5;
           s.pi0_subleading_photon_energy = -5;
           s.pi0_subleading_photon_conv_dist = -5;
-          s.pi0_costheta = -5;
+          s.pi0_photons_costheta = -5;
           s.pi0_mass = -5;
           s.pi0_momentum_mag = -5;
           s.pi0_beam_costheta = -5;
@@ -328,9 +366,13 @@ namespace utilities_pi0ana_nc
 	
 	s.num_primary_muons = primary_muon_count;
 	s.num_primary_muons_thresh = primary_muon_count_thresh;
+	s.num_primary_pions = primary_pion_count;
+	s.num_primary_pions_thresh = primary_pion_count_thresh;
 	s.num_primary_pi0s = primary_pi0_count;
 	s.num_primary_pi0s_thresh = primary_pi0_count_thresh;
 	s.num_nonprimary_pi0s = nonprimary_pi0_count;
+	s.num_primary_protons = primary_proton_count;
+	s.num_primary_protons_thresh = primary_proton_count_thresh;
 	s.transverse_momentum_mag = sqrt(pow(pT0, 2) + pow(pT1, 2) + pow(pT2, 2));
 	s.is_fiducial = cuts::fiducial_cut<T>(obj);
 	s.has_contained_tracks = cuts::track_containment_cut<T>(obj);
@@ -359,7 +401,18 @@ namespace utilities_pi0ana_nc
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir(BEAMDIR);
+        TVector3 beamdir;
+        if constexpr(!BEAM_IS_NUMI){
+            beamdir.SetX(0);
+            beamdir.SetY(0);
+            beamdir.SetZ(1);
+          }
+        else{
+          beamdir.SetX(315.120380 + vertex[0]);
+          beamdir.SetY(33.644912 + vertex[1]);
+          beamdir.SetZ(733.632532 + vertex[2]);
+        }
+	//TVector3 beamdir(BEAMDIR);
 
 	// Initialize output variables
 	double pT0(0), pT1(0), pT2(0);
@@ -381,18 +434,8 @@ namespace utilities_pi0ana_nc
 	    TVector3 pL = _p.Dot(beamdir) * beamdir;
 	    TVector3 pT = _p - pL;
 
-	    // Muons
-	    if(p.pid == 2)
-	    {
-		if(p.ke > max_muon_ke)
-		{
-		    max_muon_ke = p.ke;
-		    leading_muon_index = i;
-		}
-	    }
-
 	    // Photons
-	    if(p.pid == 0)
+	    if(PIDFUNC(p) == 0)
 	    {
 		// Don't use default momentum for photons
 		TVector3 _p(p.start_point[0] - vertex[0], p.start_point[1] - vertex[1], p.start_point[2] - vertex[2]);
@@ -418,7 +461,7 @@ namespace utilities_pi0ana_nc
 	{
 	    const auto & p = obj.particles[i];
 	        
-            if(p.is_primary && p.pid == 0 && p.calo_ke)
+            if(p.is_primary && PIDFUNC(p) == 0 && p.calo_ke >= MIN_PHOTON_ENERGY)
 	    {
 		if(p.calo_ke > max_calo_ke1 && p.calo_ke < max_calo_ke0)
 		{
@@ -469,8 +512,8 @@ namespace utilities_pi0ana_nc
 	TVector3 pi0_subleading_photon_momentum = pi0_subleading_photon_energy * pi0_subleading_photon_dir;
 
 	// Get neutral pion info
-	double pi0_cos_opening_angle = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
-	double pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_cos_opening_angle));
+	double pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
+	double pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
 	TVector3 pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
 	double pi0_momentum_mag = pi0_momentum.Mag();
 	double pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
@@ -483,7 +526,7 @@ namespace utilities_pi0ana_nc
 	s.pi0_subleading_photon_energy = pi0_subleading_photon_energy;
 	s.pi0_subleading_photon_cosphi = pi0_subleading_photon_cosphi;
 	s.pi0_subleading_photon_conv_dist = pi0_subleading_photon_conv_dist;
-	s.pi0_costheta = pi0_cos_opening_angle;
+	s.pi0_photons_costheta = pi0_photons_costheta;
 	s.pi0_mass = pi0_mass;
 	s.pi0_momentum_mag = pi0_momentum_mag;
 	s.pi0_beam_costheta = pi0_beam_costheta;
