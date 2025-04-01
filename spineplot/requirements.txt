@@ -6,3 +6,4 @@ matplotlib
 uproot
 toml
 uproot
+mpltern

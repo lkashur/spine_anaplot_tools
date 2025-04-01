@@ -18,20 +18,40 @@
 #include "include/variables.h"
 #include "include/cuts.h"
 
-//#include "include/pi0ana/variables_pi0ana_nc_inc.h"
-//#include "include/pi0ana/cuts_pi0ana_nc_inc.h"
-//#include "include/pi0ana/variables_pi0ana_nc_inc.h"
-//#define SEL pi0ana_nc_inc
+/**
+ * Depending on the selection uncomment one of the following code blocks:
+ * 1) 0 protons
+ * 2) Inclusive
+ * 3) 1+ protons
+ */
 
+////////////////////////
+/// Option 1: 0 protons
+////////////////////////
 #include "include/pi0ana/variables_pi0ana_nc_0p.h"
 #include "include/pi0ana/cuts_pi0ana_nc_0p.h"
 #include "include/pi0ana/variables_pi0ana_nc_0p.h"
 #define SEL pi0ana_nc_0p
+string output_name = "test_nc_0p_31_mar_2025";
 
+////////////////////////
+/// Option 2: Inclusive
+////////////////////////
+//#include "include/pi0ana/variables_pi0ana_nc_inc.h"
+//#include "include/pi0ana/cuts_pi0ana_nc_inc.h"
+//#include "include/pi0ana/variables_pi0ana_nc_inc.h"
+//#define SEL pi0ana_nc_inc
+//string output_name = "test_nc_inc_31_mar_2025";
+
+////////////////////////
+/// Option 3: 1+ protons
+////////////////////////
 //#include "include/pi0ana/variables_pi0ana_nc_g1p.h"
 //#include "include/pi0ana/cuts_pi0ana_nc_g1p.h"
 //#include "include/pi0ana/variables_pi0ana_nc_g1p.h"
 //#define SEL pi0ana_nc_g1p
+//string output_name = "test_nc_g1p_31_mar_2025"
+
 
 #include "include/spinevar.h"
 #include "include/analysis.h"
@@ -46,7 +66,7 @@
 void pi0AnaNC()
 {
 
-    ana::Analysis analysis("test_nc_0p_28_mar_2025");
+    ana::Analysis analysis(output_name.c_str());
 
     //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.flat.root");
     //analysis.AddLoader("onbeam", &onbeam, false);
@@ -90,7 +110,7 @@ void pi0AnaNC()
     vars_selected_nu_nc_inc.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_nu_nc_inc.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_nu_nc_inc.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedNu_NC_Cuts", vars_selected_nu_nc_inc, false);
+    analysis.AddTree("SelectedNu_NCCuts", vars_selected_nu_nc_inc, false);
 
     #undef TCUT
     #define TCUT cuts::cosmic
@@ -114,7 +134,7 @@ void pi0AnaNC()
     vars_selected_cos_nc_inc.insert({"reco_vertex_x", SpineVar<RTYPE,RTYPE>(&vars::vertex_x, &CUT, &TCUT)});
     vars_selected_cos_nc_inc.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &CUT, &TCUT)});
     vars_selected_cos_nc_inc.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
-    analysis.AddTree("SelectedCos_NC_Cuts", vars_selected_cos_nc_inc, false);
+    analysis.AddTree("SelectedCos_NCCuts", vars_selected_cos_nc_inc, false);
 
     #undef TCUT
     #define TCUT cuts::no_cut
@@ -134,7 +154,7 @@ void pi0AnaNC()
     vars_purity_nc_inc.insert({"reco_vertex_y", SpineVar<RTYPE,RTYPE>(&vars::vertex_y, &cuts::no_cut, &TCUT)});
     vars_purity_nc_inc.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
     if constexpr(WRITE_PURITY_TREES)
-		  analysis.AddTree("Purity_NC_Cuts", vars_purity_nc_inc, false);
+		  analysis.AddTree("Purity_NCCuts", vars_purity_nc_inc, false);
 
     #define SIGCUT cuts::SEL::signal_0mu0pi1pi0
     std::map<std::string, ana::SpillMultiVar> vars_signal_nc_inc;
@@ -170,7 +190,7 @@ void pi0AnaNC()
     vars_signal_nc_inc.insert({"true_vertex_y", SpineVar<TTYPE,TTYPE>(&vars::vertex_y, &SIGCUT, &SIGCUT)});
     vars_signal_nc_inc.insert({"true_vertex_z", SpineVar<TTYPE,TTYPE>(&vars::vertex_z, &SIGCUT, &SIGCUT)});
     vars_signal_nc_inc.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::SEL::all_0mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
-    analysis.AddTree("Signal_NC_Cuts", vars_signal_nc_inc, true);
+    analysis.AddTree("Signal_NCCuts", vars_signal_nc_inc, true);
 
     /**
      * @brief Run the analysis.

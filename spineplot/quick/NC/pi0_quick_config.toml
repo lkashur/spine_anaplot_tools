@@ -1,48 +1,48 @@
 [variables.pi0_leading_photon_energy]
 bins = [20, 0, 1000]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed $\pi^{0}$ Leading Photon Energy [MeV]'
 ylabel = 'Candidates'
 
 [variables.pi0_leading_photon_conv_dist]
 bins = [25, 0, 100]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed $\pi^{0}$ Leading Photon Conversion Distance [cm]'
 ylabel = 'Candidates'
 
 [variables.pi0_subleading_photon_energy]
 bins = [20, 0, 1000]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed $\pi^{0}$ Subleading Photon Energy [MeV]'
 ylabel = 'Candidates'
 
 [variables.pi0_subleading_photon_conv_dist]
 bins = [25, 0, 100]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed $\pi^{0}$ Subleading Photon Conversion Distance [cm]'
 ylabel = 'Candidates'
 
 [variables.pi0_momentum_mag]
 bins = [50, 0, 2000]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed $\pi^{0}$ Momentum [MeV/c]'
 ylabel = 'Candidates'
 
 [variables.pi0_beam_costheta]
 bins = [20, -1, 1]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed $\cos(\theta_{\pi^{0}})$'
 ylabel = 'Candidates'
 
 [variables.pi0_mass]
 bins = [40, 0, 400]
-title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+title = 'Selected NC $\pi^{0}$'
 xlabel = 'Reconstructed Neutral Pion Mass [MeV/c$^{2}$]'
 ylabel = 'Candidates'
 
 #[variables.visible_energy]
 #bins = [40, 0, 4]
-#title = 'Selected $\nu_{\mu}$ CC $\pi^{0}$'
+#title = 'Selected NC $\pi^{0}$'
 #xlabel = 'Reconstructed Visible Energy [GeV]'
 #ylabel = 'Candidates'
 
