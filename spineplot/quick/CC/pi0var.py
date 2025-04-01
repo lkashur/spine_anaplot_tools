@@ -68,9 +68,41 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
             bins_mc = (bins_mc / pot_mc) * pot_onbeam
             contents_mc = [(c / pot_mc) * pot_onbeam for c in contents_mc]
             counts_mc = [(c / pot_mc) * pot_onbeam for c in counts_mc]
-            scaled_stat_cov_mc = np.outer(sum(contents_mc), sum(contents_mc)) * frac_stat_cov_mc
+            scaled_stat_cov_mc = np.outer(sum(contents_mc), sum(contents_mc)) * frac_stat_cov_mc            
             stat_err_mc = np.sqrt(np.diagonal(scaled_stat_cov_mc))
             err_mc = stat_err_mc
+
+            #################
+            ### Off-beam Data
+            #################
+            if plot_cfg['include_offbeam'] == True:
+                bins_offbeam, edges_offbeam = np.histogram(df_offbeam[var], bins=int(cfg['variables'][var]['bins'][0]), range=cfg['variables'][var]['bins'][1:])
+                centers_offbeam = (edges_offbeam[1:] + edges_offbeam[:-1]) / 2.0
+                width_offbeam = np.diff(edges_offbeam)
+                stat_cov_offbeam, stat_err_offbeam = get_stat_cov(bins_offbeam)
+                norm_offbeam = np.outer(bins_offbeam, bins_offbeam)
+                frac_stat_cov_offbeam = np.divide(stat_cov_offbeam, norm_offbeam, where=norm_offbeam!=0)
+                bins_offbeam = (bins_offbeam / livetime_offbeam) * livetime_onbeam
+                #print(sum(bins_offbeam))
+                #print(np.sum(bins_offbeam))
+                #print(livetime_onbeam / livetime_offbeam)
+                
+                ##################################################
+                ### Add scaled off-beam content to cosmic category
+                ##################################################
+                contents_mc[0] = contents_mc[0] + bins_offbeam # 0
+                counts_mc[-1] = counts_mc[-1] + sum(bins_offbeam)
+                frac_mc = [c/sum(counts_mc) for c in counts_mc]
+                
+                #################################################
+                ### Combine MC and off-beam error (stat. for now)
+                #################################################
+                scaled_stat_cov_offbeam = np.outer(bins_offbeam, bins_offbeam) * frac_stat_cov_offbeam
+                scaled_stat_cov_mc_offbeam = scaled_stat_cov_mc + scaled_stat_cov_offbeam
+                stat_err_mc = np.sqrt(np.diagonal(scaled_stat_cov_mc_offbeam))
+                err_mc = stat_err_mc
+
+        # back to MC...
         if plot_cfg['normalization'] == 'absolute':
             norm_mc = np.outer(sum(contents_mc), sum(contents_mc))
             frac_stat_cov_mc = np.divide(stat_cov_mc, norm_mc, where=norm_mc!=0)
@@ -97,15 +129,6 @@ def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot
                 scaled_stat_cov_onbeam = np.outer(bins_onbeam, bins_onbeam) * frac_stat_cov_onbeam
                 stat_err_onbeam  = np.sqrt(np.diag(scaled_stat_cov_onbeam))
 
-    #################
-    ### Off-beam data
-    #################
-    if plot_cfg['include_offbeam'] == True:
-        bins_offbeam, edges_offbeam = np.histogram(df_offbeam[var], bins=int(cfg['variables'][var]['bins'][0]), range=cfg['variables'][var]['bins'][1:])
-        centers_offbeam = (edges_offbeam[1:] + edges_offbeam[:-1]) / 2.0
-        width_offbeam = np.diff(edges_offbeam)
-        stat_cov_offbeam, stat_err_offbeam = get_stat_cov(bins_offbeam)
-                
     # Plot
     fig, ax = plt.subplots(figsize=(10,7))
     if plot_cfg['include_mc'] == True:
@@ -159,20 +182,20 @@ def main(args):
     rf = uproot.open(args.in_file)
     
     # Load trees
-    sel_nu_mc_tree = rf['events/mc/SelectedNu_PhaseCuts']
+    sel_nu_mc_tree = rf['events/mc/SelectedNu_TradCuts']
     sel_nu_mc_df = sel_nu_mc_tree.arrays(library='pd')
-    sel_cos_mc_tree = rf['events/mc/SelectedCos_PhaseCuts']
+    sel_cos_mc_tree = rf['events/mc/SelectedCos_TradCuts']
     sel_cos_mc_df = sel_cos_mc_tree.arrays(library='pd')
     sel_mc_df = pd.concat([sel_nu_mc_df, sel_cos_mc_df])
     pot_mc = rf['events/mc/POT'].to_numpy()[0][0]
     livetime_mc = rf['events/mc/Livetime'].to_numpy()[0][0]
 
-    sel_offbeam_tree = rf['events/onbeam/SelectedCos_PhaseCuts']
+    sel_offbeam_tree = rf['events/offbeam/SelectedCos_TradCuts']
     sel_offbeam_df = sel_offbeam_tree.arrays(library='pd')
     pot_offbeam = rf['events/offbeam/POT'].to_numpy()[0][0]
     livetime_offbeam = rf['events/offbeam/Livetime'].to_numpy()[0][0]
 
-    sel_onbeam_tree = rf['events/onbeam/SelectedNu_PhaseCuts']
+    sel_onbeam_tree = rf['events/onbeam/SelectedNu_TradCuts']
     sel_onbeam_df = sel_onbeam_tree.arrays(library='pd')
     pot_onbeam = rf['events/onbeam/POT'].to_numpy()[0][0]
     livetime_onbeam = rf['events/onbeam/Livetime'].to_numpy()[0][0]
@@ -181,14 +204,14 @@ def main(args):
     
     plot_config = {'include_mc' : True,
                    'include_mc_err': True,
-                   'include_onbeam' : False,
-                   'include_offbeam' : False,
-                   'normalization' : None}
+                   'include_onbeam' : True,
+                   'include_offbeam' : True,
+                   'normalization' : 'data'}
     
     for var in pi0_config['variables']:
-        #plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam, livetime_onbeam, sel_offbeam_df, livetime_offbeam)
+        plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam, livetime_onbeam, sel_offbeam_df, livetime_offbeam)
         #plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam)
-        plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc)
+        #plot_histogram(pi0_config, plot_config, var, sel_mc_df, pot_mc)
     
 
 

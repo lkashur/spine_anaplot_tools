@@ -190,7 +190,7 @@ def main(args):
     pot_mc = rf['events/mc/POT'].to_numpy()[0][0]
     livetime_mc = rf['events/mc/Livetime'].to_numpy()[0][0]
 
-    #sel_offbeam_tree = rf['events/onbeam/SelectedCos_NCCuts']
+    #sel_offbeam_tree = rf['events/offbeam/SelectedCos_NCCuts']
     #sel_offbeam_df = sel_offbeam_tree.arrays(library='pd')
     #pot_offbeam = rf['events/offbeam/POT'].to_numpy()[0][0]
     #livetime_offbeam = rf['events/offbeam/Livetime'].to_numpy()[0][0]
