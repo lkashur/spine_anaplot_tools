@@ -54,8 +54,8 @@ range = [0,400]
 nbins = 40
 xlabel = 'Reconstructed $\pi^{0}$ Invariant Mass [MeV/c$^{2}$]'
 
-[variables.true_neutrino_energy]
-key = 'true_edep'
-range = [0,6]
-nbins = 30
-xlabel = 'True Neutrino Energy [GeV]'
+#[variables.true_neutrino_energy]
+#key = 'true_edep'
+#range = [0,6]
+#nbins = 30
+#xlabel = 'True Neutrino Energy [GeV]'

@@ -72,3 +72,4 @@ category_branch = 'category_topology_simple'
 category_labels = ['1$\mu$0$\pi^{±}$1$\pi^{0}$', '1$\mu$0$\pi^{±}$N$\pi^{0}$', '1$\mu$N$\pi^{±}$', 'Other CC $\nu$', 'NC $\nu$', 'Cosmic']
 category_colors = ['#1b9e77', '#dea0fd', '#4c78a8', '#f58518', '#17becf', '#a6761d']
 category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram', 'histogram']
+systematics = ['multisimTree']

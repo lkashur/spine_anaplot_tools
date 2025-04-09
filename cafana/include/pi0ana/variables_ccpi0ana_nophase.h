@@ -1,16 +1,16 @@
 /**
- * @file vars_pi0ana_nc_inc.h
+ * @file vars_ccpi0ana_nophase.h
  * @brief Header file for definitions of analysis variables specific to the
- * pi0ana analysis.
+ * ccpi0ana analysis.
  * @details This file contains definitions of analysis variables which can be
- * used to extract information from interactions specific to the pi0ana
+ * used to extract information from interactions specific to the ccpi0ana
  * analysis. Each variable is implemented as a function which takes an
  * interaction object as an argument and returns a double. These are the
  * building blocks for producing high-level plots of the selected interactions.
  * @author lkashur@colostate.edu
  */
-#ifndef VARS_PI0ANA_NC_INC_H
-#define VARS_PI0ANA_NC_INC_H
+#ifndef VARS_CCPI0ANA_NOPHASE_H
+#define VARS_CCPI0ANA_NOPHASE_H
 
 #include "sbnanaobj/StandardRecord/Proxy/SRProxy.h"
 #include "sbnanaobj/StandardRecord/SRInteractionDLP.h"
@@ -19,13 +19,13 @@
 #include <iostream>
 #include "include/utilities.h"
 #include "include/cuts.h"
-#include "include/pi0ana/cuts_pi0ana_nc_inc.h"
+#include "include/pi0ana/cuts_ccpi0ana_nophase.h"
 
 /**
- * @namespace vars::pi0ana_nc_inc
- * @brief Namespace for organizing variables specific to the pi0ana analysis.
+ * @namespace vars::ccpi0ana_nophase
+ * @brief Namespace for organizing variables specific to the ccpi0ana analysis.
  * @details This namespace is intended to be used for organizing variables which
- * act on interactions specific to the pi0ana analysis. Each variable is
+ * act on interactions specific to the ccpi0ana analysis. Each variable is
  * implemented as a function which takes an interaction object as an argument
  * and returns a double. The function should be templated on the type of
  * interaction object if the variable is intended to be used on both true and
@@ -34,7 +34,7 @@
  * namespace, which is used for organizing generic variables which act on
  * interactions.
  */
-namespace vars::pi0ana_nc_inc
+namespace vars::ccpi0ana_nophase
 {
     /**
      * @brief Variable for enumerating interaction categories.
@@ -54,16 +54,16 @@ namespace vars::pi0ana_nc_inc
       double cat(3);
 
       // Signal   
-      if(cuts::pi0ana_nc_inc::signal_0mu0pi1pi0(obj))
+      if(cuts::ccpi0ana_nophase::signal_1mu0pi1pi0(obj))
       {
-	if(cuts::fiducial_cut(obj) && cuts::track_containment_cut(obj))
+	if(cuts::fiducial_cut(obj))
 	{
 	  cat = 0;
 	}
 	else cat = 1;
       }
       // Neutrino Background              
-      else if(cuts::pi0ana_nc_inc::other_nu_0mu0pi1pi0(obj))
+      else if(cuts::ccpi0ana_nophase::other_nu_1mu0pi1pi0(obj))
       {
 	cat = 2;
       }
@@ -71,7 +71,7 @@ namespace vars::pi0ana_nc_inc
     }
 
     /**
-     * @brief Variable for enumerating interaction categories.
+     * @brief GUNDAM variable for enumerating interaction categories.
      * @details This variable provides a basic categorization of interactions
      * using only signal, neutrino background, and cosmic background as the
      * three categories.
@@ -82,49 +82,80 @@ namespace vars::pi0ana_nc_inc
      * @param obj the interaction to apply the variable on.
      * @return the enumerated category of the interaction.
      */
-    double is_signal(const caf::SRInteractionTruthDLPProxy & obj)
+    double is_signal_mc(const caf::SRInteractionTruthDLPProxy & obj)
     {
-      truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+      truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 
-      // Cosmic
+      // Cosmic 
       uint16_t cat(4);
 
       // Nu
       if(s.is_neutrino)
         {
-          // Signal
-          if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial && s.has_contained_tracks) cat = 1;
+	  // Signal
+	  if(s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_fiducial) cat = 1;
 
-          // Signal (OOPS)
-          else if( (s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc) && (s.num_primary_muons_thresh != 1 || s.num_primary_pions_thresh != 0 || s.num_primary_pi0s_thresh != 1 || !s.is_fiducial || !s.has_contained_tracks) ) cat = 2;
-
-          // Other nu 
-          else cat = 3;
+	  // Other nu
+	  else cat = 3;
         }
-
       return cat;
     }
 
+    /**
+     * @brief GUNDAM variable for enumerating interaction categories.
+     * @details This variable provides a basic categorization of interactions
+     * using only signal, neutrino background, and cosmic background as the
+     * three categories.
+     * @param obj the interaction to apply the variable on.
+     * @return the enumerated category of the interaction.
+     */
+    double is_signal_data(const caf::SRInteractionTruthDLPProxy & obj)
+    {
+      int cat(-5);
+      return cat;
+    }
+
+    /**
+     * @brief Variable for enumerating interaction categories.
+     * @details This variable provides a basic categorization of interactions
+     * using only signal, neutrino background, and cosmic background as the
+     * three categories.
+     * 0: 1mu0pi1pi0 (in-phase, fiducial)
+     * 1: 1mu0pi1pi0 (OOPS, fiducial)
+     * 2: 1mu0pi1pi0 (OOFV)
+     * 3: 1muNpi1pi0
+     * 4: 1muNpi0pi0
+     * 5: 1muNpi0
+     * 6: NC 1pi0
+     * 7: Other nu
+     * 8: Cosmic
+     * @param obj the interaction to apply the variable on.
+     * @return the enumerated category of the interaction.
+     */
     double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
     {
-      truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+      truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 
-      // Cosmic 
-      uint16_t cat(5);
+      // Cosmic
+      uint16_t cat(8);
 
       // Neutrino
       if(s.is_neutrino)
         {
-          // 0mu1pi0 (in-phase)
-          if(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_fiducial && s.has_contained_tracks) cat = 0;
-          // 0mu1pi0 (OOPS)
-          else if( (s.num_primary_muons == 0 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && !s.is_cc) && (s.num_primary_muons_thresh != 0 || s.num_primary_pions_thresh != 0 || s.num_primary_pi0s_thresh != 1 || !s.is_fiducial || !s.has_contained_tracks) ) cat = 1;
-          // 0muNpi0                                    
-          else if(s.num_primary_muons_thresh == 0 && s.num_primary_pi0s_thresh > 1 && !s.is_cc) cat = 2;
-          // CC 1pi0
-          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pi0s_thresh == 1 && s.is_cc) cat = 3;
-          // Other nu
-          else cat = 4;
+          // 1mu0pi1pi0 (in-phase, fiducial)
+          if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 0;
+          // 1mu0pi1pi0 (OOFV)
+          else if( (s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && !s.is_fiducial) ) cat = 2;
+          // 1muNpi1pi0
+          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh > 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 3;
+          // 1muNpi0pi0
+          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh > 0 && s.num_primary_pi0s_thresh == 0 && s.is_cc && s.is_fiducial) cat = 4;
+          // 1muNpi0
+          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pi0s_thresh > 1 && s.is_cc && s.is_fiducial) cat = 5;
+          // NC 1pi0
+          else if(s.num_primary_muons_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_fiducial) cat = 6;
+          // Other nu 
+          else cat = 7;
         }
       return cat;
     }
@@ -147,6 +178,7 @@ namespace vars::pi0ana_nc_inc
 	  return cat;
         }
 
+
     template<class T>
       double is_not_data(const T & obj)
       {
@@ -162,6 +194,52 @@ namespace vars::pi0ana_nc_inc
       }
  
     /**
+     * @brief Variable for leading muon momentum magnitude.
+     * @details Variable for momentum of the leading muon
+     * candidate [MeV/c].
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the muon momentum magnitude.
+     */
+    template<class T> 
+        double muon_momentum_mag(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
+			       return s.muon_momentum_mag;
+			   }
+	    else
+            {
+	        reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
+		return s.muon_momentum_mag;
+            }
+        }
+
+    /**
+     * @brief Variable for leading muon angle with beam.
+     * @details Variable for the cosine of the angle between
+     * the interaction's leading muon and the beam.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the leading muon's angle w.r.t. beam.
+     */
+    template<class T>
+        double muon_beam_costheta(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                           {
+			       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
+			       return s.muon_beam_costheta;
+                           }
+	    else
+	    {
+	      reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
+	      return s.muon_beam_costheta;
+	    }
+        }
+
+    /**
      * @brief Variable for pi0 leading photon energy.
      * @details Variable for pi0 leading photon energy
      * [MeV], as calculated with p.calo_ke attribute.
@@ -174,12 +252,12 @@ namespace vars::pi0ana_nc_inc
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 			   {
-			       truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			       return s.pi0_leading_photon_energy;
 			   }
             else
 	    {
-		reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+		reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 		return s.pi0_leading_photon_energy;
 	    }
 	}
@@ -197,12 +275,12 @@ namespace vars::pi0ana_nc_inc
       {
 	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 			 {
-			     truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			     truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			     return s.pi0_leading_photon_conv_dist;
 			 }
 	  else
 	  {
-	      reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	      reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 	      return s.pi0_leading_photon_conv_dist;
 	  }
       }
@@ -220,12 +298,12 @@ namespace vars::pi0ana_nc_inc
 	{
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
                              {
-			       truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			       return s.pi0_subleading_photon_energy;
                              }
             else
 	    {
-	        reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
                 return s.pi0_subleading_photon_energy;
 	    }
 	}
@@ -243,12 +321,12 @@ namespace vars::pi0ana_nc_inc
       {
 	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		         {
-			     truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			     truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			     return s.pi0_subleading_photon_conv_dist;
 		         }
 	  else
           {
-	      reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	      reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 	      return s.pi0_subleading_photon_conv_dist;
           }
       }
@@ -266,12 +344,12 @@ namespace vars::pi0ana_nc_inc
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		       {
-			   truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			   truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			   return s.pi0_momentum_mag;
 		       }
 	    else
 	    {
-	        reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 		return s.pi0_momentum_mag;
 	    } 
         }
@@ -289,12 +367,12 @@ namespace vars::pi0ana_nc_inc
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		       {
-			   truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			   truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			   return s.pi0_beam_costheta;
 		       }
 	    else
 	    {
-	        reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 		return s.pi0_beam_costheta;
 	    }
         }
@@ -312,12 +390,12 @@ namespace vars::pi0ana_nc_inc
       {
 	if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
 		       {
-			 truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			 truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 			 return s.pi0_photons_costheta;
 		       }
 	else
 	  {
-	    reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	    reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 	    return s.pi0_photons_costheta;
 	  }
 
@@ -336,14 +414,40 @@ namespace vars::pi0ana_nc_inc
         {
 	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
                            {
-			       truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+			       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
                                return s.pi0_mass;
                            }
 	    else
 	    {
-	        reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	        reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
 	        return s.pi0_mass;
 	    }
 	} 
+
+    /**
+     * @brief Variable for total visible energy of interaction.
+     * @details This function calculates the total visible energy of the
+     * interaction by summing the energy of all particles that are identified
+     * as counting towards the final state of the interaction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj interaction to apply the variable on.
+     * @return the total visible energy of the interaction.
+     */
+    template<class T>
+      double visible_energy(const T & obj)
+      {
+	double energy(0);
+	for(const auto & p : obj.particles)
+	  {
+	    if(utilities_ccpi0ana_nophase::final_state_signal(p))
+	      {
+		energy += pvars::energy(p);
+		if(PIDFUNC(p) == 4) energy -= pvars::mass(p) - PROTON_BINDING_ENERGY;
+	      }
+	  }
+	return energy/1000.0;
+      }
+
+
 }
-#endif // VARS_PI0ANA_NC_INC_H
+#endif // VARS_CCPI0ANA_NOPHASE_H

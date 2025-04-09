@@ -1,5 +1,5 @@
 /**
- * @file utilities_pi0ana_phase.h
+ * @file utilities_ccccpi0ana_phase.h
  * @brief Header file for definitions of utility functions for supporting
  * analysis variables and cuts.
  * @details This file contains definitions of utility functions which are used
@@ -9,8 +9,8 @@
  * variables and cuts.
  * @author lkashur@colostate.edu
  */
-#ifndef UTILITIES_PI0ANA_PHASE_H
-#define UTILITIES_PI0ANA_PHASE_H
+#ifndef UTILITIES_CCPI0ANA_PHASE_H
+#define UTILITIES_CCPI0ANA_PHASE_H
 
 #include <iostream>
 #include <vector>
@@ -19,7 +19,7 @@
 //#include "include/beaminfo.h"
 
 #define MIN_MUON_MOMENTUM 226
-#define MIN_PION_MOMENTUM 87.1981
+#define MIN_PION_MOMENTUM 87
 #define MIN_PI0_MOMENTUM 100
 
 struct truth_inter_phase {
@@ -64,9 +64,8 @@ struct reco_inter_phase {
 };
 
 
-
 /**
- * @namespace utilities_pi0ana_phase
+ * @namespace utilities_ccpi0ana_phase
  * @brief Namespace for organizing utility functions for supporting analysis
  * variables and cuts.
  * @details This namespace is intended to be used for organizing utility
@@ -78,7 +77,7 @@ struct reco_inter_phase {
  * vars and cuts namespaces, which are used for organizing variables and cuts
  * which act on interactions.
  */
-namespace utilities_pi0ana_phase
+namespace utilities_ccpi0ana_phase
 {
     /**
      * @brief Check if the particle meets final state signal requirements.
@@ -139,7 +138,7 @@ namespace utilities_pi0ana_phase
      * @tparam T the type of interaction (true).
      * @param obj the interaction to select on.
      * @return a truth_inter structure.
-     * @note This structure is intented to be used for the pi0ana analysis. 
+     * @note This structure is intented to be used for the ccpi0ana analysis. 
      */
     template<class T> 
       truth_inter_phase truth_interaction_info(const T & obj)
@@ -290,7 +289,7 @@ namespace utilities_pi0ana_phase
 	nonprimary_pi0_count = nonprimary_pi0_map.size();
 
 	// Obtain info about signal particles, if they exist
-	if(primary_muon_count_thresh == 1 && primary_pion_count_thresh == 0 && primary_pi0_count_thresh == 1)
+	if(primary_muon_count_thresh == 1 && primary_pion_count_thresh == 0 && primary_pi0_count_thresh == 1 && obj.current_type == 0 && cuts::fiducial_cut<T>(obj))
 	{      
 	  // Get leading muon info
 	  const auto & muon = obj.particles[leading_muon_index];
@@ -398,7 +397,7 @@ namespace utilities_pi0ana_phase
      * @tparam T the type of interaction (reco).
      * @param obj the interaction to select on.
      * @return a reco_pi0 structure.
-     * @note This structure is intented to be used for the pi0ana analysis.
+     * @note This structure is intented to be used for the ccpi0ana analysis.
      */
     template<class T> 
       reco_inter_phase reco_interaction_info(const T & obj)
@@ -662,4 +661,4 @@ namespace utilities_pi0ana_phase
       }
 
 }
-#endif // UTILITIES_PI0ANA_PHASE_H
+#endif // UTILITIES_CCPI0ANA_PHASE_H

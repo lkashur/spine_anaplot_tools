@@ -1,5 +1,5 @@
 /**
- * @file utilities_pi0ana_trad.h
+ * @file utilities_ccpi0ana_nophase.h
  * @brief Header file for definitions of utility functions for supporting
  * analysis variables and cuts.
  * @details This file contains definitions of utility functions which are used
@@ -9,8 +9,8 @@
  * variables and cuts.
  * @author lkashur@colostate.edu
  */
-#ifndef UTILITIES_PI0ANA_TRAD_H
-#define UTILITIES_PI0ANA_TRAD_H
+#ifndef UTILITIES_CCPI0ANA_NOPHASE_H
+#define UTILITIES_CCPI0ANA_NOPHASE_H
 
 #include <iostream>
 #include <vector>
@@ -18,17 +18,10 @@
 #include "include/cuts.h"
 //#include "include/beaminfo.h"
 
-#define MIN_MUON_ENERGY 143.425
-#define MIN_PION_ENERGY 25
-#define MIN_PHOTON_ENERGY 40 // 40 MeV
-
-struct truth_inter_trad {
+struct truth_inter_nophase {
   int num_primary_muons;
-  int num_primary_muons_thresh;
   int num_primary_pions;
-  int num_primary_pions_thresh;
   int num_primary_pi0s;
-  int num_primary_pi0s_thresh;
   int num_nonprimary_pi0s;
   double transverse_momentum_mag;
   bool is_fiducial;
@@ -36,8 +29,6 @@ struct truth_inter_trad {
   bool is_neutrino;
   bool is_cc;
   double muon_momentum_mag;
-  double muon_csda_ke;
-  double muon_calo_ke;
   double muon_beam_costheta;
   double pi0_leading_photon_energy;
   double pi0_leading_photon_conv_dist;
@@ -49,11 +40,9 @@ struct truth_inter_trad {
   double pi0_beam_costheta;
 };
 
-struct reco_inter_trad {
+struct reco_inter_nophase {
   double transverse_momentum_mag;
   double muon_momentum_mag;
-  double muon_csda_ke;
-  double muon_calo_ke;
   double muon_beam_costheta;
   double pi0_leading_photon_energy;
   double pi0_leading_photon_cosphi;
@@ -70,7 +59,7 @@ struct reco_inter_trad {
 
 
 /**
- * @namespace utilities_pi0ana_trad
+ * @namespace utilities_ccpi0ana_nophase
  * @brief Namespace for organizing utility functions for supporting analysis
  * variables and cuts.
  * @details This namespace is intended to be used for organizing utility
@@ -82,7 +71,7 @@ struct reco_inter_trad {
  * vars and cuts namespaces, which are used for organizing variables and cuts
  * which act on interactions.
  */
-namespace utilities_pi0ana_trad
+namespace utilities_ccpi0ana_nophase
 {
     /**
      * @brief Check if the particle meets final state signal requirements.
@@ -99,10 +88,13 @@ namespace utilities_pi0ana_trad
 	  bool passes(false);
 	  if(p.is_primary)
 	  {
-	    if(PIDFUNC(p) == 0 && p.ke >= MIN_PHOTON_ENERGY) passes = true; // Photons
+	    TVector3 momentum(p.momentum[0], p.momentum[1], p.momentum[2]);
+	    double momentum_mag(momentum.Mag());
+
+	    if(PIDFUNC(p) == 0) passes = true; // Photons
 	    if(PIDFUNC(p) == 1) passes = true; // Electrons
-	    if(PIDFUNC(p) == 2 && p.ke >= MIN_MUON_ENERGY) passes = true; // Muons
-	    if(PIDFUNC(p) == 3 && p.ke >= MIN_PION_ENERGY) passes = true; // Pions
+	    if(PIDFUNC(p) == 2) passes = true; // Muons
+	    if(PIDFUNC(p) == 3) passes = true; // Pions
 	    if(PIDFUNC(p) == 4) passes = true; // Protons
 	    if(PIDFUNC(p) == 5) passes = true; // Kaons
 	  }
@@ -136,17 +128,17 @@ namespace utilities_pi0ana_trad
      * @tparam T the type of interaction (true).
      * @param obj the interaction to select on.
      * @return a truth_inter structure.
-     * @note This structure is intented to be used for the pi0ana analysis. 
+     * @note This structure is intented to be used for the ccpi0ana analysis. 
      */
     template<class T> 
-      truth_inter_trad truth_interaction_info(const T & obj)
+      truth_inter_nophase truth_interaction_info(const T & obj)
       {
 	// Initialize struct
-	truth_inter_trad s;
+	truth_inter_nophase s;
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-	TVector3 beamdir;
+        TVector3 beamdir;
         if constexpr(!BEAM_IS_NUMI){
             beamdir.SetX(0);
             beamdir.SetY(0);
@@ -161,20 +153,15 @@ namespace utilities_pi0ana_trad
 	  
 	// Initialize output variables
 	int primary_muon_count(0);
-	int primary_muon_count_thresh(0);
 	int primary_pion_count(0);
-	int primary_pion_count_thresh(0);
 	int primary_pi0_count(0);
-	int primary_pi0_count_thresh(0);
 	int nonprimary_pi0_count(0);
 	double pT0(0), pT1(0), pT2(0);
 	bool is_neutrino(false);
 	bool is_cc(false);
-	unordered_map<int, vector<pair<size_t, double>> > primary_pi0_map;
+	unordered_map<int, vector<pair<size_t, TVector3>> > primary_pi0_map;
 	unordered_map<int, vector<pair<size_t, double>> > nonprimary_pi0_map;
 	double muon_momentum_mag;
-	double muon_csda_ke;
-	double muon_calo_ke;
 	double muon_beam_costheta;
 	double pi0_leading_photon_energy;
 	TVector3 pi0_leading_photon_dir;
@@ -208,8 +195,6 @@ namespace utilities_pi0ana_trad
 	    if(PIDFUNC(p) == 2)
 	    {
 	      primary_muon_count++;
-	      if(p.ke >= MIN_MUON_ENERGY) primary_muon_count_thresh++;
-	      //std::cout << "Muon KE: " << p.ke << std::endl;
 	      if(p.ke > max_muon_ke)
 	      {
 		max_muon_ke = p.ke;
@@ -220,13 +205,12 @@ namespace utilities_pi0ana_trad
 	    if(PIDFUNC(p) == 3)
 	    {
 	      primary_pion_count++;
-	      if(p.ke >= MIN_PION_ENERGY) primary_pion_count_thresh++;
 	    }
 	    
 	    // Neutral pions
 	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
 	    {
-	      primary_pi0_map[p.parent_track_id].push_back({i,p.ke});
+	      primary_pi0_map[p.parent_track_id].push_back({i,_p});
 	    }
 	  } // end primary loop
 	  // Nonprimaries
@@ -260,44 +244,16 @@ namespace utilities_pi0ana_trad
 	}
         primary_pi0_count = primary_pi0_map.size();
 
-	// Primary pi0s above threshold
-	vector<int> subthresh_primary_pi0_ids;
-	for(auto const & pi0 : primary_pi0_map)
-	  {
-	    int num_photon_daughters_thresh(0);
-	    for(auto & daughter : pi0.second)
-	      {
-		if(daughter.second >= MIN_PHOTON_ENERGY) num_photon_daughters_thresh++;
-	      }
-	    
-	    if(num_photon_daughters_thresh == 2)
-	      {
-		primary_pi0_count_thresh++;
-	      }
-	    else
-	      {
-		subthresh_primary_pi0_ids.push_back(pi0.first);
-	      }
-	  }
-
-	// Remove subthreshold pi0s from our map
-	for(size_t i=0; i<subthresh_primary_pi0_ids.size(); i++)
-	  {
-            primary_pi0_map.erase(subthresh_primary_pi0_ids[i]);
-	  }
-
 	// Nonprimary pi0s
 	nonprimary_pi0_count = nonprimary_pi0_map.size();
 
 	// Obtain info about signal particles, if they exist
-	if(primary_muon_count_thresh == 1 && primary_pion_count_thresh == 0 && primary_pi0_count_thresh == 1)
+	if(primary_muon_count == 1 && primary_pion_count == 0 && primary_pi0_count == 1 && && obj.current_type == 0 && obj.is_fiducial)
 	{      
 	  // Get leading muon info
 	  const auto & muon = obj.particles[leading_muon_index];
 	  TVector3 muon_momentum(muon.momentum[0], muon.momentum[1], muon.momentum[2]);
 	  double muon_momentum_mag = muon_momentum.Mag();
-	  double muon_csda_ke = muon.csda_ke;
-	  double muon_calo_ke = muon.calo_ke;
 	  double muon_beam_costheta = muon_momentum.Unit().Dot(beamdir);
 	        
 	  // Get leading/subleading photon info
@@ -348,8 +304,6 @@ namespace utilities_pi0ana_trad
 	  pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
 	        
 	  s.muon_momentum_mag = muon_momentum_mag;
-	  s.muon_csda_ke = muon_csda_ke;
-	  s.muon_calo_ke = muon_calo_ke;
 	  s.muon_beam_costheta = muon_beam_costheta;
 	  s.pi0_leading_photon_energy = pi0_leading_photon_energy;
 	  s.pi0_leading_photon_conv_dist = pi0_leading_photon_conv_dist;
@@ -363,8 +317,6 @@ namespace utilities_pi0ana_trad
 	else
 	{
 	  s.muon_momentum_mag = -5;
-	  s.muon_csda_ke = -5;
-	  s.muon_calo_ke = -5;
           s.muon_beam_costheta = -5;
           s.pi0_leading_photon_energy = -5;
           s.pi0_leading_photon_conv_dist = -5;
@@ -376,12 +328,9 @@ namespace utilities_pi0ana_trad
           s.pi0_beam_costheta = -5;
 	}
 	
-	s.num_primary_muons = primary_muon_count;
-	s.num_primary_muons_thresh = primary_muon_count_thresh;
+	s.num_primary_muons = primary_muon_count; 
 	s.num_primary_pions = primary_pion_count;
-	s.num_primary_pions_thresh = primary_pion_count_thresh;
 	s.num_primary_pi0s = primary_pi0_count;
-	s.num_primary_pi0s_thresh = primary_pi0_count_thresh;
 	s.num_nonprimary_pi0s = nonprimary_pi0_count;
 	s.transverse_momentum_mag = sqrt(pow(pT0, 2) + pow(pT1, 2) + pow(pT2, 2));
 	s.is_fiducial = cuts::fiducial_cut<T>(obj);
@@ -401,17 +350,17 @@ namespace utilities_pi0ana_trad
      * @tparam T the type of interaction (reco).
      * @param obj the interaction to select on.
      * @return a reco_pi0 structure.
-     * @note This structure is intented to be used for the pi0ana analysis.
+     * @note This structure is intented to be used for the ccpi0ana analysis.
      */
     template<class T> 
-      reco_inter_trad reco_interaction_info(const T & obj)
+      reco_inter_nophase reco_interaction_info(const T & obj)
       {
 	// Initialize structure
-	reco_inter_trad s;
+	reco_inter_nophase s;
 	  
 	// Initialize relevant TVector3s
 	TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
-        TVector3 beamdir;
+	TVector3 beamdir;
         if constexpr(!BEAM_IS_NUMI){
             beamdir.SetX(0);
             beamdir.SetY(0);
@@ -461,35 +410,135 @@ namespace utilities_pi0ana_trad
 		TVector3 _p(p.start_point[0] - vertex[0], p.start_point[1] - vertex[1], p.start_point[2] - vertex[2]);
 		_p = p.calo_ke * _p.Unit();
 		TVector3 pL = _p.Dot(beamdir) * beamdir;
-		TVector3 pT = _p - pL;
-		 
-		// Leading photon
-		if(p.calo_ke > max_calo_ke0)
-		{
-		    max_calo_ke0 = p.calo_ke;
-		    leading_photon_index = i;
-		}
-		
+		TVector3 pT = _p - pL;		
 	    }
 	    pT0 += pT[0];
 	    pT1 += pT[1];
 	    pT2 += pT[2];
 	} // end particle loop
 	  
-	// Second particle loop to find subleading photon
+
+
+	// Find pi0s
+	vector<pair< pair<size_t, size_t>, double> > photons_angle;
+	vector<pair< pair<size_t, size_t>, double> > photons_mass;
 	for(size_t i(0); i < obj.particles.size(); ++i)
-	{
+	  {
+	    // First photon
 	    const auto & p = obj.particles[i];
+	    if(PIDFUNC(p) != 0 || !p.is_primary) continue;
+
+	    TVector3 sh0_start(p.start_point[0], p.start_point[1], p.start_point[2]);
+	    TVector3 sh0_start_dir = (sh0_start - vertex).Unit();
+	    TVector3 sh0_dir(p.start_dir[0], p.start_dir[1], p.start_dir[2]);
 	        
-            if(p.is_primary && PIDFUNC(p) == 0 && p.calo_ke >= MIN_PHOTON_ENERGY)
-	    {
-		if(p.calo_ke > max_calo_ke1 && p.calo_ke < max_calo_ke0)
-		{
-		    max_calo_ke1 = p.calo_ke;
-		    subleading_photon_index = i;
-		}
-	    }
-	} // end second particle loop
+	    for(size_t j(0); j < obj.particles.size(); ++j)
+	      {
+		if(j == i) continue;
+		      
+		// Subsequent photon
+		const auto & q = obj.particles[j];
+		if(q.pid != 0 || !q.is_primary) continue;
+
+		TVector3 sh1_start(q.start_point[0], q.start_point[1], q.start_point[2]);
+		TVector3 sh1_start_dir = (sh1_start - vertex).Unit();
+		TVector3 sh1_dir(q.start_dir[0], q.start_dir[1], q.start_dir[2]);
+
+		// Calculate diphoton mass of each pair
+		double cos_opening_angle = sh0_start_dir.Dot(sh1_start_dir);
+		double mass = sqrt(2*p.calo_ke*q.calo_ke*(1-cos_opening_angle));
+
+		// Find "vertex" of each photon pair
+		TVector3 c0;
+		TVector3 c1;
+		TVector3 n = sh0_dir.Cross(sh1_dir);
+		TVector3 n0 = sh0_dir.Cross(n);
+		TVector3 n1 = sh1_dir.Cross(n);
+		float s0 = (sh1_start - sh0_start).Dot(n1) / sh0_dir.Dot(n1);
+		float s1 = (sh0_start - sh1_start).Dot(n0) / sh1_dir.Dot(n0);
+		      
+		if (s0 > 0 && s1 > 0)
+		  {
+		    c0 = sh0_start;
+		    c1 = sh1_start;
+		  }
+		else if (s0 > 0 && s1 < 0)
+		  {
+		    c0 = sh0_start;
+		    c1 = sh0_start;
+		  }
+		else if (s0 < 0 && s1 > 0)
+		  {
+		    c0 = sh1_start;
+		    c1 = sh1_start;
+		  }
+		else
+		  {
+		    c0 = sh0_start + s0*sh0_dir;
+		    c1 = sh1_start + s1*sh1_dir;
+		  }
+
+		float d0 = (sh0_start - c0).Mag();
+		float d1 = (sh1_start - c1).Mag();
+
+		TVector3 vtx;
+		if (d0 == 0 || d1 == 0)
+		  {
+		    float vtx_x = (c0[0] + c1[0]) / 2;
+		    float vtx_y = (c0[1] + c1[1]) / 2;
+		    float vtx_z = (c0[2] + c1[2]) / 2;
+		    vtx.SetX(vtx_x);
+		    vtx.SetY(vtx_y);
+		    vtx.SetZ(vtx_z);
+		  }
+		else
+		  {
+		    float vtx_x = ((c0[0] * d1) + (c1[0] * d0)) / (d1 + d0);
+		    float vtx_y = ((c0[1] * d1) + (c1[1] * d0)) / (d1 + d0);
+		    float vtx_z = ((c0[2] * d1) + (c1[2] * d0)) / (d1 + d0);
+		    vtx.SetX(vtx_x);
+		    vtx.SetY(vtx_y);
+		    vtx.SetZ(vtx_z);
+		  }
+
+		// Find mean angular displacement between
+		// <sh_start from vertex> and <sh_dir>               
+		float r0 = (sh0_start - vtx).Mag();
+		float r1 = (sh1_start - vtx).Mag();
+		double angle = 0;
+		if (r0 > 0)
+		  {
+		    TVector3 v0 = (sh0_start - vtx).Unit();
+		    angle += acos( sh0_dir.Dot(v0) )/2;
+		  }
+
+		photons_angle.push_back(make_pair(make_pair(i, j), angle));
+		photons_mass.push_back(make_pair(make_pair(i, j), mass));
+		sort(photons_angle.begin(), photons_angle.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b)
+		     { return a.second < b.second;});
+
+		sort(photons_mass.begin(), photons_mass.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b) 
+		     { return abs(a.second - 134.9768) < abs(b.second - 134.9768);});
+
+
+	      } // end loop 2
+	  } // end loop 1
+
+	// Get pi0 pair
+	if(!photons_mass.empty())
+	  {
+	    pair<size_t, size_t> ph_pair_ids = photons_mass[0].first; // best angular agreement
+	    if(obj.particles[ph_pair_ids.first].calo_ke > obj.particles[ph_pair_ids.second].calo_ke)
+	      {
+		leading_photon_index = ph_pair_ids.first;
+		subleading_photon_index = ph_pair_ids.second;
+	      }
+	    else
+	      {
+		leading_photon_index = ph_pair_ids.second;
+		subleading_photon_index = ph_pair_ids.first;
+	      }
+	  }
 
 	// Get leading muon info
 	TVector3 muon_momentum;
@@ -497,8 +546,6 @@ namespace utilities_pi0ana_trad
 	muon_momentum.SetY(obj.particles[leading_muon_index].momentum[1]);
 	muon_momentum.SetZ(obj.particles[leading_muon_index].momentum[2]);
 	double muon_momentum_mag = muon_momentum.Mag();
-	double muon_csda_ke = obj.particles[leading_muon_index].csda_ke;
-	double muon_calo_ke = obj.particles[leading_muon_index].calo_ke;
 	double muon_beam_costheta = muon_momentum.Unit().Dot(beamdir);
 
 	// Get leading photon info
@@ -551,8 +598,6 @@ namespace utilities_pi0ana_trad
 	// Fill struct
 	s.transverse_momentum_mag = sqrt(pow(pT0, 2) + pow(pT1, 2) + pow(pT2, 2));
 	s.muon_momentum_mag = muon_momentum_mag;
-	s.muon_csda_ke = muon_csda_ke;
-	s.muon_calo_ke = muon_calo_ke;
 	s.muon_beam_costheta = muon_beam_costheta;
 	s.pi0_leading_photon_energy = pi0_leading_photon_energy;
 	s.pi0_leading_photon_cosphi = pi0_leading_photon_cosphi;
@@ -569,4 +614,4 @@ namespace utilities_pi0ana_trad
       }
 
 }
-#endif // UTILITIES_PI0ANA_TRAD_H
+#endif // UTILITIES_CCPI0ANA_NOPHASE_H

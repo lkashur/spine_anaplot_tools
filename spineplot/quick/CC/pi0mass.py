@@ -46,7 +46,7 @@ def add_plot_labels(ax, pot, adj_y=0.025, title=str()):
     s = f'{usepot:.2f}'+f'$\\times 10^{{{mag}}}$ POT'
     ax.text(x=usex, y=usey, s=s, fontsize=13, color='black', horizontalalignment='right')
 
-def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, df_onbeam=None, pot_onbeam=0):
+def plot_histogram(cfg, plot_cfg, var, df_mc=None, pot_mc=0, livetime_mc=0, df_onbeam=None, pot_onbeam=0, livetime_onbeam=0, df_offbeam=None, livetime_offbeam=0):
     ################
     ### Monte Carlo
     ################
@@ -192,22 +192,28 @@ def main(args):
     sel_cos_mc_df = sel_cos_mc_tree.arrays(library='pd')
     sel_mc_df = pd.concat([sel_nu_mc_df, sel_cos_mc_df])
     pot_mc = rf['events/mc/POT'].to_numpy()[0][0]
+    livetime_mc = rf['events/mc/livetime'].to_numpy()[0][0]
     #pot_mc = rf['events/var01/POT'].to_numpy()[0][0]
     sel_onbeam_tree = rf['events/onbeam/SelectedNu_TradCuts']
     sel_onbeam_df = sel_onbeam_tree.arrays(library='pd')
     pot_onbeam = rf['events/onbeam/POT'].to_numpy()[0][0]
+    
+    sel_offbeam_tree = rf['events/offbeam/SelectedCos_TradCuts']
+    sel_offbeam_df = sel_onbeam_tree.arrays(library='pd')
+    livetime_offbeam = rf['events/intime/livetime'].to_numpy()[0][0]
 
     # Plotting
     # Config
     plot_config = {'include_mc' : True,
                    'include_mc_err': True,
                    'fit_mc': True,
-                   'include_onbeam' : True,
-                   'fit_onbeam': True,
+                   'include_onbeam' : False,
+                   'fit_onbeam': False,
+                   'include_offbeam' : True
                    'normalization' : 'data'}
 
-    #plot_histogram(pi0_config, plot_config, 'pi0_mass', sel_mc_df, pot_mc)
-    plot_histogram(pi0_config, plot_config, 'pi0_mass', sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam)
+    plot_histogram(pi0_config, plot_config, 'pi0_mass', sel_mc_df, pot_mc, livetime_mc, sel_offbeam_df, livetime_offbeam)
+    #plot_histogram(pi0_config, plot_config, 'pi0_mass', sel_mc_df, pot_mc, sel_onbeam_df, pot_onbeam)
     
 
 

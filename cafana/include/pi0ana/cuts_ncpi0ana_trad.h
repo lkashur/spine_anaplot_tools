@@ -1,5 +1,5 @@
 /**
- * @file cuts_pi0ana_nc_inc.h
+ * @file cuts_ncpi0ana_trad.h
  * @brief Header file for definitions of analysis cuts specific to the muonana
  * analysis.
  * @details This file contains definitions of analysis cuts which can be used
@@ -7,17 +7,17 @@
  * intended to be used in conjunction with the generic cuts defined in cuts.h.
  * @author lkashur@colostate.edu
 */
-#ifndef CUTS_PI0ANA_NC_INC_H
-#define CUTS_PI0ANA_NC_INC_H
+#ifndef CUTS_NCPI0ANA_TRAD_H
+#define CUTS_NCPI0ANA_TRAD_H
 #include <vector>
 #include <numeric>
 #include <cmath>
 #include <algorithm>
 
-#include "utilities_pi0ana_nc.h"
+#include "utilities_ncpi0ana_trad.h"
 
 /**
- * @namespace cuts::pi0ana_nc_inc
+ * @namespace cuts::ncpi0ana_trad
  * @brief Namespace for organizing cuts specific to the pi0ana analysis.
  * @details This namespace is intended to be used for organizing cuts which act
  * on interactions specific to the pi0ana analysis. Each cut is implemented as
@@ -27,7 +27,7 @@
  * @note The namespace is intended to be used in conjunction with the cuts
  * namespace, which is used for organizing generic cuts which act on interactions.
  */
-namespace cuts::pi0ana_nc_inc
+namespace cuts::ncpi0ana_trad
 {
     /**
      * @brief Apply data cut.
@@ -43,7 +43,7 @@ namespace cuts::pi0ana_nc_inc
   //}
   
     /**
-     * @brief Apply a 1mu0pi2gamma topological (final state) cut.
+     * @brief Apply a 0mu0pi2gamma topological (final state) cut.
      * @details The interaction must have a topology matching 1mu0pi2gamma as defined by
      * the conditions in the @ref count_primaries() function.
      * @tparam T the type of interaction (true or reco).
@@ -54,35 +54,35 @@ namespace cuts::pi0ana_nc_inc
     template<class T>
         bool topological_0mu0pi2gamma_cut(const T & obj)
         {
-	    std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	    std::vector<uint32_t> c(utilities_ncpi0ana_trad::count_primaries(obj));
 	    return c[0] == 2 && c[2] == 0 && c[3] == 0;
         }
 
     template<class T>
       bool zero_charged_pions_cut(const T & obj)
       {
-	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	std::vector<uint32_t> c(utilities_ncpi0ana_trad::count_primaries(obj));
 	return c[3] == 0;
       }
 
     template<class T>
       bool one_muon_cut(const T & obj)
       {
-	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	std::vector<uint32_t> c(utilities_ncpi0ana_trad::count_primaries(obj));
 	return c[2] == 1;
       }
 
     template<class T>
       bool two_photons_cut(const T & obj)
       {
-	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	std::vector<uint32_t> c(utilities_ncpi0ana_trad::count_primaries(obj));
         return c[0] == 2;
       }
 
     template<class T>
       bool two_or_three_photons_cut(const T & obj)
       {
-	std::vector<uint32_t> c(utilities_pi0ana_nc::count_primaries(obj));
+	std::vector<uint32_t> c(utilities_ncpi0ana_trad::count_primaries(obj));
 	return c[0] > 1 & c[0] < 4;
       }
 
@@ -99,7 +99,7 @@ namespace cuts::pi0ana_nc_inc
     template<class T>
         bool pi0_mass_cut(const T & obj)
         {
-	  reco_inter_nc s = utilities_pi0ana_nc::reco_interaction_info(obj);
+	  reco_inter_trad s = utilities_ncpi0ana_trad::reco_interaction_info(obj);
 	  return s.pi0_mass < 400;
 	}
 
@@ -129,7 +129,7 @@ namespace cuts::pi0ana_nc_inc
      */
     bool signal_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
-	  truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+	  truth_inter_trad s = utilities_ncpi0ana_trad::truth_interaction_info(obj);
 	  return s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_neutrino;
         }
 
@@ -145,9 +145,9 @@ namespace cuts::pi0ana_nc_inc
      */
     bool other_nu_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
-	  truth_inter_nc s = utilities_pi0ana_nc::truth_interaction_info(obj);
+	  truth_inter_trad s = utilities_ncpi0ana_trad::truth_interaction_info(obj);
 	  return !(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc) && s.is_neutrino;
         }
 
 }
-#endif // CUTS_PI0ANA_NC_INC_H
+#endif // CUTS_NCPI0ANA_TRAD_H

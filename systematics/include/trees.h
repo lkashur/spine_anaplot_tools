@@ -205,7 +205,6 @@ namespace sys::trees
         input_tree->SetBranchAddress("Subrun", &subrun);
         input_tree->SetBranchAddress("Evt", &event);
 
-
         /**
          * @brief Create the output TTree with the name specified in the
          * configuration file.
@@ -475,7 +474,7 @@ namespace sys::trees
         }
 
         // Write detector systematic histograms to the output file.
-        calc.write_results();
+        //calc.write_results();
     }
 }
 #endif
