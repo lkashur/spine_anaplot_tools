@@ -217,12 +217,15 @@ namespace sys::trees
          * process streamlines the copying of the values from the input TTree to
          * the output TTree.
          */
+        bool matches_energy, matches_baseline;
         TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
         for(auto & br : brs)
             output_tree->Branch(br.first.c_str(), &br.second);
         output_tree->Branch("Run", &run);
         output_tree->Branch("Subrun", &subrun);
         output_tree->Branch("Evt", &event);
+        output_tree->Branch("matches_energy", &matches_energy);
+        output_tree->Branch("matches_baseline", &matches_baseline);
         
         /**
          * @brief Create the map of selected signal candidates.
@@ -394,6 +397,8 @@ namespace sys::trees
                         run = *rrun;
                         subrun = *rsubrun;
                         event = *revt;
+                        matches_energy = nu.E == brs["true_energy"];
+                        matches_baseline = nu.baseline == brs["baseline"];
                         output_tree->Fill();
                         
                         /**
