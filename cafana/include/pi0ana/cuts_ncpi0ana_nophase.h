@@ -131,7 +131,7 @@ namespace cuts::ncpi0ana_nophase
     bool signal_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
 	  truth_inter_nophase s = utilities_ncpi0ana_nophase::truth_interaction_info(obj);
-	  return s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_neutrino;
+	  return s.num_primary_muons == 0 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && !s.is_cc && s.is_neutrino;
         }
 
     /**
@@ -147,7 +147,7 @@ namespace cuts::ncpi0ana_nophase
     bool other_nu_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
 	  truth_inter_nophase s = utilities_ncpi0ana_nophase::truth_interaction_info(obj);
-	  return !(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc) && s.is_neutrino;
+	  return !(s.num_primary_muons == 0 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && !s.is_cc) && s.is_neutrino;
         }
 
 }

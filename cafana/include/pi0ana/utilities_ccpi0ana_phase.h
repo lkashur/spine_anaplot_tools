@@ -19,8 +19,10 @@
 //#include "include/beaminfo.h"
 
 #define MIN_MUON_MOMENTUM 226
-#define MIN_PION_MOMENTUM 87
-#define MIN_PI0_MOMENTUM 100
+#define MIN_PION_ENERGY 25
+#define MIN_PI0_MOMENTUM 0
+#define MIN_LEADING_SHOWER_ENERGY 40
+#define MIN_SUBLEADING_SHOWER_ENERGY 20
 
 struct truth_inter_phase {
   int num_primary_muons;
@@ -97,13 +99,12 @@ namespace utilities_ccpi0ana_phase
 	    TVector3 momentum(p.momentum[0], p.momentum[1], p.momentum[2]);
 	    double momentum_mag(momentum.Mag());
 	    
-            if(PIDFUNC(p) == 0) passes = true; // Photons
-            if(PIDFUNC(p) == 1) passes = true; // Electrons
+            if(PIDFUNC(p) == 0 && p.ke >= MIN_SUBLEADING_SHOWER_ENERGY) passes = true; // Photons
+            if(PIDFUNC(p) == 1 && p.ke >= MIN_SUBLEADING_SHOWER_ENERGY) passes = true; // Electrons
             if(PIDFUNC(p) == 2 && momentum_mag >= MIN_MUON_MOMENTUM) passes = true; // Muons
-	    if(PIDFUNC(p) == 3 && momentum_mag >= MIN_PION_MOMENTUM) passes = true; // Pions
+	    if(PIDFUNC(p) == 3 && momentum_mag >= MIN_PION_ENERGY) passes = true; // Pions
             if(PIDFUNC(p) == 4) passes = true; // Protons
             if(PIDFUNC(p) == 5) passes = true; // Kaons 
-
 	  }
           return passes;
 	}
@@ -128,6 +129,43 @@ namespace utilities_ccpi0ana_phase
 	    }
           }
 	  return counts;
+	}
+
+    /**
+     * @brief Check if leading shower meets cut requirements (> 40 MeV).
+     * @tparam T the type of interaction (true or reco)
+     * @param obj the interaction to check
+     * @return true if the interaction has a a leading shower > 40 MeV
+     * and a subleading shower > 20 MeV.
+     */
+    template<class T>
+        bool reco_shower_criteria(const T & obj)
+        {
+	    // default
+	    bool passes(false);
+	    
+	    size_t leading_shower_index(0);
+	    double max_shower_ke(-99999);
+	    
+	    // First loop to find leading shower
+	    for(size_t i(0); i < obj.particles.size(); ++i)
+	    {
+	        const auto & p = obj.particles[i];
+
+	        // Primary particles
+	        if(!p.is_primary) continue;
+
+	        // Leading shower
+	        //if((PIDFUNC(p) == 0 || PIDFUNC(p) == 1) && p.ke > max_shower_ke0) // showers
+		if((PIDFUNC(p) == 0) && p.ke > max_shower_ke) // photons
+		{
+		    max_shower_ke = p.ke;
+		    leading_shower_index = i;
+		}
+	    } // end loop 1
+
+	    if(max_shower_ke >= MIN_LEADING_SHOWER_ENERGY) passes = true;
+	    return passes;
 	}
 
     /**
@@ -176,16 +214,16 @@ namespace utilities_ccpi0ana_phase
 	unordered_map<int, vector<pair<size_t, double>> > nonprimary_pi0_map;
 	double muon_momentum_mag;
 	double muon_beam_costheta;
-	double pi0_leading_photon_energy;
+	double pi0_leading_photon_energy(-5);
 	TVector3 pi0_leading_photon_dir;
-	double pi0_leading_photon_conv_dist;
-	double pi0_subleading_photon_energy;
+	double pi0_leading_photon_conv_dist(-5);
+	double pi0_subleading_photon_energy(-5);
 	TVector3 pi0_subleading_photon_dir;
-	double pi0_subleading_photon_conv_dist;
-	double pi0_photons_costheta;
-	double pi0_mass;
-	TVector3 pi0_momentum;
-	double pi0_beam_costheta;
+	double pi0_subleading_photon_conv_dist(-5);
+	double pi0_photons_costheta(-5);
+	double pi0_mass(-5);
+	TVector3 pi0_momentum(0,0,0);
+	double pi0_beam_costheta(-5);
 
 	// Particle loop
 	size_t leading_muon_index(0);
@@ -219,23 +257,38 @@ namespace utilities_ccpi0ana_phase
 	    if(PIDFUNC(p) == 3)
 	    {
 	      primary_pion_count++;
-	      if(_p.Mag() >= MIN_PION_MOMENTUM) primary_pion_count_thresh++;
+	      if(_p.Mag() >= MIN_PION_ENERGY) primary_pion_count_thresh++;
 	    }
 	    
-	    // Neutral pions
-	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
+	    // Neutral pions (photons only)
+	    //if(p.pdg_code == 22 && p.parent_pdg_code == 111)
+	    //{
+	    //    primary_pi0_map[p.parent_track_id].push_back({i,_p});
+	    //}
+
+	    // Neutral pions (all EM daughters)
+	    if(p.parent_pdg_code == 111 && (p.pdg_code == 22 || p.pdg_code == 11 || p.pdg_code == -11))
 	    {
-	      primary_pi0_map[p.parent_track_id].push_back({i,_p});
+	        primary_pi0_map[p.parent_track_id].push_back({i,_p});
 	    }
+
+	    
 	  } // end primary loop
 	  // Nonprimaries
 	  else
 	  {
-	    // Neutral pions
-	    if(p.pdg_code == 22 && p.parent_pdg_code == 111)
+	    // Neutral pions (photons)
+	    //if(p.pdg_code == 22 && p.parent_pdg_code == 111)
+	    //{
+	    //    nonprimary_pi0_map[p.parent_track_id].push_back({i,-5});
+	    //}
+	    
+	    // Neutral pions (all EM daughters)
+	    if(p.parent_pdg_code == 111 && (p.pdg_code == 22 || p.pdg_code == 11 || p.pdg_code == -11))
 	    {
-	      nonprimary_pi0_map[p.parent_track_id].push_back({i,-5});
+		nonprimary_pi0_map[p.parent_track_id].push_back({i,-5});
 	    }
+
 	  } // end nonprimary loop
 	} // end particle loop
 
@@ -244,19 +297,21 @@ namespace utilities_ccpi0ana_phase
 	for(auto const & pi0 : primary_pi0_map)
 	  {
 	    // Loop over daughters of each pi0
-	    int num_primary_photon_daughters(0);
+	    int num_primary_pi0_daughters(0);
 	    for(auto & daughter : pi0.second)
 	      {
-		num_primary_photon_daughters++;
+		num_primary_pi0_daughters++;
 	      }
-	    if(num_primary_photon_daughters != 2) bad_primary_pi0_ids.push_back(pi0.first);
+	    //std::cout << num_primary_photon_daughters << std::endl;
+	    if(num_primary_pi0_daughters < 2) bad_primary_pi0_ids.push_back(pi0.first); // was != 2
 	  }
 
-	// Remove dalitz and single photon pi0s from map
+	// Remove pi0s that have less that one daughter in truth (nonphysical)
 	for(size_t i=0; i<bad_primary_pi0_ids.size(); i++)
 	{
 	    primary_pi0_map.erase(bad_primary_pi0_ids[i]);
 	}
+	
         primary_pi0_count = primary_pi0_map.size();
 
 	// Primary pi0s above threshold
@@ -298,55 +353,70 @@ namespace utilities_ccpi0ana_phase
 	  double muon_beam_costheta = muon_momentum.Unit().Dot(beamdir);
 	        
 	  // Get leading/subleading photon info
-	  vector<size_t> pi0_photon_indices;
+	  vector<size_t> pi0_daughter_indices;
+	  int num_daughters(0);
 	  for(auto const & pi0 : primary_pi0_map)
 	  {
 	    for(auto daughter : pi0.second)
 	    {
-	      pi0_photon_indices.push_back(daughter.first);
+	      pi0_daughter_indices.push_back(daughter.first);
+	      num_daughters++;
 	    }
 	  }
+	  
+	  const auto & pi0_daughter0 = obj.particles[pi0_daughter_indices[0]];
+	  const auto & pi0_daughter1 = obj.particles[pi0_daughter_indices[1]];
 
-	  const auto & pi0_photon0 = obj.particles[pi0_photon_indices[0]];
-	  const auto & pi0_photon1 = obj.particles[pi0_photon_indices[1]];
-	  size_t leading_photon_index;
-	  size_t subleading_photon_index;
-	  if(pi0_photon0.ke > pi0_photon1.ke)
+	  if(num_daughters == 2 && pi0_daughter0.pdg_code == 22 && pi0_daughter1.pdg_code == 22)
 	  {
-	    leading_photon_index = pi0_photon_indices[0];
-	    subleading_photon_index = pi0_photon_indices[1];
-	  }
-	  else
+	    size_t leading_photon_index;
+	    size_t subleading_photon_index;
+	    if(pi0_daughter0.ke > pi0_daughter1.ke)
+	      {
+		leading_photon_index = pi0_daughter_indices[0];
+		subleading_photon_index = pi0_daughter_indices[1];
+	      }
+	    else
+	      {
+		leading_photon_index = pi0_daughter_indices[1];
+		subleading_photon_index = pi0_daughter_indices[0];
+	      }
+
+	    const auto & pi0_leading_photon = obj.particles[leading_photon_index];
+	    const auto & pi0_subleading_photon = obj.particles[subleading_photon_index];
+
+	    // Leading
+	    pi0_leading_photon_energy = pi0_leading_photon.ke;
+	    TVector3 pi0_leading_photon_start_point(pi0_leading_photon.start_point[0], pi0_leading_photon.start_point[1], pi0_leading_photon.start_point[2]);
+	    TVector3 pi0_leading_photon_dir(pi0_leading_photon.momentum[0], pi0_leading_photon.momentum[1], pi0_leading_photon.momentum[2]);
+	    pi0_leading_photon_dir = pi0_leading_photon_dir.Unit();
+	    pi0_leading_photon_conv_dist = (vertex - pi0_leading_photon_start_point).Mag();
+	    TVector3 pi0_leading_photon_momentum(pi0_leading_photon.momentum[0], pi0_leading_photon.momentum[1], pi0_leading_photon.momentum[2]);
+
+	    // Subleading
+	    pi0_subleading_photon_energy = pi0_subleading_photon.ke;
+	    TVector3 pi0_subleading_photon_start_point(pi0_subleading_photon.start_point[0], pi0_subleading_photon.start_point[1], pi0_subleading_photon.start_point[2]);
+	    TVector3 pi0_subleading_photon_dir(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1], pi0_subleading_photon.momentum[2]);
+	    pi0_subleading_photon_dir = pi0_subleading_photon_dir.Unit();
+	    pi0_subleading_photon_conv_dist = (vertex - pi0_subleading_photon_start_point).Mag();
+	    TVector3 pi0_subleading_photon_momentum(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1], pi0_subleading_photon.momentum[2]);
+  
+	    pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
+	    pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
+	    
+	  } // end two photon case
+
+	  // Momentum calculation from daughter particles (actual pi0 momentum not available)
+	  for(auto const & pi0 : primary_pi0_map)
 	  {
-	    leading_photon_index = pi0_photon_indices[1];
-	    subleading_photon_index = pi0_photon_indices[0];
+	      //TVector3 pi0_mom(0,0,0);
+	      for(auto & daughter : pi0.second)
+	      {
+		  pi0_momentum += daughter.second;
+	      }
 	  }
-	  const auto & pi0_leading_photon = obj.particles[leading_photon_index];
-	  const auto & pi0_subleading_photon = obj.particles[subleading_photon_index];
-	        
-	  pi0_leading_photon_energy = pi0_leading_photon.ke; //.ke
-	  TVector3 pi0_leading_photon_start_point(pi0_leading_photon.start_point[0], pi0_leading_photon.start_point[1], pi0_leading_photon.start_point[2]);
-	  TVector3 pi0_leading_photon_dir(pi0_leading_photon.momentum[0], pi0_leading_photon.momentum[1], pi0_leading_photon.momentum[2]);
-	  pi0_leading_photon_dir = pi0_leading_photon_dir.Unit();
-	  pi0_leading_photon_conv_dist = (vertex - pi0_leading_photon_start_point).Mag();
-	  TVector3 pi0_leading_photon_momentum(pi0_leading_photon.momentum[0], pi0_leading_photon.momentum[1], pi0_leading_photon.momentum[2]);
-
-	  pi0_subleading_photon_energy = pi0_subleading_photon.ke; // .ke
-	  TVector3 pi0_subleading_photon_start_point(pi0_subleading_photon.start_point[0], pi0_subleading_photon.start_point[1], pi0_subleading_photon.start_point[2]);
-	  TVector3 pi0_subleading_photon_dir(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1], pi0_subleading_photon.momentum[2]);
-	  pi0_subleading_photon_dir = pi0_subleading_photon_dir.Unit();
-	  pi0_subleading_photon_conv_dist = (vertex - pi0_subleading_photon_start_point).Mag();
-	  TVector3 pi0_subleading_photon_momentum(pi0_subleading_photon.momentum[0], pi0_subleading_photon.momentum[1], pi0_subleading_photon.momentum[2]);
-
-	  pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
-	  //pi0_momentum_mag = pi0_momentum.Mag();
-	  //std::cout << "pi0 momentum 2: " << pi0_momentum_mag << std::endl;
-	  //std::cout << " " << std::endl;
 	  pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
-
-	  pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
-	  pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
-	        
+	  
 	  s.muon_momentum_mag = muon_momentum_mag;
 	  s.muon_beam_costheta = muon_beam_costheta;
 	  s.pi0_leading_photon_energy = pi0_leading_photon_energy;
@@ -464,16 +534,16 @@ namespace utilities_ccpi0ana_phase
 	    pT2 += pT[2];
 	} // end particle loop
 	  
-
-
 	// Find pi0s
 	vector<pair< pair<size_t, size_t>, double> > photons_angle;
 	vector<pair< pair<size_t, size_t>, double> > photons_mass;
 	for(size_t i(0); i < obj.particles.size(); ++i)
 	  {
-	    // First photon
+	    // First shower
 	    const auto & p = obj.particles[i];
-	    if(PIDFUNC(p) != 0 || !p.is_primary) continue;
+	    if(!p.is_primary) continue;
+	    //if(!(PIDFUNC(p) == 0 || PIDFUNC(p) == 1)) continue; // showers
+	    if(!(PIDFUNC(p) == 0)) continue; // photons
 
 	    TVector3 sh0_start(p.start_point[0], p.start_point[1], p.start_point[2]);
 	    TVector3 sh0_start_dir = (sh0_start - vertex).Unit();
@@ -483,9 +553,28 @@ namespace utilities_ccpi0ana_phase
 	      {
 		if(j == i) continue;
 		      
-		// Subsequent photon
+		// Subsequent shower
 		const auto & q = obj.particles[j];
-		if(q.pid != 0 || !q.is_primary) continue;
+		if(!q.is_primary) continue;
+		//if(!(PIDFUNC(q) == 0 || PIDFUNC(q) == 1)) continue; // showers
+		if(!(PIDFUNC(q) == 0)) continue; // photons
+
+		// Do not consider shower pair if it doesn't satisfy asymmetric [40,10] cut
+		double _leading_shower_energy(0);
+		double _subleading_shower_energy(0);
+
+		if(p.ke > q.ke)
+		{
+		    _leading_shower_energy = p.ke;
+		    _subleading_shower_energy = q.ke;
+		}
+		else
+		{
+		    _leading_shower_energy = q.ke;
+		    _subleading_shower_energy = p.ke;
+		}
+		if(_leading_shower_energy < MIN_LEADING_SHOWER_ENERGY || _subleading_shower_energy < MIN_SUBLEADING_SHOWER_ENERGY) continue;
+		
 
 		TVector3 sh1_start(q.start_point[0], q.start_point[1], q.start_point[2]);
 		TVector3 sh1_start_dir = (sh1_start - vertex).Unit();
@@ -496,6 +585,7 @@ namespace utilities_ccpi0ana_phase
 		double mass = sqrt(2*p.calo_ke*q.calo_ke*(1-cos_opening_angle));
 
 		// Find "vertex" of each photon pair
+		/*
 		TVector3 c0;
 		TVector3 c1;
 		TVector3 n = sh0_dir.Cross(sh1_dir);
@@ -560,9 +650,11 @@ namespace utilities_ccpi0ana_phase
 		  }
 
 		photons_angle.push_back(make_pair(make_pair(i, j), angle));
+		*/
+		
 		photons_mass.push_back(make_pair(make_pair(i, j), mass));
-		sort(photons_angle.begin(), photons_angle.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b)
-		     { return a.second < b.second;});
+		//sort(photons_angle.begin(), photons_angle.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b)
+		//{ return a.second < b.second;});
 
 		sort(photons_mass.begin(), photons_mass.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b) 
 		     { return abs(a.second - 134.9768) < abs(b.second - 134.9768);});
@@ -574,7 +666,7 @@ namespace utilities_ccpi0ana_phase
 	// Get pi0 pair
 	if(!photons_mass.empty())
 	  {
-	    pair<size_t, size_t> ph_pair_ids = photons_mass[0].first; // best angular agreement
+	    pair<size_t, size_t> ph_pair_ids = photons_mass[0].first; // best pi0 mass agreement
 	    if(obj.particles[ph_pair_ids.first].calo_ke > obj.particles[ph_pair_ids.second].calo_ke)
 	      {
 		leading_photon_index = ph_pair_ids.first;

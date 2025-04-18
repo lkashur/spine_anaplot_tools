@@ -251,7 +251,7 @@ namespace utilities_ncpi0ana_nophase
 	nonprimary_pi0_count = nonprimary_pi0_map.size();
 
 	// Obtain info about signal particles, if they exist
-	if(primary_muon_count == 0 && primary_pion_count == 0 && primary_pi0_count == 1 && obj.current_type != 0 && ob.is_fiducial)
+	if(primary_muon_count == 0 && primary_pion_count == 0 && primary_pi0_count == 1 && obj.current_type != 0 && obj.is_fiducial)
 	{ 
 	  
 	  // Get leading/subleading photon info

@@ -200,6 +200,21 @@ namespace vars::ccpi0ana_phase
             return cat;
 	}
 
+    template<class T>
+        double is_not_nu(const T & obj)
+        {
+	  double cat(0);
+	  return cat;
+	}
+
+    template<class T>
+        double is_nu(const T & obj)
+        {
+            double cat(1);
+            return cat;
+	}
+
+
 
     /**
      * @brief Variable for leading muon momentum magnitude.

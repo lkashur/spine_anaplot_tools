@@ -166,41 +166,6 @@ namespace vars::ncpi0ana_trad
       return cat;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
-    {
-      truth_inter_trad s = utilities_ncpi0ana_trad::truth_interaction_info(obj);
-
-      // Cosmic 
-      uint16_t cat(5);
-
-      // Neutrino
-      if(s.is_neutrino)
-        {
-          // 0mu1pi0 (in-phase)
-          if(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_fiducial && s.has_contained_tracks) cat = 0;
-          // 0mu1pi0 (OOPS)
-          else if( (s.num_primary_muons == 0 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && !s.is_cc) && (s.num_primary_muons_thresh != 0 || s.num_primary_pions_thresh != 0 || s.num_primary_pi0s_thresh != 1 || !s.is_fiducial || !s.has_contained_tracks) ) cat = 1;
-          // 0muNpi0                                    
-          else if(s.num_primary_muons_thresh == 0 && s.num_primary_pi0s_thresh > 1 && !s.is_cc && s.is_fiducial) cat = 2;
-          // CC 1pi0
-          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 3;
-          // Other nu
-          else cat = 4;
-        }
-      return cat;
-    }
-
     /**
      * @brief Variable for enumerating cut type.
      * @details This variable provides a basic categorization of cuts
@@ -417,5 +382,31 @@ namespace vars::ncpi0ana_trad
 	        return s.pi0_mass;
 	    }
 	} 
+
+    /**
+     * @brief Variable for total visible energy of interaction.
+     * @details This function calculates the total visible energy of the
+     * interaction by summing the energy of all particles that are identified
+     * as counting towards the final state of the interaction.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj interaction to apply the variable on.
+     * @return the total visible energy of the interaction. 
+     */
+    template<class T>
+      double visible_energy(const T & obj)
+      {
+	double energy(0);
+	for(const auto & p : obj.particles)
+	  {
+	    if(utilities_ncpi0ana_phase::final_state_signal(p))
+	      {
+		energy += pvars::energy(p);
+		if(PIDFUNC(p) == 4) energy -= pvars::mass(p) - PROTON_BINDING_ENERGY;
+	      }
+	  }
+	return energy/1000.0;
+      }
+
+
 }
 #endif // VARS_NCPI0ANA_TRAD_H

@@ -61,7 +61,7 @@ namespace sys::trees
      * @param input The input TFile.
      * @return void
      */
-    void copy_tree(sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
+    void copy_tree(sys::cfg::ConfigurationTable & config, sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
     {
         /**
          * @brief Create the output subdirectory following the nesting outlined
@@ -119,11 +119,47 @@ namespace sys::trees
          * the input TTree. This process streamlines the copying of the values
          * from the input TTree to the output TTree.
          */
+	bool matches_energy, matches_baseline, valid_syst;
         for (int i = 0; i < input_tree->GetNbranches()-3; i++)
             output_tree->Branch(input_tree->GetListOfBranches()->At(i)->GetName(), br+i);
         output_tree->Branch("Run", &run);
         output_tree->Branch("Subrun", &subrun);
         output_tree->Branch("Evt", &event);
+	output_tree->Branch("matches_energy", &matches_energy);
+	output_tree->Branch("matches_baseline", &matches_baseline);
+	//output_tree->Branch("is_nu", &is_nu);
+	output_tree->Branch("valid_syst", &valid_syst);
+
+
+	////////////////////////////////////////////////
+        /// GUNDAM DEV
+        ////////////////////////////////////////////////
+	int _sigmas[] = {-1, 1, -2, 2, -3, 3, 0};
+        int _sigmas_size = sizeof(_sigmas) / sizeof(_sigmas[0]);
+	std::map<std::string, int64_t> systsMultisigma;
+	std::map<int64_t, std::vector<double>*> sigmasMultisigma;
+	std::map<int64_t, std::vector<double>*> weightsMultisigma;
+	
+	int num_multisigma_knobs(0); // GUNDAM DEV
+        for(sys::cfg::ConfigurationTable & t : config.get_subtables("sys"))
+	  { 
+            if(!strcmp(t.get_string_field("type").c_str(), "multisigma"))
+              {
+                systsMultisigma.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name_short"), t.get_int_field("index")));
+                sigmasMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+                weightsMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+                num_multisigma_knobs++;
+              }
+	  }
+
+        TClonesArray *arrMultisigma[num_multisigma_knobs];
+        int sysIdx1(0);
+        for(auto & [key, value] : systsMultisigma)
+          {
+            arrMultisigma[sysIdx1] = new TClonesArray("TGraph", 1);
+            output_tree->Branch(key.c_str(), &arrMultisigma[sysIdx1], 32000, -1);
+            sysIdx1++;
+          }
 
         /**
          * @brief Loop over the input TTree and copy the values to the output
@@ -132,6 +168,33 @@ namespace sys::trees
         for(int i(0); i < input_tree->GetEntries(); ++i)
         {
             input_tree->GetEntry(i);
+	    matches_energy = true;
+	    matches_baseline = true;
+	    //is_nu = false;
+	    valid_syst = false;
+
+	    // GUNDAM DEV
+	    // Dummy TClonesArrays
+	    int sysIdx2(0);
+	    for(auto & [key, value] : systsMultisigma)
+	      {
+		sigmasMultisigma[value]->clear();
+		weightsMultisigma[value]->clear();
+
+		// Sigmas                                                                                                                                                                      
+		for(int i(0); i < _sigmas_size; i++)
+		  {
+		    sigmasMultisigma[value]->push_back(_sigmas[i]);
+		    weightsMultisigma[value]->push_back(-5);
+		  }
+
+		// Fill TGraph                                                                                                                                                                 
+		double* sigmasArr = sigmasMultisigma[value]->data();
+		double* weightsArr = weightsMultisigma[value]->data();
+		new( (*arrMultisigma[sysIdx2])[0]) TGraph(_sigmas_size,sigmasArr,weightsArr);
+		sysIdx2++;
+	      }
+
             output_tree->Fill();
         }
 
@@ -217,7 +280,7 @@ namespace sys::trees
          * process streamlines the copying of the values from the input TTree to
          * the output TTree.
          */
-        bool matches_energy, matches_baseline;
+        bool matches_energy, matches_baseline, valid_syst;
         TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
         for(auto & br : brs)
             output_tree->Branch(br.first.c_str(), &br.second);
@@ -226,6 +289,8 @@ namespace sys::trees
         output_tree->Branch("Evt", &event);
         output_tree->Branch("matches_energy", &matches_energy);
         output_tree->Branch("matches_baseline", &matches_baseline);
+	//output_tree->Branch("is_nu", &is_nu);
+	output_tree->Branch("valid_syst", &valid_syst);
         
         /**
          * @brief Create the map of selected signal candidates.
@@ -258,6 +323,16 @@ namespace sys::trees
          */
         std::map<std::string, Systematic *> systematics;
         std::map<std::string, TTree *> systrees;
+
+	///////////////////////////////////////////////////////////////////////
+        /// GUNDAM DEV
+        ///////////////////////////////////////////////////////////////////////
+        int _sigmas[] = {-1, 1, -2, 2, -3, 3, 0};
+        int _sigmas_size = sizeof(_sigmas) / sizeof(_sigmas[0]);
+	std::map<std::string, int64_t> systsMultisigma;
+	std::map<int64_t, std::vector<double>*> sigmasMultisigma;
+	std::map<int64_t, std::vector<double>*> weightsMultisigma;
+	
 
         /**
          * @brief Create histograms for storing the systematic results as a 
@@ -307,11 +382,36 @@ namespace sys::trees
             systrees[s]->SetAutoFlush(1000);
         }
 
+	int num_multisigma_knobs(0); // GUNDAM DEV
         for(sys::cfg::ConfigurationTable & t : config.get_subtables("sys"))
         {
             systematics.insert(std::make_pair<std::string, Systematic *>(t.get_string_field("name"), new Systematic(t, systrees[t.get_string_field("type")])));
             systematics[t.get_string_field("name")]->get_tree()->Branch(t.get_string_field("name").c_str(), &systematics[t.get_string_field("name")]->get_weights());
+
+            ////////////////////////////////////////////
+            /// GUNDAM DEV
+            //////////////////////////////////////////// 
+            if(!strcmp(t.get_string_field("type").c_str(), "multisigma"))
+	      {
+                systsMultisigma.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name_short"), t.get_int_field("index")));
+                sigmasMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+                weightsMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+                num_multisigma_knobs++;
+	      }
         }
+
+        ////////////////////////////////////////////////
+        /// GUNDAM DEV
+        ////////////////////////////////////////////////
+        TClonesArray *arrMultisigma[num_multisigma_knobs];
+        int sysIdx1(0);
+        for(auto & [key, value] : systsMultisigma)
+          {
+            arrMultisigma[sysIdx1] = new TClonesArray("TGraph", 1);
+            output_tree->Branch(key.c_str(), &arrMultisigma[sysIdx1], 32000, -1);
+            sysIdx1++;
+          }
+	
 
         /**
          * @brief Load the input CAF files.
@@ -399,6 +499,64 @@ namespace sys::trees
                         event = *revt;
                         matches_energy = nu.E == brs["true_energy"];
                         matches_baseline = nu.baseline == brs["baseline"];
+			//is_nu = true;
+			valid_syst = nu.baseline == brs["baseline"];
+
+			//////////////////////////////////////////////////////////
+                        /// GUNDAM DEV
+                        //////////////////////////////////////////////////////////
+                        int sysIdx2(0);
+                        for(auto & [key, value] : systsMultisigma)
+                          {
+                            sigmasMultisigma[value]->clear();
+                            weightsMultisigma[value]->clear();
+
+                            // Sigmas
+                            for(int i(0); i < _sigmas_size; i++)
+                              {
+                                sigmasMultisigma[value]->push_back(_sigmas[i]);
+                              }
+
+                            // Weights
+                            int numWgts(0);
+                            for(size_t u(0); u < nu.wgt[value].univ.size(); ++u)
+                              {
+                                weightsMultisigma[value]->push_back(nu.wgt[value].univ[u]);
+                                numWgts++;
+                              }
+                            weightsMultisigma[value]->push_back(1);
+
+                            // Sort from low to high and fill TGraph
+                            double* sigmasArr = sigmasMultisigma[value]->data();
+                            double* weightsArr = weightsMultisigma[value]->data();
+
+			    /*
+			    size_t size = 7;
+			    std::vector<std::pair<double, double>> combined_array;
+			    for (size_t i = 0; i < size; ++i) {
+			      combined_array.push_back(std::make_pair(sigmasArr[i], weightsArr[i]));
+			    }
+			    std::sort(combined_array.begin(), combined_array.end(), [](const auto& a, const auto& b) {
+				return a.first < b.first;
+			      });
+
+			    for (size_t i = 0; i < size; ++i) 
+			      {
+				//std::cout << combined_array[i].first << " " << combined_array[i].second << std::endl;
+				//sigmasArr[i] = combined_array[i].first;
+				//weightsArr[i] = combined_array[i].second;
+			      }
+			    */
+			    
+			    TGraph* _gr = new TGraph(numWgts+1,sigmasArr,weightsArr);
+			    _gr->Sort();
+                            //new( (*arrMultisigma[sysIdx2])[0]) TGraph(numWgts+1,sigmasArr,weightsArr);
+			    //new( (*arrMultisigma[sysIdx2])[0]) _gr;
+			    new( (*arrMultisigma[sysIdx2])[0]) TGraph(numWgts+1,_gr->GetX(),_gr->GetY());
+                            sysIdx2++;
+                          }
+			
+			  
                         output_tree->Fill();
                         
                         /**
@@ -448,11 +606,16 @@ namespace sys::trees
                             value->Fill();
 
                     } // End of block for matched signal candidates.
+                    //else
+                    //{
+                    //    std::cout << "Warning: No signal candidate found for event " << *rrun << ":" << *rsubrun << ":" << *revt << std::endl;
+                    //}
                 } // End of loop over the neutrino interactions in the input CAF file.
             } // End of loop over the events in the input CAF file.
             caf->Close();
             nprocessed++;
         } // End of loop over the input CAF files.
+
         directory->WriteObject(output_tree, table.get_string_field("name").c_str());
         for(auto & [key, value] : systrees)
             directory->WriteObject(value, (key+"Tree").c_str());

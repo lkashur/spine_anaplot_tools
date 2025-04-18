@@ -246,9 +246,10 @@ class SpineSpectra1D(SpineSpectra):
             if draw_error:
                 h.append(plt.Rectangle((0, 0), 1, 1, fc='gray', alpha=0.5, hatch='///'))
                 l.append(systs[0].label)
-            #ax.legend(h[-2::-1]+h[-1:], l[-2::-1]+l[-1:])
-            #ax.legend(h[-2::-1]+h[-1:], l)
-            ax.legend(h[::-1], l[::-1])
+            h[:-1] = h[:-1][::-1]
+            l[:-1] = l[:-1][::-1]
+            ax.legend(h, l)
+            #ax.legend(h[::-1], l[::-1])
         else:
             h, l = ax.get_legend_handles_labels()
             if draw_error:

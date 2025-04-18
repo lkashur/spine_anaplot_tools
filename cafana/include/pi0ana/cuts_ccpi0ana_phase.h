@@ -56,8 +56,45 @@ namespace cuts::ccpi0ana_phase
         {
 	    std::vector<uint32_t> c(utilities_ccpi0ana_phase::count_primaries(obj));
 	    reco_inter_phase s = utilities_ccpi0ana_phase::reco_interaction_info(obj);
-            return c[0] >= 2 && c[0] < 4 && c[2] == 1 && c[3] == 0 && s.pi0_momentum_mag >= MIN_PI0_MOMENTUM;
+            return (utilities_ccpi0ana_phase::reco_shower_criteria(obj) && s.pi0_momentum_mag >= MIN_PI0_MOMENTUM && c[2] == 1 && c[3] == 0);
         }
+
+    template<class T>
+        bool base_topology_cut(const T & obj)
+        {
+	    std::vector<uint32_t> c(utilities_ccpi0ana_phase::count_primaries(obj));
+	    return c[2] == 1 && c[3] == 0 && c[0] >= 2 && c[0] < 4;
+	}
+
+    template<class T>
+      bool leading_shower_cut(const T & obj)
+      {
+	// default
+	bool passes(false);
+
+	size_t leading_shower_index(0);
+	double max_shower_ke(-99999);
+
+	// First loop to find leading shower
+	for(size_t i(0); i < obj.particles.size(); ++i)
+	  {
+	    const auto & p = obj.particles[i];
+
+	    // Primary particles                                                                                                                                                                       
+	    if(!p.is_primary) continue;
+
+	    // Leading shower
+	    //if((PIDFUNC(p) == 0 || PIDFUNC(p) == 1) && p.ke > max_shower_ke0) // showers
+	    if((PIDFUNC(p) == 0) && p.ke > max_shower_ke) // photons                                                                                                                                   
+	      {
+		max_shower_ke = p.ke;
+		leading_shower_index = i;
+	      }
+	  }                                                                                                                                                                            
+
+	if(max_shower_ke >= MIN_LEADING_SHOWER_ENERGY) passes = true;
+	return passes;
+      }
 
     template<class T>
         bool zero_charged_pions_cut(const T & obj)
@@ -117,9 +154,8 @@ namespace cuts::ccpi0ana_phase
      * @note This cut is intended to be used for the ccpi0ana analysis. 
      */
     template<class T>
-        bool all_1mu0pi2gamma_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && topological_1mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+        bool all_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && base_topology_cut<T>(obj) && leading_shower_cut<T>(obj) && pi0_mass_cut<T>(obj);}
     
-
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.
      * @details This function applies a cut on the final state, fiducial volume,

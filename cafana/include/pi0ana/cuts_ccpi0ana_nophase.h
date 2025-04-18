@@ -56,7 +56,7 @@ namespace cuts::ccpi0ana_nophase
         {
 	    std::vector<uint32_t> c(utilities_ccpi0ana_nophase::count_primaries(obj));
 	    //reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
-            return c[0] >= 2 && c[0] < 4 && c[2] == 1 && c[3] == 0;
+	    return (utilities_ccpi0ana_nophase::reco_shower_criteria(obj) && c[2] == 1 && c[3] == 0);
         }
 
     template<class T>

@@ -143,17 +143,17 @@ namespace vars::ccpi0ana_nophase
       if(s.is_neutrino)
         {
           // 1mu0pi1pi0 (in-phase, fiducial)
-          if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 0;
+          if(s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_fiducial) cat = 0;
           // 1mu0pi1pi0 (OOFV)
-          else if( (s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && !s.is_fiducial) ) cat = 2;
+          else if( (s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && !s.is_fiducial) ) cat = 2;
           // 1muNpi1pi0
-          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh > 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 3;
+          else if(s.num_primary_muons == 1 && s.num_primary_pions > 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_fiducial) cat = 3;
           // 1muNpi0pi0
-          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh > 0 && s.num_primary_pi0s_thresh == 0 && s.is_cc && s.is_fiducial) cat = 4;
+          else if(s.num_primary_muons == 1 && s.num_primary_pions > 0 && s.num_primary_pi0s == 0 && s.is_cc && s.is_fiducial) cat = 4;
           // 1muNpi0
-          else if(s.num_primary_muons_thresh == 1 && s.num_primary_pi0s_thresh > 1 && s.is_cc && s.is_fiducial) cat = 5;
+          else if(s.num_primary_muons == 1 && s.num_primary_pi0s > 1 && s.is_cc && s.is_fiducial) cat = 5;
           // NC 1pi0
-          else if(s.num_primary_muons_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_fiducial) cat = 6;
+          else if(s.num_primary_muons == 0 && s.num_primary_pi0s == 1 && !s.is_cc && s.is_fiducial) cat = 6;
           // Other nu 
           else cat = 7;
         }
@@ -192,6 +192,21 @@ namespace vars::ccpi0ana_nophase
 	double cat(1);
 	return cat;
       }
+
+    template<class T>
+      double is_not_nu(const T & obj)
+      {
+	double cat(0);
+	return cat;
+      }
+
+    template<class T>
+      double is_nu(const T & obj)
+      {
+	double cat(1);
+	return cat;
+      }
+
  
     /**
      * @brief Variable for leading muon momentum magnitude.

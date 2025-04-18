@@ -10,14 +10,23 @@
 */
 #define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
 #define PIDFUNC pvars::pid
-#define PROTON_BINDING_ENERGY 30.9 // MeV
+#define PRIMARYFUNC pvars::primary_classification
+//#define PIDFUNC pvars::custom_pid
+#define PROTON_BINDING_ENERGY 30.9 // MeV 
 #define BEAM_IS_NUMI false
+#define WRITE_PURITY_TREES true
 
 #include "include/mctruth.h"
-#include "include/variables.h"
-#include "include/muon2024/variables_muon2024.h"
+//#include "include/variables.h"
 #include "include/cuts.h"
-#include "include/muon2024/cuts_muon2024.h"
+
+#include "include/pi0ana/variables_ccpi0ana_phase.h"
+#include "include/pi0ana/cuts_ccpi0ana_phase.h"
+#include "include/pi0ana/variables_ccpi0ana_nophase.h"
+#include "include/pi0ana/cuts_ccpi0ana_nophase.h"
+#include "include/pi0ana/variables_ccpi0ana_trad.h"
+#include "include/pi0ana/cuts_ccpi0ana_trad.h"
+
 #include "include/spinevar.h"
 #include "include/analysis.h"
 
@@ -31,13 +40,10 @@
 void energycalib()
 {
 
-    // Configure analysis 
-    ana::Analysis analysis("energycalib_bnb_cv_14_march_2025");
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/lkashur/bnb_nu_cosmic_cv_merged/flatcaf*.root"); // old CV
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root"); // updated CV
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/test/nominal_v4/flat/input*.flat.root"); // BNB nu + cosmic CV, upstream calibration fixed
-    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.root"); // BNB nu + coscmic CV, upstream calibration
-    //ana::SpectrumLoader onbeam("/pnfs/icarus/persistent/users/mueller/production/data/onbeam/flat/input*.root"); // on-beam upstream calibration
+    // Configure analysis
+    ana::Analysis analysis("sbnd_bnb_ccpi0_mc_energycalib_16_april_2025");
+    //ana::SpectrumLoader mc("/pnfs/icarus/scratch/users/mueller/production/simulation/nominal/flat/input*.flat.root");
+    ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/mueller/sbnd/updated/flat/larcv_sbnd_bnb_cosmics_spine_updated.flat.root"); // SBND
     analysis.AddLoader("mc", &mc, true);
 
     /**
