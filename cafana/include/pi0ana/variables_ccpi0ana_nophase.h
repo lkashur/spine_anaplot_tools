@@ -48,6 +48,7 @@ namespace vars::ccpi0ana_nophase
      * @param obj the interaction to apply the variable on.
      * @return the enumerated category of the interaction.
      */
+  /*
     double category(const caf::SRInteractionTruthDLPProxy & obj)
     {
       // Cosmic background
@@ -69,7 +70,7 @@ namespace vars::ccpi0ana_nophase
       }
       return cat;
     }
-
+  */
     /**
      * @brief GUNDAM variable for enumerating interaction categories.
      * @details This variable provides a basic categorization of interactions
@@ -132,7 +133,7 @@ namespace vars::ccpi0ana_nophase
      * @param obj the interaction to apply the variable on.
      * @return the enumerated category of the interaction.
      */
-    double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
+    double category(const caf::SRInteractionTruthDLPProxy & obj)
     {
       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
 
@@ -301,6 +302,30 @@ namespace vars::ccpi0ana_nophase
       }
 
     /**
+     * @brief Variable for angle between pi0 leading photon cluster direction and vertex direction.
+     * @details Variable for angle between pi0 leading photon cluster direction, calculated as the normalized
+     * mean direction of the cluster, and the the pi0 leading photon vertex direction, calculated from the
+     * vector between the interaction vertex and shower start point.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the angle between the pi0 leading photon cluster direction and vertex direction.
+     */
+    template<class T>
+        double pi0_leading_photon_cosphi(const T & obj)
+        {
+            if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
+			       return -5;
+			   }
+	    else
+	    {
+	        reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
+		return s.pi0_leading_photon_cosphi;
+	    }
+      }
+
+    /**
      * @brief Variable for pi0 subleading photon energy.
      * @details Variable for pi0 subleading photon energy
      * [MeV], as calculated with p.calo_ke attribute.
@@ -345,6 +370,31 @@ namespace vars::ccpi0ana_nophase
 	      return s.pi0_subleading_photon_conv_dist;
           }
       }
+
+    /**
+     * @brief Variable for angle between pi0 subleading photon cluster direction and vertex direction.
+     * @details Variable for angle between pi0 subleading photon cluster direction, calculated as the normalized
+     * mean direction of the cluster, and the the pi0 subleading photon vertex direction, calculated from the
+     * vector between the interaction vertex and shower start point.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the angle between the pi0 subleading photon cluster direction and vertex direction.
+     */
+    template<class T>
+      double pi0_subleading_photon_cosphi(const T & obj)
+      {
+	  if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			 {
+			     truth_inter_nophase s = utilities_ccpi0ana_nophase::truth_interaction_info(obj);
+			     return -5;
+			 }
+	  else
+	  {
+	      reco_inter_nophase s = utilities_ccpi0ana_nophase::reco_interaction_info(obj);
+	      return s.pi0_subleading_photon_cosphi;
+	  }
+      }
+
 
     /**
      * @brief Variable for neutral pion momentum magnitude.

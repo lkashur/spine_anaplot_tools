@@ -17,6 +17,7 @@
 #include <TVector3.h>
 #include "include/cuts.h"
 //#include "include/beaminfo.h"
+#include <unordered_map>
 
 #define MIN_MUON_MOMENTUM 226
 #define MIN_PION_ENERGY 25
@@ -235,8 +236,8 @@ namespace utilities_ccpi0ana_nophase
 	double pT0(0), pT1(0), pT2(0);
 	bool is_neutrino(false);
 	bool is_cc(false);
-	unordered_map<int, vector<pair<size_t, TVector3>> > primary_pi0_map;
-	unordered_map<int, vector<pair<size_t, double>> > nonprimary_pi0_map;
+	std::unordered_map<int, std::vector<std::pair<size_t, TVector3>> > primary_pi0_map;
+	std::unordered_map<int, std::vector<std::pair<size_t, double>> > nonprimary_pi0_map;
 	double muon_momentum_mag;
 	double muon_beam_costheta;
 	double pi0_leading_photon_energy(-5);
@@ -318,7 +319,7 @@ namespace utilities_ccpi0ana_nophase
 	} // end particle loop
 
 	// Loop over primary pi0s
-	vector<int> bad_primary_pi0_ids;
+	std::vector<int> bad_primary_pi0_ids;
 	for(auto const & pi0 : primary_pi0_map)
 	  {
 	    // Loop over daughters of each pi0
@@ -340,7 +341,7 @@ namespace utilities_ccpi0ana_nophase
         primary_pi0_count = primary_pi0_map.size();
 
 	// Primary pi0s above threshold
-	vector<int> subthresh_primary_pi0_ids;
+	std::vector<int> subthresh_primary_pi0_ids;
 	for(auto const & pi0 : primary_pi0_map)
 	  {
 	    TVector3 pi0_mom(0,0,0);
@@ -378,7 +379,7 @@ namespace utilities_ccpi0ana_nophase
 	  double muon_beam_costheta = muon_momentum.Unit().Dot(beamdir);
 	        
 	  // Get leading/subleading photon info
-	  vector<size_t> pi0_daughter_indices;
+	  std::vector<size_t> pi0_daughter_indices;
 	  int num_daughters(0);
 	  for(auto const & pi0 : primary_pi0_map)
 	  {
@@ -560,8 +561,8 @@ namespace utilities_ccpi0ana_nophase
 	} // end particle loop
 	  
 	// Find pi0s
-	vector<pair< pair<size_t, size_t>, double> > photons_angle;
-	vector<pair< pair<size_t, size_t>, double> > photons_mass;
+	std::vector<std::pair< std::pair<size_t, size_t>, double> > photons_angle;
+	std::vector<std::pair< std::pair<size_t, size_t>, double> > photons_mass;
 	for(size_t i(0); i < obj.particles.size(); ++i)
 	  {
 	    // First shower
@@ -677,11 +678,11 @@ namespace utilities_ccpi0ana_nophase
 		photons_angle.push_back(make_pair(make_pair(i, j), angle));
 		*/
 		
-		photons_mass.push_back(make_pair(make_pair(i, j), mass));
+		photons_mass.push_back(std::make_pair(std::make_pair(i, j), mass));
 		//sort(photons_angle.begin(), photons_angle.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b)
 		//{ return a.second < b.second;});
 
-		sort(photons_mass.begin(), photons_mass.end(), [](const pair<pair<size_t, size_t>, double> &a, const pair<pair<size_t, size_t>, double> &b) 
+		std::sort(photons_mass.begin(), photons_mass.end(), [](const std::pair<std::pair<size_t, size_t>, double> &a, const std::pair<std::pair<size_t, size_t>, double> &b) 
 		     { return abs(a.second - 134.9768) < abs(b.second - 134.9768);});
 
 
@@ -691,7 +692,7 @@ namespace utilities_ccpi0ana_nophase
 	// Get pi0 pair
 	if(!photons_mass.empty())
 	  {
-	    pair<size_t, size_t> ph_pair_ids = photons_mass[0].first; // best pi0 mass agreement
+	    std::pair<size_t, size_t> ph_pair_ids = photons_mass[0].first; // best pi0 mass agreement
 	    if(obj.particles[ph_pair_ids.first].calo_ke > obj.particles[ph_pair_ids.second].calo_ke)
 	      {
 		leading_photon_index = ph_pair_ids.first;
