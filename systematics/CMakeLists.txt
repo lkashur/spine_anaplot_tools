@@ -34,11 +34,16 @@ add_library(detsys SHARED src/detsys.cc)
 target_link_libraries(detsys PRIVATE ${ROOT_LIBRARIES} configuration tomlplusplus::tomlplusplus)
 target_include_directories(detsys PRIVATE include/ ${ROOT_INCLUDE_DIRS} tomlplusplus/include)
 
+# Library for tree-handling code
+add_library(trees SHARED src/trees.cc)
+target_link_libraries(trees PRIVATE ${ROOT_LIBRARIES} configuration systematics detsys tomlplusplus::tomlplusplus)
+target_include_directories(trees PRIVATE include/ ${ROOT_INCLUDE_DIRS} tomlplusplus/include)
+
 # Add the executable target
 add_executable(run_systematics src/main.cc ${SYSINC})
 
 # Link the ROOT libraries to the target
-target_link_libraries(run_systematics ${ROOT_LIBRARIES} ${sbnanaobj_LIBRARY_DIRS}/libsbnanaobj_StandardRecord.so tomlplusplus::tomlplusplus configuration systematics detsys)
+target_link_libraries(run_systematics ${ROOT_LIBRARIES} ${SBNANAOBJ_LIBRARY_DIRS}/libsbnanaobj_StandardRecord.so tomlplusplus::tomlplusplus configuration detsys trees)
 
 # Include the ROOT headers
 include_directories(${ROOT_INCLUDE_DIRS} ${SBNANAOBJ_INCLUDE_DIRS} include/ tomlplusplus/include)
