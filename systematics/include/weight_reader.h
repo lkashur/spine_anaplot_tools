@@ -141,6 +141,16 @@ namespace sys
 
         private:
 
+        /**
+         * @brief A simple progress bar for the TChain.
+         * @details This method provides a simple progress bar for the TChain
+         * to indicate the progress of the reading process.
+         * @param entry The current entry index.
+         * @param total The total number of entries.
+         * @return void
+         */
+        void progress_bar(size_t entry, size_t total) const;
+
         bool isflat; // Flag to indicate if the input file is flat or structured
         TChain chain; // TChain to hold the input files
         size_t entry; // Current entry index in the TChain
@@ -169,6 +179,10 @@ namespace sys
         // MC-truth branch
         std::unique_ptr<TTreeReaderArray<caf::SRTrueInteraction>> mc; // MC-truth data for structured CAF files
 
+        // Progress bar timestamp
+        mutable std::chrono::steady_clock::time_point progress_start_time; // Start time for the progress bar
+        mutable bool progress_started = false; // Flag to indicate if the progress bar has started
+        mutable int last_printed_percent = -1; // Last printed percent for the progress bar
     };
 } // namespace sys
 #endif  // WEIGHT_READER_H

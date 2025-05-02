@@ -135,3 +135,61 @@ float sys::WeightReader::get_weight(size_t idn, size_t idu) const
     else
         return (*mc)[idn].wgt[idx].univ[idu];
 }
+
+// Simple progress bar for the TChain.
+void sys::WeightReader::progress_bar(size_t entry, size_t total) const
+{
+    // Start the clock if it hasn't been started yet.
+    if(!progress_started)
+    {
+        progress_start_time = std::chrono::steady_clock::now();
+        progress_started = true;
+    }
+
+    // Calculate and display fractional progress.
+    float percent = (float)entry / total;
+    int percent_int = static_cast<int>(percent * 100.0);
+    if(percent_int == last_printed_percent && entry != total)
+        return;
+    last_printed_percent = percent_int;
+
+    // Clear the line and print progress bar
+    std::cout << "\r\033[K[";  // \r = carriage return, \033[K = clear to end of line
+
+    int pos = static_cast<int>(50 * percent);
+    for(int i = 0; i < 50; ++i)
+    {
+        if(i < pos) std::cout << "=";
+        else if(i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+
+    std::cout << "] " << std::fixed << std::setprecision(2) << percent * 100.0 << "%  ";
+
+    // Calculate time elapsed and estimated time remaining.
+    auto now = std::chrono::steady_clock::now();
+    double elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - progress_start_time).count();
+    double eta = percent > 0.0 ? elapsed / percent - elapsed : 0.0;
+
+    auto format_time = [](double seconds) -> std::string
+    {
+        int h = static_cast<int>(seconds) / 3600;
+        int m = (static_cast<int>(seconds) % 3600) / 60;
+        double s = seconds - h * 3600 - m * 60;
+
+        std::ostringstream oss;
+        oss << std::setfill('0') << std::setw(2) << h << ":"
+            << std::setw(2) << m << ":"
+            << std::setw(4) << std::fixed << std::setprecision(1) << s;
+        return oss.str();
+    };
+
+    std::cout << "Elapsed: " << format_time(elapsed)
+              << ", ETA: " << format_time(eta) << std::flush;
+
+    if(entry == total)
+    {
+        std::cout << std::endl;
+        progress_started = false;
+    }
+}
