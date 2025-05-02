@@ -24,6 +24,11 @@ add_library(configuration SHARED src/configuration.cc)
 target_link_libraries(configuration PRIVATE tomlplusplus::tomlplusplus)
 target_include_directories(configuration PRIVATE include/ tomlplusplus/include)
 
+# Library for WeightReader class
+add_library(weight_reader SHARED src/weight_reader.cc)
+target_link_libraries(weight_reader PRIVATE ${ROOT_LIBRARIES} configuration)
+target_include_directories(weight_reader PRIVATE include/ ${ROOT_INCLUDE_DIRS})
+
 # Library for generic systematics
 add_library(systematics SHARED src/systematic.cc)
 target_link_libraries(systematics PRIVATE ${ROOT_LIBRARIES} configuration tomlplusplus::tomlplusplus)
@@ -36,7 +41,7 @@ target_include_directories(detsys PRIVATE include/ ${ROOT_INCLUDE_DIRS} tomlplus
 
 # Library for tree-handling code
 add_library(trees SHARED src/trees.cc)
-target_link_libraries(trees PRIVATE ${ROOT_LIBRARIES} configuration systematics detsys tomlplusplus::tomlplusplus)
+target_link_libraries(trees PRIVATE ${ROOT_LIBRARIES} configuration weight_reader systematics detsys tomlplusplus::tomlplusplus)
 target_include_directories(trees PRIVATE include/ ${ROOT_INCLUDE_DIRS} tomlplusplus/include)
 
 # Add the executable target

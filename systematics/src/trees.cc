@@ -15,6 +15,7 @@
 #include "utilities.h"
 #include "configuration.h"
 #include "systematic.h"
+#include "weight_reader.h"
 
 #include "TFile.h"
 #include "TDirectory.h"
@@ -269,147 +270,59 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
         systematics[t.get_string_field("name")]->get_tree()->Branch(t.get_string_field("name").c_str(), &systematics[t.get_string_field("name")]->get_weights());
     }
 
-    /**
-     * @brief Load the input CAF files.
-     * @details This block loads the input CAF files. The input CAF files
-     * are specified in a file list that is read from the configuration
-     * file. The file list is read line-by-line and the input CAF files are
-     * stored in a vector.
-     */
-    std::vector<std::string> input_files;
-    std::ifstream file_list(config.get_string_field("input.caflist"));
-    std::string line;
-    while(std::getline(file_list, line))
-        input_files.push_back(line);
-    file_list.close();
+    sys::WeightReader reader(config.get_string_field("input.caflist"));
 
-    /**
-     * @brief Loop over the input CAF files.
-     * @details This block loops over the input CAF files. This loop begins
-     * the process of matching the selected signal candidates with the universe
-     * weights for parent neutrino. 
-     */
-    size_t nprocessed(0);
     double nominal_count(0);
-    for(std::string input_file : input_files)
+    while(reader.next())
     {
-        if(nprocessed % 100 == 0)
-            std::cout << "Processed " << nprocessed << " files." << std::endl;
-        /**
-         * @brief Open and validate the input CAF file.
-         * @details This block opens the input CAF file and checks that the
-         * files is not a zombie (corrupted) and that it contains the TTree
-         * "recTree". If the file is a zombie or does not contain the TTree,
-         * the code prints an error message and continues to the next file.
-         * Practically, skipping a file means that signal events from that file
-         * will not be included in the output ROOT file, though a situation
-         * where this occurs is not expected.
-         */
-        TFile * caf = TFile::Open(input_file.c_str(), "READ");
-        if(caf->IsZombie() || !caf->GetListOfKeys()->Contains("recTree"))
+        for(size_t idn(0); idn < reader.get_nnu(); ++idn)
         {
-            std::cerr << "Error: File" << input_file << " does not exist." << std::endl;
-            continue;
-        }
-
-        /**
-         * @brief Connect to the input CAF file fields.
-         * @details This block connects to a minimal set of the input CAF file
-         * fields. We need the run, subrun, event, and the true interaction
-         * (parent neutrino) information to match the selected signal
-         * candidates and retrieve the universe weights.
-         */
-        TTreeReader reader("recTree", caf);
-        reader.Print();
-        TTreeReaderValue<uint32_t> rrun(reader, "rec.hdr.run");
-        TTreeReaderValue<uint32_t> rsubrun(reader, "rec.hdr.subrun");
-        TTreeReaderValue<uint32_t> revt(reader, "rec.hdr.evt");
-        TTreeReaderArray<caf::SRTrueInteraction> mc(reader, "rec.mc.nu");
-
-        /**
-         * @brief Loop over the events in the input CAF file.
-         * @details This block loops over the events in the input CAF file. At
-         * each event, the code checks if a neutrino interaction from the input
-         * CAF file matches a selected signal candidate. If a match is found,
-         * the code retrieves the universe weights for the parent neutrino and
-         * stores them in the output TTree.
-         */
-        while(reader.Next())
-        {
-            for(const caf::SRTrueInteraction & nu : mc)
+            index_t index(reader.get_run(), reader.get_subrun(), reader.get_event(), idn);
+            if(candidates.find(index) != candidates.end())
             {
-                index_t index(*rrun, *rsubrun, *revt, nu.index);
-                if(candidates.find(index) != candidates.end())
+                input_tree->GetEntry(candidates[index]);
+                run = reader.get_run();
+                subrun = reader.get_subrun();
+                event = reader.get_event();
+                //matches_energy = reader.get_energy() == brs["true_energy"];
+                //matches_baseline = reader.get_baseline() == brs["baseline"];
+                calc.increment_nominal_count(1.0);
+                nominal_count += 1.0;
+                for(auto & [key, value] : systematics)
                 {
-                    calc.increment_nominal_count(1.0);
-                    nominal_count += 1.0;
-                    /**
-                     * @brief Retrieve the selected signal candidate and copy
-                     * the values to the output TTree.
-                     * @details This block retrieves the selected signal
-                     * candidate that has been matched with the parent neutrino
-                     * and copies the values to the output TTree.
-                     */
-                    input_tree->GetEntry(candidates[index]);
-                    run = *rrun;
-                    subrun = *rsubrun;
-                    event = *revt;
-                    matches_energy = nu.E == brs["true_energy"];
-                    matches_baseline = nu.baseline == brs["baseline"];
-                    output_tree->Fill();
-                    
-                    /**
-                     * @brief Store the universe weights in the output TTree.
-                     * @details This block stores the universe weights in the
-                     * output TTree for each of the configured systematics.  
-                     */
-                    for(auto & [key, value] : systematics)
+                    if(value->get_type() == Type::kMULTISIM || value->get_type() == Type::kMULTISIGMA)
                     {
-                        value->get_weights()->clear();
-                        if(value->get_type() == Type::kMULTISIM || value->get_type() == Type::kMULTISIGMA)
+                        for(SysVariable & sv : sysvariables)
                         {
-                            for(SysVariable & sv : sysvariables)
+                            syst_t syskey = std::make_pair(sv.name, value->get_index());
+                            reader.set(value->get_index());
+                            if(results1d.find(syskey) == results1d.end())
                             {
-                                syst_t syskey = std::make_pair(sv.name, value->get_index());
-                                if(results1d.find(syskey) == results1d.end())
-                                {
-                                    results1d[syskey] = new TH1D((sv.name + "_" + key + "_1d").c_str(), (sv.name + "_" + key + "_1d").c_str(), 1000, -0.25, 0.25);
-                                    results1d[syskey]->SetDirectory(nullptr);
-                                    results2d[syskey] = new TH2D((sv.name + "_" + key + "_2d").c_str(), (sv.name + "_" + key + "_2d").c_str(), sv.nbins, sv.min, sv.max, nu.wgt[value->get_index()].univ.size(), 0, nu.wgt[value->get_index()].univ.size());
-                                    results2d[syskey]->SetDirectory(nullptr);
-                                }
-                                for(size_t u(0); u < nu.wgt[value->get_index()].univ.size(); ++u)
-                                {
-                                    value->get_weights()->push_back(nu.wgt[value->get_index()].univ[u]);
-                                    results2d[syskey]->Fill(brs[sv.name], u, nu.wgt[value->get_index()].univ[u]);
-                                }
+                                results1d[syskey] = new TH1D((sv.name + "_" + key + "_1d").c_str(), (sv.name + "_" + key + "_1d").c_str(), 1000, -0.25, 0.25);
+                                results1d[syskey]->SetDirectory(nullptr);
+                                results2d[syskey] = new TH2D((sv.name + "_" + key + "_2d").c_str(), (sv.name + "_" + key + "_2d").c_str(), sv.nbins, sv.min, sv.max, reader.get_nuniv(idn), 0, reader.get_nuniv(idn));
+                                results2d[syskey]->SetDirectory(nullptr);
+                            }
+                            for(size_t u(0); u < reader.get_nuniv(idn); ++u)
+                            {
+                                value->get_weights()->push_back(reader.get_weight(idn, u));
+                                results2d[syskey]->Fill(brs[sv.name], u, reader.get_weight(idn, u));
                             }
                         }
-                        else
-                        {
-                            for(double & z : calc.get_zscores(key))
-                                value->get_weights()->push_back(calc.get_weight(key, brs[calc.get_variable()], z));
-                            for(SysVariable & sv : sysvariables)
-                                calc.add_value(sv.name, brs[sv.name], key, brs[calc.get_variable()]);
-                        }
-                    } // End of loop over the configured systematics.
+                    }
+                    else
+                    {
+                        for(double & z : calc.get_zscores(key))
+                            value->get_weights()->push_back(calc.get_weight(key, brs[calc.get_variable()], z));
+                        for(SysVariable & sv : sysvariables)
+                            calc.add_value(sv.name, brs[sv.name], key, brs[calc.get_variable()]);
+                    }
+                } // End of loop over the configured systematics.
+            } // End of block for matched signal candidates.
+        }
+    }
 
-                    /**
-                     * @brief Fill the systematic TTrees.
-                     * @details This block fills the systematic TTrees with
-                     * the universe weights for the parent neutrino. Each
-                     * configured systematic should have its weights vector
-                     * populated by the above loop.
-                     */
-                    for(auto & [key, value] : systrees)
-                        value->Fill();
-
-                } // End of block for matched signal candidates.
-            } // End of loop over the neutrino interactions in the input CAF file.
-        } // End of loop over the events in the input CAF file.
-        caf->Close();
-        nprocessed++;
-    } // End of loop over the input CAF files.
+    // Write the output TTree to the output file.
     directory->WriteObject(output_tree, table.get_string_field("name").c_str());
     for(auto & [key, value] : systrees)
         directory->WriteObject(value, (key+"Tree").c_str());
