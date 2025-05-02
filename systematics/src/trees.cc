@@ -22,12 +22,6 @@
 #include "TTree.h"
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TTreeReader.h"
-#include "TTreeReaderValue.h"
-#include "TTreeReaderArray.h"
-
-#include "sbnanaobj/StandardRecord/StandardRecord.h"
-#include "sbnanaobj/StandardRecord/SRTrueInteraction.h"
 
 // Copy the input TTree to the output TTree.
 void sys::trees::copy_tree(sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
