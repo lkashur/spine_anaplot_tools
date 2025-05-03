@@ -264,7 +264,7 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
         systematics[t.get_string_field("name")]->get_tree()->Branch(t.get_string_field("name").c_str(), &systematics[t.get_string_field("name")]->get_weights());
     }
 
-    sys::WeightReader reader(config.get_string_field("input.caflist"));
+    sys::WeightReader reader(config.get_string_field("input.weights"));
 
     double nominal_count(0);
     while(reader.next())
