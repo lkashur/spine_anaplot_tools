@@ -33,7 +33,6 @@ int main(int argc, char * argv[])
      * causes ROOT to print warnings. These warnings can be safely ignored.
      */
     gErrorIgnoreLevel = kError;
-    gInterpreter->SetClassAutoloading(0);
 
     /**
      * @brief Check the number of arguments. The code expects the configuration
