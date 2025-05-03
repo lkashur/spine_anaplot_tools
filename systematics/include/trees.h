@@ -31,12 +31,25 @@
 namespace sys::trees
 {
     /**
-     * @brief Type definitions for the selected signal candidates indexing, the
-     * universe weights, and systematic indexing (variable name and index).
+     * @brief Type definitions for systematic indexing (variable name and
+     * index).
      */
-    typedef std::tuple<Double_t, Double_t, Double_t, Double_t> index_t;
-    typedef std::map<index_t, size_t> map_t;
     typedef std::pair<std::string, int64_t> syst_t;
+
+    /**
+     * @brief Simple hash function for a set of five variables.
+     * @details This function takes five variables (run, subrun, event,
+     * nu_id, and nu_energy) and uses them to create a unique index value. This
+     * is done by bit-packing the variables into a single 64-bit unsigned
+     * integer.
+     * @param run The run number.
+     * @param subrun The subrun number.
+     * @param event The event number.
+     * @param nu_id The neutrino ID.
+     * @param nu_energy The neutrino energy (default is 0).
+     * @return The hash value.
+     */
+    size_t hash(uint64_t run, uint64_t subrun, uint64_t event, uint64_t nu_id, float nu_energy=0);
 
     /**
      * @brief Copy the input TTree to the output TTree.

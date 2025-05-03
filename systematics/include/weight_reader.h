@@ -139,6 +139,15 @@ namespace sys
          */
         float get_weight(size_t idn, size_t idu) const;
 
+        /**
+         * @brief Accessor method for the neutrino energy.
+         * @details This method returns the neutrino energy for the
+         * specified neutrino. It handles both structured and flat CAF files.
+         * @param idn The index of the neutrino.
+         * @return The neutrino energy for the specified neutrino.
+         */
+        float get_energy(size_t idn) const;
+
         private:
 
         /**
@@ -170,6 +179,8 @@ namespace sys
         Int_t nwgt[10]; // Number of weight groups for each neutrino
         Int_t iwgt[10]; // Index of the weight group for each neutrino
         size_t idx; // Index of the current weight group
+        Float_t nu_energy[10]; // Neutrino energy for each neutrino
+        std::unique_ptr<TTreeReaderArray<Float_t>> nu_energy_structured; // Neutrino energy for structured CAF files
 
         // Systematic-level indexing
         Int_t nuniv[10000]; // Number of universes for each weight group

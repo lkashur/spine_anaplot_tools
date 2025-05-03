@@ -66,6 +66,7 @@ sys::WeightReader::WeightReader(const std::string & input)
         // Neutrino-level indexing
         chain.SetBranchAddress("rec.mc.nu.wgt..length", nwgt);
         chain.SetBranchAddress("rec.mc.nu.wgt..idx", &iwgt);
+        chain.SetBranchAddress("rec.mc.nu.E", &nu_energy);
 
         // Systematic-level indexing
         chain.SetBranchAddress("rec.mc.nu.wgt.univ..length", &nuniv);
@@ -78,6 +79,7 @@ sys::WeightReader::WeightReader(const std::string & input)
         // MC-truth branches
         nnu_structured = std::make_unique<TTreeReaderValue<uint64_t>>(*reader, "rec.mc.nnu");
         mc = std::make_unique<TTreeReaderArray<caf::SRTrueInteraction>>(*reader, "rec.mc.nu");
+        nu_energy_structured = std::make_unique<TTreeReaderArray<Float_t>>(*reader, "rec.mc.nu.E");
     }
     reader->Next();
 }
@@ -134,6 +136,12 @@ float sys::WeightReader::get_weight(size_t idn, size_t idu) const
     }
     else
         return (*mc)[idn].wgt[idx].univ[idu];
+}
+
+// Accessor method for the neutrino energy.
+float sys::WeightReader::get_energy(size_t idn) const
+{
+    return isflat ? nu_energy[idn] : (*nu_energy_structured)[idn];
 }
 
 // Simple progress bar for the TChain.

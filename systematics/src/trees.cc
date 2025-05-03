@@ -23,6 +23,12 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
+// Simple hash function for a set of five variables.
+size_t sys::trees::hash(uint64_t run, uint64_t subrun, uint64_t event, uint64_t nu_id, float nu_energy)
+{
+    return (run << 50) | (subrun << 36) | (event << 12) | (nu_id) << 8 | uint64_t(10000*nu_energy);
+}
+
 // Copy the input TTree to the output TTree.
 void sys::trees::copy_tree(sys::cfg::ConfigurationTable & table, TFile * output, TFile * input)
 {
@@ -168,29 +174,30 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
      * process streamlines the copying of the values from the input TTree to
      * the output TTree.
      */
-    bool matches_energy, matches_baseline;
     TTree * output_tree = new TTree(table.get_string_field("name").c_str(), table.get_string_field("name").c_str());
     for(auto & br : brs)
         output_tree->Branch(br.first.c_str(), &br.second);
     output_tree->Branch("Run", &run);
     output_tree->Branch("Subrun", &subrun);
     output_tree->Branch("Evt", &event);
-    output_tree->Branch("matches_energy", &matches_energy);
-    output_tree->Branch("matches_baseline", &matches_baseline);
     
     /**
      * @brief Create the map of selected signal candidates.
      * @details This block creates a map of selected signal candidates. The
-     * map is built by looping over the input TTree and storing the index
-     * (run, subrun, event, nu_id) of the selected signal candidates in the
-     * map. The index is used to match the selected signal candidates with
-     * the universe weights for the parent neutrino.
+     * map is built by looping over the input TTree and storing a hash of the
+     * run, subrun, event, nu_id, and nu_energy branches as the key. The
+     * value is the index of the entry in the input TTree.
+     * @see sys::trees::hash
      */
-    map_t candidates;
+    std::map<size_t, size_t> candidates;
+    bool use_additional_hash = config.get_bool_field("input.use_additional_hash");
     for(int i(0); i < input_tree->GetEntries(); ++i)
     {
         input_tree->GetEntry(i);
-        candidates.insert(std::make_pair<index_t, size_t>(std::make_tuple(run, subrun, event, nu_id), i));
+        if(!use_additional_hash)
+            candidates.insert(std::make_pair<size_t, size_t>(hash(run, subrun, event, nu_id), i));
+        else
+            candidates.insert(std::make_pair<size_t, size_t>(hash(run, subrun, event, nu_id, brs["true_energy"]), i));
     }
 
     /**
@@ -280,7 +287,11 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
          */
         for(size_t idn(0); idn < reader.get_nnu(); ++idn)
         {
-            index_t index(reader.get_run(), reader.get_subrun(), reader.get_event(), idn);
+            size_t index;
+            if(!use_additional_hash)
+                index = hash(reader.get_run(), reader.get_subrun(), reader.get_event(), idn);
+            else
+                index = hash(reader.get_run(), reader.get_subrun(), reader.get_event(), idn, (double)reader.get_energy(idn));
             if(candidates.find(index) != candidates.end())
             {
                 /**
@@ -297,7 +308,7 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
                 calc.increment_nominal_count(1.0);
                 nominal_count += 1.0;
                 output_tree->Fill();
-                
+
                 /**
                  * @brief Store the universe weights in the output TTree.
                  * @details This block stores the universe weights in the
