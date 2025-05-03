@@ -269,21 +269,43 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
     double nominal_count(0);
     while(reader.next())
     {
+        /**
+         * @brief Loop over the neutrinos in the CAF input files.
+         * @details This block loops over the neutrinos in the CAF input
+         * files. The loop is used to populate the output TTree with the
+         * selected signal candidates and the universe weights for matched
+         * neutrinos. The loop also retrieves the selected signal candidate
+         * that has been matched with the parent neutrino and copies the
+         * values to the output TTree.
+         */
         for(size_t idn(0); idn < reader.get_nnu(); ++idn)
         {
             index_t index(reader.get_run(), reader.get_subrun(), reader.get_event(), idn);
             if(candidates.find(index) != candidates.end())
             {
+                /**
+                 * @brief Retrieve the selected signal candidate and copy
+                 * the values to the output TTree.
+                 * @details This block retrieves the selected signal
+                 * candidate that has been matched with the parent neutrino
+                 * and copies the values to the output TTree.
+                 */
                 input_tree->GetEntry(candidates[index]);
                 run = reader.get_run();
                 subrun = reader.get_subrun();
                 event = reader.get_event();
-                //matches_energy = reader.get_energy() == brs["true_energy"];
-                //matches_baseline = reader.get_baseline() == brs["baseline"];
                 calc.increment_nominal_count(1.0);
                 nominal_count += 1.0;
+                output_tree->Fill();
+                
+                /**
+                 * @brief Store the universe weights in the output TTree.
+                 * @details This block stores the universe weights in the
+                 * output TTree for each of the configured systematics.  
+                 */
                 for(auto & [key, value] : systematics)
                 {
+                    value->get_weights()->clear();
                     if(value->get_type() == Type::kMULTISIM || value->get_type() == Type::kMULTISIGMA)
                     {
                         for(SysVariable & sv : sysvariables)
@@ -312,6 +334,16 @@ void sys::trees::copy_with_weight_systematics(sys::cfg::ConfigurationTable & con
                             calc.add_value(sv.name, brs[sv.name], key, brs[calc.get_variable()]);
                     }
                 } // End of loop over the configured systematics.
+
+                /**
+                 * @brief Fill the systematic TTrees.
+                 * @details This block fills the systematic TTrees with
+                 * the universe weights for the parent neutrino. Each
+                 * configured systematic should have its weights vector
+                 * populated by the above loop.
+                 */
+                for(auto & [key, value] : systrees)
+                    value->Fill();
             } // End of block for matched signal candidates.
         }
     }
