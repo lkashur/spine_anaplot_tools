@@ -15,8 +15,7 @@
 #include <iostream>
 #include <vector>
 #include <TVector3.h>
-#include "include/cuts.h"
-//#include "include/beaminfo.h"
+//#include "include/cuts.h"
 #include <unordered_map>
 
 #define MIN_MUON_MOMENTUM 226
@@ -56,10 +55,13 @@ struct reco_inter_phase {
   double muon_beam_costheta;
   double pi0_leading_photon_energy;
   double pi0_leading_photon_cosphi;
+  double pi0_leading_photon_ip;
   double pi0_leading_photon_conv_dist;
   double pi0_subleading_photon_energy;
   double pi0_subleading_photon_cosphi;
+  double pi0_subleading_photon_ip;
   double pi0_subleading_photon_conv_dist;
+  double pi0_photons_avg_ip;
   double pi0_photons_costheta;
   double pi0_mass;
   double pi0_momentum_mag;
@@ -714,6 +716,10 @@ namespace utilities_ccpi0ana_phase
 	pi0_leading_photon_start_dir.SetZ(obj.particles[leading_photon_index].start_dir[2]);
 	pi0_leading_photon_start_dir = pi0_leading_photon_start_dir.Unit();
 	double pi0_leading_photon_cosphi = pi0_leading_photon_dir.Dot(pi0_leading_photon_start_dir);
+	// impact parameter
+	TVector3 pi0_leading_photon_backward_start_dir = -pi0_leading_photon_start_dir;// backwards shower dir
+	TVector3 pi0_leading_photon_c2v = pi0_leading_photon_start_point + (((vertex - pi0_leading_photon_start_point).Dot(pi0_leading_photon_backward_start_dir))/pi0_leading_photon_backward_start_dir.Mag())*pi0_leading_photon_backward_start_dir; // point on backward projected line closest to vertex
+	double pi0_leading_photon_ip = (vertex - pi0_leading_photon_c2v).Mag();
 	TVector3 pi0_leading_photon_momentum = pi0_leading_photon_energy * pi0_leading_photon_dir;
 
 	// Get subleading photon info
@@ -734,9 +740,14 @@ namespace utilities_ccpi0ana_phase
 	pi0_subleading_photon_start_dir.SetZ(obj.particles[subleading_photon_index].start_dir[2]);
 	pi0_subleading_photon_start_dir = pi0_subleading_photon_start_dir.Unit();
 	double pi0_subleading_photon_cosphi = pi0_subleading_photon_dir.Dot(pi0_subleading_photon_start_dir);
-	TVector3 pi0_subleading_photon_momentum = pi0_subleading_photon_energy * pi0_subleading_photon_dir;
+        // impact parameter
+        TVector3 pi0_subleading_photon_backward_start_dir = -pi0_subleading_photon_start_dir;// backwards shower dir
+        TVector3 pi0_subleading_photon_c2v = pi0_subleading_photon_start_point + (((vertex - pi0_subleading_photon_start_point).Dot(pi0_subleading_photon_backward_start_dir))/pi0_subleading_photon_backward_start_dir.Mag())*pi0_subleading_photon_backward_start_dir; // point on backward projected line closest to vertex
+        double pi0_subleading_photon_ip = (vertex - pi0_subleading_photon_c2v).Mag();
+        TVector3 pi0_subleading_photon_momentum = pi0_subleading_photon_energy * pi0_subleading_photon_dir;
 	
 	// Get neutral pion info
+	double pi0_photons_avg_ip = (pi0_leading_photon_ip + pi0_subleading_photon_ip)/2;
 	double pi0_photons_costheta = pi0_leading_photon_dir.Dot(pi0_subleading_photon_dir);
 	double pi0_mass = sqrt(2*pi0_leading_photon_energy*pi0_subleading_photon_energy*(1-pi0_photons_costheta));
 	TVector3 pi0_momentum = pi0_leading_photon_momentum + pi0_subleading_photon_momentum;
@@ -749,10 +760,13 @@ namespace utilities_ccpi0ana_phase
 	s.muon_beam_costheta = muon_beam_costheta;
 	s.pi0_leading_photon_energy = pi0_leading_photon_energy;
 	s.pi0_leading_photon_cosphi = pi0_leading_photon_cosphi;
+	s.pi0_leading_photon_ip = pi0_leading_photon_ip;
 	s.pi0_leading_photon_conv_dist = pi0_leading_photon_conv_dist;
 	s.pi0_subleading_photon_energy = pi0_subleading_photon_energy;
 	s.pi0_subleading_photon_cosphi = pi0_subleading_photon_cosphi;
+	s.pi0_subleading_photon_ip = pi0_subleading_photon_ip;
 	s.pi0_subleading_photon_conv_dist = pi0_subleading_photon_conv_dist;
+	s.pi0_photons_avg_ip = pi0_photons_avg_ip;
 	s.pi0_photons_costheta = pi0_photons_costheta;
 	s.pi0_mass = pi0_mass;
 	s.pi0_momentum_mag = pi0_momentum_mag;

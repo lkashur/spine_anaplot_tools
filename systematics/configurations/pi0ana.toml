@@ -1,39 +1,46 @@
 [input]
-path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam.root'
+path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam_vars.root'
 caflist = 'input_files.txt'
 
 [output]
-path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam_syst.root'
+path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam_vars_syst_delete.root'
 histogram_destination = 'variations/'
 
 [[sysvar]]
-name = 'pi0_mass'
-bins = [40, 0, 400]
+name = 'reco_muon_beam_costheta'
+bins = [20, -1, 1]
 
-#[variations]
-#keys = ['mc', 'var00', 'var01', 'var02', 'var03m', 'var03p', 'var04', 'var05', 'var06', 'var07', 'var08', 'var09']
-#origin = 'events/'
-#tree = 'SelectedNu_PhaseCuts'
-#result_destination = 'detsys_results/'
-#variable = 'pi0_mass'
-#bins = [40, 0, 400]
-#nuniverses = 10000
+[variations]
+keys = ['mc', 'var00', 'var01', 'var02', 'var03m', 'var03p', 'var05', 'var06', 'var07', 'var09m', 'var09p', 'var10m', 'var10p']
+origin = 'events/'
+tree = 'SelectedNu_PhaseCuts'
+result_destination = 'detsys_results/'
+variable = 'reco_muon_beam_costheta'
+bins = [20, -1, 1]
+nuniverses = 10000
 
 [[tree]]
 origin = 'events/mc/SelectedNu_PhaseCuts'
 destination = 'events/mc/'
 name = 'SelectedNu_PhaseCuts'
 action = 'add_weights'
-table_types = ['multisim', 'multisigma']
-#table_types = ['multisim', 'multisigma', 'variation']
+#table_types = ['multisim', 'multisigma']
+table_types = ['multisim', 'multisigma', 'variation']
 
 [[tree]]
 origin = 'events/mc/SelectedCos_PhaseCuts'
 destination = 'events/mc/'
 name = 'SelectedCos_PhaseCuts'
 action = 'copy'
-table_types = ['multisim', 'multisigma']
+#table_types = ['multisim', 'multisigma']
 #table_types = ['multisim', 'multisigma', 'variation']
+
+[[tree]]
+origin = 'events/mc/Signal_PhaseCuts'
+destination = 'events/mc/'
+name = 'Signal_PhaseCuts'
+action = 'add_weights'
+table_types = ['multisim', 'multisigma', 'variation']
 
 [[tree]]
 origin = 'events/onbeam/SelectedNu_PhaseCuts'
@@ -47,41 +54,45 @@ destination = 'events/offbeam/'
 name = 'SelectedCos_PhaseCuts'
 action = 'copy'
 
-#[[sys]]
-#name = 'var00'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'mc'
-#points = ['var00', 'var00', 'var00', 'mc', 'var00', 'var00', 'var00']
+[[sys]]
+name = 'var00'
+name_short = 'detvar_bnb_null'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var00', 'var00', 'var00', 'mc', 'var00', 'var00', 'var00']
 
-#[[sys]]
-#name = 'var01'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'mc'
-#points = ['var01', 'var01', 'var01', 'mc', 'var01', 'var01', 'var01']
+[[sys]]
+name = 'var01'
+name_short = 'detvar_bnb_hightau'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var01', 'var01', 'var01', 'mc', 'var01', 'var01', 'var01']
 
-#[[sys]]
-#name = 'var02'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'mc'
-#points = ['var02', 'var02', 'var02', 'mc', 'var02', 'var02', 'var02']
+[[sys]]
+name = 'var02'
+name_short = 'detvar_bnb_lowtau'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var02', 'var02', 'var02', 'mc', 'var02', 'var02', 'var02']
 
-#[[sys]]
-#name = 'var03'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [3, 2, 1, 1, 1, 2, 3]
-#ordinate = 'mc'
-#points = ['var03m', 'var03m', 'var03m', 'mc', 'var03p', 'var03p', 'var03p']
+[[sys]]
+name = 'var03'
+name_short = 'detvar_bnb_ind1gain'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [3, 2, 1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var03m', 'var03m', 'var03m', 'mc', 'var03p', 'var03p', 'var03p']
 
 #[[sys]]
 #name = 'var04'
@@ -92,32 +103,35 @@ action = 'copy'
 #ordinate = 'mc'
 #points = ['var04', 'var04', 'var04', 'mc', 'var04', 'var04', 'var04']
 
-#[[sys]]
-#name = 'var05'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'var00'
-#points = ['var05', 'var05', 'var05', 'var00', 'var05', 'var05', 'var05']
+[[sys]]
+name = 'var05'
+name_short = 'detvar_bnb_recomb'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'var00'
+points = ['var05', 'var05', 'var05', 'var00', 'var05', 'var05', 'var05']
 
-#[[sys]]
-#name = 'var06'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'mc'
-#points = ['var06', 'var06', 'var06', 'mc', 'var06', 'var06', 'var06']
+[[sys]]
+name = 'var06'
+name_short = 'detvar_bnb_pmtqe'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var06', 'var06', 'var06', 'mc', 'var06', 'var06', 'var06']
 
-#[[sys]]
-#name = 'var07'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'var00'
-#points = ['var07', 'var07', 'var07', 'var00', 'var07', 'var07', 'var07']
+[[sys]]
+name = 'var07'
+name_short = 'detvar_bnb_yz'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'var00'
+points = ['var07', 'var07', 'var07', 'var00', 'var07', 'var07', 'var07']
 
 #[[sys]]
 #name = 'var08'
@@ -128,14 +142,25 @@ action = 'copy'
 #ordinate = 'mc'
 #points = ['var08', 'var08', 'var08', 'mc', 'var08', 'var08', 'var08']
 
-#[[sys]]
-#name = 'var09'
-#type = 'variation'
-#index = -1
-#nsigma = [-3, -2, -1, 0, 1, 2, 3]
-#scale = [-3, -2, -1, 1, 1, 2, 3]
-#ordinate = 'mc'
-#points = ['var09', 'var09', 'var09', 'mc', 'var09', 'var09', 'var09']
+[[sys]]
+name = 'var09'
+name_short = 'detvar_bnb_intnoise'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [-3, -2, -1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var09m', 'var09m', 'var09m', 'mc', 'var09p', 'var09p', 'var09p']
+
+[[sys]]
+name = 'var10'
+name_short = 'detvar_bnb_cohnoise'
+type = 'variation'
+index = -1
+nsigma = [-3, -2, -1, 0, 1, 2, 3]
+scale = [3, 2, 1, 1, 1, 2, 3]
+ordinate = 'mc'
+points = ['var10m', 'var10m', 'var10m', 'mc', 'var10p', 'var10p', 'var10p']
 
 [[sys]]
 name = 'GENIEReWeight_SBN_v1_multisigma_ZExpA1CCQE'

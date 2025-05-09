@@ -251,10 +251,13 @@ class Sample:
         for recipe in recipes:
             regxp = re.compile(recipe['pattern'])
             #print([syst for syst in self._systematics])
-            systematics = [v for k,v in self._systematics.items() if regxp.match(k)]
+            #print([v for k,v in self._systematics.items()])
+            systematics = [v for k,v in self._systematics.items() if regxp.search(k)]
             #systematics = [syst for syst in self._systematics.values() if regxp.match(syst._name)]
-            print(recipe)
-            print(systematics)
+            #print(self._name)
+            #print(recipe)
+            #print(systematics)
+            #print('')
             #systematics = [syst for syst in self._systematics.values() if regxp.match(syst)]
             #systematics = [syst for syst in self._systematics.values() if regxp.match(syst._name)]
 

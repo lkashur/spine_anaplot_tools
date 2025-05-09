@@ -335,6 +335,21 @@ namespace vars::ccpi0ana_phase
 	  }
       }
 
+    template<class T>
+        double pi0_leading_photon_ip(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_ccpi0ana_phase::truth_interaction_info(obj);
+			       return -5;
+			   }
+	    else
+	    {
+	        reco_inter_phase s = utilities_ccpi0ana_phase::reco_interaction_info(obj);
+		return s.pi0_leading_photon_ip;
+	    }
+	}
+
     /**
      * @brief Variable for pi0 subleading photon energy.
      * @details Variable for pi0 subleading photon energy
@@ -380,6 +395,22 @@ namespace vars::ccpi0ana_phase
 	      return s.pi0_subleading_photon_conv_dist;
           }
       }
+
+    template<class T>
+      double pi0_subleading_photon_ip(const T & obj)
+      {
+	if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+		       {
+			 truth_inter_phase s = utilities_ccpi0ana_phase::truth_interaction_info(obj);
+			 return -5;
+		       }
+	else
+	  {
+	    reco_inter_phase s = utilities_ccpi0ana_phase::reco_interaction_info(obj);
+	    return s.pi0_subleading_photon_ip;
+	  }
+      }
+
 
     /**
      * @brief Variable for angle between pi0 subleading photon cluster direction and vertex direction.
@@ -428,6 +459,21 @@ namespace vars::ccpi0ana_phase
 		return s.pi0_momentum_mag;
 	    } 
         }
+
+    template<class T>
+        double pi0_photons_avg_ip(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_ccpi0ana_phase::truth_interaction_info(obj);
+			       return -5;
+			   }
+            else
+	    {
+                reco_inter_phase s = utilities_ccpi0ana_phase::reco_interaction_info(obj);
+                return s.pi0_photons_avg_ip;
+	    }
+	}
 
     /**
      * @brief Variable for neutral pion angle with beam.

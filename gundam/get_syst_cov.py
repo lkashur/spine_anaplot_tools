@@ -71,10 +71,10 @@ def main(args):
     # All knobs, individually
     regxp = re.compile('\\bGENIEReWeight_SBN_v1_multisim_\\w+\\b')
     xsec_systs = [syst for syst in mc_sample._systematics.values() if regxp.match(syst._name)]
-    for syst in xsec_systs:
-        for k,v in syst._covariances.items():
-            print(k)
-            print(v)
+    #for syst in xsec_systs:
+    #    for k,v in syst._covariances.items():
+    #        print(k)
+    #        print(v)
 
     # Combine knobs
     xsec_syst_total = Systematic.combine(xsec_systs, 'xsec', 'Cross Section Systematics')
@@ -93,10 +93,9 @@ def main(args):
     ####################
     ### Output TFile
     ####################
-    outf = ROOT.TFile(f'covmat_{args.var}.root', 'RECREATE')
-    outf.WriteObject(xsec_var_cov_tmatrix, f'xsec_{args.var}_cov')
-    #xsec_var_cov_tmatrix.Write()
-    outf.Close()
+    #outf = ROOT.TFile(f'covmat_{args.var}.root', 'RECREATE')
+    #outf.WriteObject(xsec_var_cov_tmatrix, f'xsec_{args.var}_cov')
+    #outf.Close()
     
     
 

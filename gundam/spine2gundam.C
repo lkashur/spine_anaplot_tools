@@ -6,7 +6,7 @@ void spine2gundam()
   vector<string> genieMultisigmaNames = GetGENIEMultisigmaKnobNames();
  
   // Input
-  string infile_string = "icarus_bnb_ccpi0_mc_onbeam_offbeam_syst.root";
+  string infile_string = "icarus_bnb_ccpi0_mc_onbeam_offbeam_vars_syst_delete.root";
   string selnutree_string = "/events/mc/SelectedNu_PhaseCuts";
   string selcostree_string = "/events/mc/SelectedCos_PhaseCuts";
   string potmc_string = "/events/mc/POT";
@@ -16,10 +16,12 @@ void spine2gundam()
   string selonbeamtree_string = "/events/onbeam/SelectedNu_PhaseCuts";
   string potonbeam_string = "/events/onbeam/POT";
   string livetimeonbeam_string = "/events/onbeam/Livetime";
+  string signaltree_string = "events/mc/Signal_PhaseCuts";
   
   // Output
   string outfile_mc_string = "icarus_bnb_ccpi0_mc_offbeam_syst_gundaminput.root"; // mc = CV + off-beam
   string outfile_data_string = "icarus_bnb_ccpi0_onbeam_syst_gundaminput.root"; // data = on-beam
+  string outfile_signal_string = "icarus_bnb_ccpi0_signal_syst_gundaminput.root";
 
   // Test
   TChain ch("SelectedEvents");
@@ -28,6 +30,7 @@ void spine2gundam()
   ch.Add((infile_string + seloffbeamtree_string).c_str());
   ROOT::RDataFrame rdf_mc(ch);
   ROOT::RDataFrame rdf_data(selonbeamtree_string, infile_string);
+  ROOT::RDataFrame rdf_signal(signaltree_string, infile_string);
 
   // Recast "double" columns as "ints" and write to new TTree
   auto rdf_mc_conv = rdf_mc
@@ -48,6 +51,16 @@ void spine2gundam()
     .Redefine("category", [](double d) { return static_cast<int>(d); }, {"category"})
     .Redefine("category", "if (category < 0) return 8; else return category;") // 8 is cosmic category specified in spine_anaplot_tools
     .Snapshot("SelectedEvents", outfile_data_string.c_str());
+
+  auto rdf_signal_conv = rdf_signal
+    .Redefine("CutType", [](double d) { return static_cast<int>(d); }, {"CutType"})
+    .Redefine("IsData", [](double d) { return static_cast<int>(d); }, {"IsData"})
+    .Redefine("IsNu", [](double d) { return static_cast<int>(d); }, {"IsNu"})
+    .Redefine("valid_syst", [](bool b) { return static_cast<int>(b); }, {"valid_syst"})
+    .Redefine("category", [](double d) { return static_cast<int>(d); }, {"category"})
+    .Redefine("category", "if (category < 0) return 8; else return category;")
+    .Filter("(IsNu == 1 && valid_syst == 1) || IsNu != 1")
+    .Snapshot("SignalEvents", outfile_signal_string.c_str());
 
   // Write POT and Livetime of original samples to output file
   std::unique_ptr<TFile> infile( TFile::Open(infile_string.c_str(), "READ") );

@@ -80,11 +80,18 @@ def main(args):
     #calc_efficiency_by_cut(sig_df, cuts)
     
     # Calculate efficiency as function of...
-    #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [0,3200], 25, 'eff') # muon momentum BNB
+    '''
+    plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [225,3225], 20, 'eff') # tech note
+    plot_diff_pur_eff(sig_df, pot, 'true_muon_beam_costheta', var_cfg, [-1,1], 20, 'eff') # tech note
+    plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,1500], 15, 'eff') # tech note
+    plot_diff_pur_eff(sig_df, pot, 'true_pi0_beam_costheta', var_cfg, [-1,1], 20, 'eff') # tech note
+    '''
+    plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [225,3000], 15, 'eff') # tech note
+
     #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [226,5000], 25, 'eff') # muon momentum NuMI
     #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [0,1500], 15, 'eff')
 
-    plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,1500], 15, 'eff') # pi0 momentum
+    #plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,1500], 15, 'eff') # pi0 momentum
     #plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,800], 8, 'eff') # pi0 momentum
 
     # Confusion
@@ -137,10 +144,8 @@ def plot_diff_pur_eff(df, pot, var, var_cfg, var_range, nbins, metric):
     else:
         df = df[(df[var] > var_range[0]) & (df[var] < var_range[1])]
 
-    #df['var_q'] = pd.qcut(df[var], q=nbins)
-    df['var_q'] = pd.cut(df[var], np.linspace(var_range[0], var_range[1], nbins+1))
-    #_bins = np.linspace(225, 4500, 101)
-    #df['var_q'] = pd.cut(df[var], bins=_bins)
+    df['var_q'] = pd.qcut(df[var], q=nbins)
+    #df['var_q'] = pd.cut(df[var], np.linspace(var_range[0], var_range[1], nbins+1))
 
     hedges = sorted([i.left for i in df.var_q.unique().tolist()])
     lastedge = max([i.right for i in df.var_q.unique().tolist()])

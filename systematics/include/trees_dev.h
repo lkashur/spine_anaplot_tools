@@ -127,7 +127,6 @@ namespace sys::trees
         output_tree->Branch("Evt", &event);
 	output_tree->Branch("matches_energy", &matches_energy);
 	output_tree->Branch("matches_baseline", &matches_baseline);
-	//output_tree->Branch("is_nu", &is_nu);
 	output_tree->Branch("valid_syst", &valid_syst);
 
 
@@ -139,8 +138,13 @@ namespace sys::trees
 	std::map<std::string, int64_t> systsMultisigma;
 	std::map<int64_t, std::vector<double>*> sigmasMultisigma;
 	std::map<int64_t, std::vector<double>*> weightsMultisigma;
+	std::map<std::string, int64_t> systsDet;
+	std::map<int64_t, std::vector<double>*> sigmasDet;
+	std::map<int64_t, std::vector<double>*> weightsDet;
+	
 	
 	int num_multisigma_knobs(0); // GUNDAM DEV
+	int num_detsyst_knobs(0);
         for(sys::cfg::ConfigurationTable & t : config.get_subtables("sys"))
 	  { 
             if(!strcmp(t.get_string_field("type").c_str(), "multisigma"))
@@ -149,6 +153,14 @@ namespace sys::trees
                 sigmasMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
                 weightsMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
                 num_multisigma_knobs++;
+              }
+
+	    if(!strcmp(t.get_string_field("type").c_str(), "variation"))
+              {
+                systsDet.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name"), t.get_int_field("index")));
+                sigmasDet.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+                weightsDet.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+                num_detsyst_knobs++;
               }
 	  }
 
@@ -160,6 +172,14 @@ namespace sys::trees
             output_tree->Branch(key.c_str(), &arrMultisigma[sysIdx1], 32000, -1);
             sysIdx1++;
           }
+	TClonesArray *arrDetsyst[num_detsyst_knobs];
+	sysIdx1 = 0;
+	for(auto & [key, value] : systsDet)
+	  {
+	    arrDetsyst[sysIdx1] = new TClonesArray("TGraph", 1);
+	    output_tree->Branch(key.c_str(), &arrDetsyst[sysIdx1], 32000, -1);
+	    sysIdx1++;
+	  }
 
         /**
          * @brief Loop over the input TTree and copy the values to the output
@@ -170,7 +190,6 @@ namespace sys::trees
             input_tree->GetEntry(i);
 	    matches_energy = true;
 	    matches_baseline = true;
-	    //is_nu = false;
 	    valid_syst = false;
 
 	    // GUNDAM DEV
@@ -181,18 +200,37 @@ namespace sys::trees
 		sigmasMultisigma[value]->clear();
 		weightsMultisigma[value]->clear();
 
-		// Sigmas                                                                                                                                                                      
+		// Sigmas                     
 		for(int i(0); i < _sigmas_size; i++)
 		  {
 		    sigmasMultisigma[value]->push_back(_sigmas[i]);
 		    weightsMultisigma[value]->push_back(-5);
 		  }
 
-		// Fill TGraph                                                                                                                                                                 
+		// Fill TGraph               
 		double* sigmasArr = sigmasMultisigma[value]->data();
 		double* weightsArr = weightsMultisigma[value]->data();
 		new( (*arrMultisigma[sysIdx2])[0]) TGraph(_sigmas_size,sigmasArr,weightsArr);
 		sysIdx2++;
+	      }
+
+	    sysIdx2 = 0;
+	    for(auto & [key, value] : systsDet)
+	      {
+		sigmasDet[value]->clear();
+                weightsDet[value]->clear();
+		
+                for(int i(0); i < _sigmas_size; i++)
+                  {
+                    sigmasDet[value]->push_back(_sigmas[i]);
+                    weightsDet[value]->push_back(-5);
+                  }
+		
+		// Fill TGraph
+		double* sigmasArr = sigmasDet[value]->data();
+                double* weightsArr = weightsDet[value]->data();
+                new( (*arrDetsyst[sysIdx2])[0]) TGraph(_sigmas_size,sigmasArr,weightsArr);
+                sysIdx2++;
 	      }
 
             output_tree->Fill();
@@ -289,7 +327,6 @@ namespace sys::trees
         output_tree->Branch("Evt", &event);
         output_tree->Branch("matches_energy", &matches_energy);
         output_tree->Branch("matches_baseline", &matches_baseline);
-	//output_tree->Branch("is_nu", &is_nu);
 	output_tree->Branch("valid_syst", &valid_syst);
         
         /**
@@ -327,12 +364,17 @@ namespace sys::trees
 	///////////////////////////////////////////////////////////////////////
         /// GUNDAM DEV
         ///////////////////////////////////////////////////////////////////////
+	// Multisigma
         int _sigmas[] = {-1, 1, -2, 2, -3, 3, 0};
         int _sigmas_size = sizeof(_sigmas) / sizeof(_sigmas[0]);
 	std::map<std::string, int64_t> systsMultisigma;
 	std::map<int64_t, std::vector<double>*> sigmasMultisigma;
 	std::map<int64_t, std::vector<double>*> weightsMultisigma;
 	
+	// Det syst
+	std::map<std::string, int64_t> systsDet;
+	std::map<int64_t, std::vector<double>*> sigmasDet;
+	std::map<int64_t, std::vector<double>*> weightsDet;
 
         /**
          * @brief Create histograms for storing the systematic results as a 
@@ -383,6 +425,7 @@ namespace sys::trees
         }
 
 	int num_multisigma_knobs(0); // GUNDAM DEV
+	int num_detsyst_knobs(0); // GUNDAM DEV
         for(sys::cfg::ConfigurationTable & t : config.get_subtables("sys"))
         {
             systematics.insert(std::make_pair<std::string, Systematic *>(t.get_string_field("name"), new Systematic(t, systrees[t.get_string_field("type")])));
@@ -398,6 +441,13 @@ namespace sys::trees
                 weightsMultisigma.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
                 num_multisigma_knobs++;
 	      }
+	    if(!strcmp(t.get_string_field("type").c_str(), "variation"))
+	      {
+		systsDet.insert(std::make_pair<std::string, int64_t>(t.get_string_field("name"), t.get_int_field("index")));
+		sigmasDet.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+		weightsDet.insert(std::make_pair<int64_t, std::vector<double>*>(t.get_int_field("index"), new std::vector<double>));
+		num_detsyst_knobs++;
+	      }
         }
 
         ////////////////////////////////////////////////
@@ -411,8 +461,15 @@ namespace sys::trees
             output_tree->Branch(key.c_str(), &arrMultisigma[sysIdx1], 32000, -1);
             sysIdx1++;
           }
+	sysIdx1 = 0;
+	TClonesArray *arrDetsyst[num_detsyst_knobs];
+	for(auto & [key, value] : systsDet)
+	  {
+	    arrDetsyst[sysIdx1] = new TClonesArray("TGraph", 1);
+	    output_tree->Branch(key.c_str(), &arrDetsyst[sysIdx1], 32000, -1);
+	    sysIdx1++;
+	  }
 	
-
         /**
          * @brief Load the input CAF files.
          * @details This block loads the input CAF files. The input CAF files
@@ -499,7 +556,6 @@ namespace sys::trees
                         event = *revt;
                         matches_energy = nu.E == brs["true_energy"];
                         matches_baseline = nu.baseline == brs["baseline"];
-			//is_nu = true;
 			valid_syst = nu.baseline == brs["baseline"];
 
 			//////////////////////////////////////////////////////////
@@ -529,34 +585,41 @@ namespace sys::trees
                             // Sort from low to high and fill TGraph
                             double* sigmasArr = sigmasMultisigma[value]->data();
                             double* weightsArr = weightsMultisigma[value]->data();
-
-			    /*
-			    size_t size = 7;
-			    std::vector<std::pair<double, double>> combined_array;
-			    for (size_t i = 0; i < size; ++i) {
-			      combined_array.push_back(std::make_pair(sigmasArr[i], weightsArr[i]));
-			    }
-			    std::sort(combined_array.begin(), combined_array.end(), [](const auto& a, const auto& b) {
-				return a.first < b.first;
-			      });
-
-			    for (size_t i = 0; i < size; ++i) 
-			      {
-				//std::cout << combined_array[i].first << " " << combined_array[i].second << std::endl;
-				//sigmasArr[i] = combined_array[i].first;
-				//weightsArr[i] = combined_array[i].second;
-			      }
-			    */
 			    
 			    TGraph* _gr = new TGraph(numWgts+1,sigmasArr,weightsArr);
 			    _gr->Sort();
-                            //new( (*arrMultisigma[sysIdx2])[0]) TGraph(numWgts+1,sigmasArr,weightsArr);
-			    //new( (*arrMultisigma[sysIdx2])[0]) _gr;
 			    new( (*arrMultisigma[sysIdx2])[0]) TGraph(numWgts+1,_gr->GetX(),_gr->GetY());
                             sysIdx2++;
                           }
-			
-			  
+		
+			///////////////////////////////////
+			/// GUNDAM DEV
+			///////////////////////////////////
+			sysIdx2 = 0;
+                        for(auto & [key, value] : systsDet)
+			  {
+			    sigmasDet[value]->clear();
+                            weightsDet[value]->clear();
+
+			    int numWgts(0);
+			    for(double & z : calc.get_zscores(key))
+			      {
+				sigmasDet[value]->push_back(z);
+				weightsDet[value]->push_back(calc.get_weight(key, brs[calc.get_variable()], z));
+				numWgts++;
+			      }
+			    //std::cout << " " << std::endl;
+
+			    // Sort from low to high and fill TGraph
+			    double* sigmasArr = sigmasDet[value]->data();
+                            double* weightsArr = weightsDet[value]->data();
+			    TGraph* _gr = new TGraph(numWgts,sigmasArr,weightsArr);
+                            _gr->Sort();
+                            new( (*arrDetsyst[sysIdx2])[0]) TGraph(numWgts,_gr->GetX(),_gr->GetY());
+			    sysIdx2++;
+			  }
+
+
                         output_tree->Fill();
                         
                         /**
@@ -590,6 +653,7 @@ namespace sys::trees
                             {
                                 for(double & z : calc.get_zscores(key))
                                     value->get_weights()->push_back(calc.get_weight(key, brs[calc.get_variable()], z));
+				  
                                 for(SysVariable & sv : sysvariables)
                                     calc.add_value(sv.name, brs[sv.name], key, brs[calc.get_variable()]);
                             }
@@ -643,7 +707,7 @@ namespace sys::trees
         }
 
         // Write detector systematic histograms to the output file.
-        //calc.write_results();
+        calc.write_results();
     }
 }
 #endif

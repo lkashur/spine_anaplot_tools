@@ -480,7 +480,7 @@ namespace sys::trees
         }
 
         // Write detector systematic histograms to the output file.
-        //calc.write_results();
+        calc.write_results();
     }
 }
 #endif

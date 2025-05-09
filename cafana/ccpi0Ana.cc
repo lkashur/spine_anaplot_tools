@@ -11,7 +11,7 @@
 #define PIDFUNC pvars::pid
 //#define PIDFUNC pvars::custom_pid
 #define PROTON_BINDING_ENERGY 30.9 // MeV
-#define BEAM_IS_NUMI true
+#define BEAM_IS_NUMI false
 #define WRITE_PURITY_TREES false
 
 #include "include/mctruth.h"
@@ -20,8 +20,8 @@
 
 #include "include/pi0ana/variables_ccpi0ana_phase.h"
 #include "include/pi0ana/cuts_ccpi0ana_phase.h"
-#include "include/pi0ana/variables_ccpi0ana_nophase.h"
-#include "include/pi0ana/cuts_ccpi0ana_nophase.h"
+//#include "include/pi0ana/variables_ccpi0ana_nophase.h"
+//#include "include/pi0ana/cuts_ccpi0ana_nophase.h"
 //#include "include/pi0ana/variables_ccpi0ana_trad.h"
 //#include "include/pi0ana/cuts_ccpi0ana_trad.h"
 
@@ -70,6 +70,8 @@ int main(int argc, char ** argv)
     #define TCUT cuts::neutrino
     std::map<std::string, ana::SpillMultiVar> vars_selected_nu_phase;
     vars_selected_nu_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// GUNDAM VARIABLES ////////////////////////////////////////////////////////////////////////////////////////////////
     vars_selected_nu_phase.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::cut_type, &CUT, &TCUT)});
     if(std::string(argv[4]) == "sim")
@@ -83,6 +85,8 @@ int main(int argc, char ** argv)
 	vars_selected_nu_phase.insert({"IsNu", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::is_not_nu, &CUT, &TCUT)});
     }
     /// END GUNDAM VARIABLES /////////////////////////////////////////////////////////////////////////////////////////////
+
+    //vars_selected_nu_phase.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
     //vars_selected_nu_phase.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::category, &CUT, &TCUT)});
     //vars_selected_nu_phase.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
@@ -94,16 +98,24 @@ int main(int argc, char ** argv)
     vars_selected_nu_phase.insert({"true_pi0_leading_photon_energy", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_energy, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_leading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_leading_photon_cosphi", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"true_pi0_leading_photon_cosphi", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"reco_pi0_leading_photon_ip", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_ip, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"true_pi0_leading_photon_ip", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_ip, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_pi0_leading_photon_conv_dist", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_energy, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_pi0_subleading_photon_energy", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_energy, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_pi0_subleading_photon_conv_dist", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_subleading_photon_cosphi", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"true_pi0_subleading_photon_cosphi", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"reco_pi0_subleading_photon_ip", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"true_pi0_subleading_photon_ip", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_pi0_momentum_mag", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_pi0_beam_costheta", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"reco_pi0_photons_avg_ip", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_avg_ip, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"true_pi0_photons_avg_ip", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_avg_ip, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_photons_costheta", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_costheta, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_pi0_photons_costheta", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_costheta, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_pi0_mass", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_mass, &CUT, &TCUT)});
@@ -122,6 +134,8 @@ int main(int argc, char ** argv)
     #define TCUT cuts::cosmic
     std::map<std::string, ana::SpillMultiVar> vars_selected_cos_phase;
     vars_selected_cos_phase.insert({"nu_id", SpineVar<TTYPE,RTYPE>(&vars::neutrino_id, &CUT, &TCUT)});
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// GUNDAM VARIABLES ////////////////////////////////////////////////////////////////////////////////////////////////
     vars_selected_cos_phase.insert({"CutType", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::cut_type, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"IsNu", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::is_not_nu, &CUT, &TCUT)});
@@ -130,6 +144,8 @@ int main(int argc, char ** argv)
     else
       vars_selected_cos_phase.insert({"IsData", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::is_data, &CUT, &TCUT)});
     /// END GUNDAM VARIABLES ////////////////////////////////////////////////////////////////////////////////////////////
+    
+    //vars_selected_cos_phase.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
     //vars_selected_cos_phase.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::category, &CUT, &TCUT)});
     //vars_selected_cos_phase.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
@@ -143,14 +159,20 @@ int main(int argc, char ** argv)
     vars_selected_cos_phase.insert({"true_pi0_leading_photon_conv_dist", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_leading_photon_cosphi", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_cosphi, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_pi0_leading_photon_cosphi", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"reco_pi0_leading_photon_ip", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_ip, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"true_pi0_leading_photon_ip", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_ip, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_subleading_photon_energy", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_energy, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_pi0_subleading_photon_energy", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_energy, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_subleading_photon_conv_dist", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_pi0_subleading_photon_conv_dist", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_conv_dist, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_subleading_photon_cosphi", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_pi0_subleading_photon_cosphi", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"reco_pi0_subleading_photon_ip", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_ip, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"true_pi0_subleading_photon_ip", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_ip, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_pi0_momentum_mag", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"reco_pi0_photons_avg_ip", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_avg_ip, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"true_pi0_photons_avg_ip", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_avg_ip, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_pi0_beam_costheta", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_pi0_photons_costheta", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::pi0_photons_costheta, &CUT, &TCUT)});
@@ -191,11 +213,15 @@ int main(int argc, char ** argv)
     #define SIGCUT cuts::ccpi0ana_phase::signal_1mu0pi1pi0
     std::map<std::string, ana::SpillMultiVar> vars_signal_phase;
     vars_signal_phase.insert({"nu_id", SpineVar<TTYPE,TTYPE>(&vars::neutrino_id, &SIGCUT, &SIGCUT)});
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// GUNDAM VARIABLES /////////////////////////////////////////////////////////////////////////////////////////////
     vars_signal_phase.insert({"CutType", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::cut_type, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"IsData", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::is_not_data, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"IsNu", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::is_nu, &SIGCUT, &SIGCUT)});
     /// END GUNDAM VARIABLES /////////////////////////////////////////////////////////////////////////////////////////
+    
+    //vars_signal_phase.insert({"true_energy", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_energy, &SIGCUT, &SIGCUT)});
     //vars_signal_phase.insert({"baseline", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
     //vars_signal_phase.insert({"pdg", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
     //vars_signal_phase.insert({"cc", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_cc, &SIGCUT, &SIGCUT)});
@@ -208,11 +234,14 @@ int main(int argc, char ** argv)
     vars_signal_phase.insert({"true_pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_leading_photon_cosphi", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_cosphi, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"true_pi0_leading_photon_ip", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_ip, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_subleading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_energy, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_subleading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_conv_dist, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_subleading_photon_cosphi", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"true_pi0_subleading_photon_ip", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_ip, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"true_pi0_photons_avg_ip", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_photons_costheta", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"flash_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::flash_cut), &SIGCUT, &SIGCUT)});
@@ -238,6 +267,7 @@ int main(int argc, char ** argv)
      * create the variables.  These names are used in the TTree that is created
      * by the Tree class to store the results of the analysis.
      */
+    /*
     #undef CUT
     #define CUT cuts::ccpi0ana_nophase::all_1mu0pi2gamma_cut
     #undef TCUT
@@ -293,7 +323,9 @@ int main(int argc, char ** argv)
     vars_selected_nu_nophase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
     vars_selected_nu_nophase.insert({"true_vertex_z", SpineVar<TTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
     analysis.AddTree("SelectedNu_NoPhaseCuts", vars_selected_nu_nophase, false);
+    */
 
+    /*
     #undef TCUT
     #define TCUT cuts::cosmic
     std::map<std::string, ana::SpillMultiVar> vars_selected_cos_nophase;
@@ -342,7 +374,9 @@ int main(int argc, char ** argv)
     vars_selected_cos_nophase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
     vars_selected_cos_nophase.insert({"true_vertex_z", SpineVar<TTYPE,RTYPE>(&vars::vertex_z, &CUT, &TCUT)});
     analysis.AddTree("SelectedCos_NoPhaseCuts", vars_selected_cos_nophase, false);
+    */
 
+    /*
     #undef TCUT
     #define TCUT cuts::no_cut
     std::map<std::string, ana::SpillMultiVar> vars_purity_nophase;
@@ -362,7 +396,9 @@ int main(int argc, char ** argv)
     vars_purity_nophase.insert({"reco_vertex_z", SpineVar<RTYPE,RTYPE>(&vars::vertex_z, &cuts::no_cut, &TCUT)});
     if constexpr(WRITE_PURITY_TREES)
 		  analysis.AddTree("Purity_NoPhaseCuts", vars_purity_nophase, false);
+    */
 
+    /*
     #undef SIGCUT
     #define SIGCUT cuts::ccpi0ana_nophase::signal_1mu0pi1pi0
     std::map<std::string, ana::SpillMultiVar> vars_signal_nophase;
@@ -404,7 +440,8 @@ int main(int argc, char ** argv)
     vars_signal_nophase.insert({"true_vertex_z", SpineVar<TTYPE,TTYPE>(&vars::vertex_z, &SIGCUT, &SIGCUT)});
     vars_signal_nophase.insert({"all_cut", SpineVar<RTYPE,TTYPE>(WRAP_BOOL(cuts::ccpi0ana_nophase::all_1mu0pi2gamma_cut), &SIGCUT, &SIGCUT)});
     analysis.AddTree("Signal_NoPhaseCuts", vars_signal_nophase, true);
-
+    */
+    
     /**
      * @brief Add variabls for selected interactions (traditional) to the analysis.
      * @details This adds a set of variables to the analysis by creating a map

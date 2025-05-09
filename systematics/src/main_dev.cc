@@ -16,6 +16,7 @@
 #include <string>
 
 #include "configuration.h"
+//#include "trees.h"
 #include "trees_dev.h"
 #include "detsys.h"
 
@@ -123,7 +124,7 @@ int main(int argc, char * argv[])
         std::cout << "Processing tree: " << table.get_string_field("origin") << std::endl;
         std::string type(table.get_string_field("action"));
         if(type == "copy")
-	    sys::trees::copy_tree(config, table, output, input);
+	  sys::trees::copy_tree(config, table, output, input);
         else if(type == "add_weights")
             sys::trees::copy_with_weight_systematics(config, table, output, input, calc);
     }

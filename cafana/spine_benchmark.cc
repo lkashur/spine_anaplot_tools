@@ -12,7 +12,7 @@
 #define PRIMARYFUNC pvars::primary_classification
 #define PIDFUNC pvars::pid
 #define PROTON_BINDING_ENERGY 30.9 // MeV
-#define BEAM_IS_NUMI false
+#define BEAM_IS_NUMI true
 #define WRITE_PURITY_TREES false
 
 #include "include/mctruth.h"
@@ -37,7 +37,7 @@ int main()
      * and therefore the name of the output file, is specified as an argument
      * to the constructor.
      */
-    ana::Analysis analysis("spine_benchmark");
+    ana::Analysis analysis("spine_benchmark_numi");
 
     /**
      * @brief Add a sample to the analysis.
@@ -48,7 +48,7 @@ int main()
      * AddLoader function is used to create a directory in the output ROOT file
      * to store the results of the analysis.
      */
-    ana::SpectrumLoader icarus("/pnfs/icarus/persistent/users/mueller/production/simulation/nominal/flat/input*.flat.root");
+    ana::SpectrumLoader icarus("/pnfs/icarus/persistent/users/dcarber/spine/combined_files/NuMI_CV_flat_cafs/*.flat.root");
     analysis.AddLoader("icarus", &icarus, true);
 
     auto pid_category = [](const TTYPEP & p) -> double { return 5 * int(pcuts::is_primary(p)) + int(PIDFUNC(p)); };

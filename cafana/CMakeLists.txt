@@ -50,6 +50,7 @@ target_link_libraries(common INTERFACE
     ROOT::RIO
     ROOT::Hist
     ROOT::Tree
+    ROOT::Physics
     Minuit2
     sbnanaobj_StandardRecordProxy
     OscLib
@@ -73,3 +74,11 @@ target_link_libraries(muon2024 PRIVATE common)
 add_executable(spine_benchmark spine_benchmark.cc)
 target_link_libraries(spine_benchmark PRIVATE common)
 
+add_executable(ccpi0Ana ccpi0Ana.cc)
+target_link_libraries(ccpi0Ana PRIVATE common)
+
+add_executable(confusion confusion.cc)
+target_link_libraries(confusion PRIVATE common)
+
+add_executable(energycalib energycalib.cc)
+target_link_libraries(energycalib PRIVATE common)
