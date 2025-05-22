@@ -77,8 +77,8 @@ target_link_libraries(spine_benchmark PRIVATE common)
 add_executable(ccpi0Ana ccpi0Ana.cc)
 target_link_libraries(ccpi0Ana PRIVATE common)
 
-add_executable(confusion confusion.cc)
-target_link_libraries(confusion PRIVATE common)
+#add_executable(confusion confusion.cc)
+#target_link_libraries(confusion PRIVATE common)
 
-add_executable(energycalib energycalib.cc)
-target_link_libraries(energycalib PRIVATE common)
+#add_executable(energycalib energycalib.cc)
+#target_link_libraries(energycalib PRIVATE common)

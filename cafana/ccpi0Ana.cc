@@ -10,6 +10,8 @@
 #define PLACEHOLDERVALUE std::numeric_limits<double>::quiet_NaN()
 #define PIDFUNC pvars::pid
 //#define PIDFUNC pvars::custom_pid
+#define CALOKEFUNC pvars::calo_ke
+//#define CALOKEFUNC pvars::custom_calo_ke
 #define PROTON_BINDING_ENERGY 30.9 // MeV
 #define BEAM_IS_NUMI false
 #define WRITE_PURITY_TREES false
@@ -54,11 +56,6 @@ int main(int argc, char ** argv)
     // Configure loader
     analysis.AddLoader(argv[3], &sl, std::string(argv[4]) == "sim" ? true : false);
 
-    // NuMI
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/dcarber/spine/combined_files/NuMI_CV_flat_cafs/flatcaf*.root");
-    //ana::SpectrumLoader mc("/pnfs/icarus/persistent/users/dcarber/spine/NuMI_CV_flat_cafs/*.root");
-    //analysis.AddLoader("mc", &mc, true);
-
     /**
      * @brief Add variabls for selected interactions (in-phase) to the analysis.
      * @details This adds a set of variables to the analysis by creating a map
@@ -86,10 +83,10 @@ int main(int argc, char ** argv)
     }
     /// END GUNDAM VARIABLES /////////////////////////////////////////////////////////////////////////////////////////////
 
-    //vars_selected_nu_phase.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
-    //vars_selected_nu_phase.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::category, &CUT, &TCUT)});
-    //vars_selected_nu_phase.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
+    vars_selected_nu_phase.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::muon_momentum_mag, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"true_muon_momentum_mag", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::muon_momentum_mag, &CUT, &TCUT)});
     vars_selected_nu_phase.insert({"reco_muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::muon_beam_costheta, &CUT, &TCUT)});
@@ -145,10 +142,10 @@ int main(int argc, char ** argv)
       vars_selected_cos_phase.insert({"IsData", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::is_data, &CUT, &TCUT)});
     /// END GUNDAM VARIABLES ////////////////////////////////////////////////////////////////////////////////////////////
     
-    //vars_selected_cos_phase.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
-    //vars_selected_cos_phase.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"true_energy", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_energy, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"baseline", SpineVar<MCTRUTH,RTYPE>(&mctruth::true_neutrino_baseline, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"category", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::category, &CUT, &TCUT)});
-    //vars_selected_cos_phase.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
+    vars_selected_cos_phase.insert({"interaction_mode", SpineVar<MCTRUTH,RTYPE>(&mctruth::interaction_mode, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_muon_momentum_mag", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::muon_momentum_mag, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"true_muon_momentum_mag", SpineVar<TTYPE,RTYPE>(&vars::ccpi0ana_phase::muon_momentum_mag, &CUT, &TCUT)});
     vars_selected_cos_phase.insert({"reco_muon_beam_costheta", SpineVar<RTYPE,RTYPE>(&vars::ccpi0ana_phase::muon_beam_costheta, &CUT, &TCUT)});
@@ -221,16 +218,18 @@ int main(int argc, char ** argv)
     vars_signal_phase.insert({"IsNu", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::is_nu, &SIGCUT, &SIGCUT)});
     /// END GUNDAM VARIABLES /////////////////////////////////////////////////////////////////////////////////////////
     
-    //vars_signal_phase.insert({"true_energy", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_energy, &SIGCUT, &SIGCUT)});
-    //vars_signal_phase.insert({"baseline", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
-    //vars_signal_phase.insert({"pdg", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
-    //vars_signal_phase.insert({"cc", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_cc, &SIGCUT, &SIGCUT)});
-    //vars_signal_phase.insert({"interaction_mode", SpineVar<MCTRUTH,TTYPE>(&mctruth::interaction_mode, &SIGCUT, &SIGCUT)});
-    //vars_signal_phase.insert({"interaction_type", SpineVar<MCTRUTH,TTYPE>(&mctruth::interaction_type, &SIGCUT, &SIGCUT)});
-    //vars_signal_phase.insert({"true_energy", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_energy, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"true_energy", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_energy, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"baseline", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_baseline, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"pdg", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_pdg, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"cc", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_cc, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"interaction_mode", SpineVar<MCTRUTH,TTYPE>(&mctruth::interaction_mode, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"interaction_type", SpineVar<MCTRUTH,TTYPE>(&mctruth::interaction_type, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"true_energy", SpineVar<MCTRUTH,TTYPE>(&mctruth::true_neutrino_energy, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"category", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::category, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_muon_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::muon_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"reco_muon_momentum_mag", SpineVar<RTYPE,TTYPE>(&vars::ccpi0ana_phase::muon_momentum_mag, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_muon_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::muon_beam_costheta, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"reco_muon_beam_costheta", SpineVar<RTYPE,TTYPE>(&vars::ccpi0ana_phase::muon_beam_costheta, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_leading_photon_energy", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_energy, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_leading_photon_conv_dist", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_conv_dist, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_leading_photon_cosphi", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_leading_photon_cosphi, &SIGCUT, &SIGCUT)});
@@ -240,7 +239,9 @@ int main(int argc, char ** argv)
     vars_signal_phase.insert({"true_pi0_subleading_photon_cosphi", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_cosphi, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_subleading_photon_ip", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_subleading_photon_ip, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_momentum_mag", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"reco_pi0_momentum_mag", SpineVar<RTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_momentum_mag, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_beam_costheta", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &SIGCUT, &SIGCUT)});
+    vars_signal_phase.insert({"reco_pi0_beam_costheta", SpineVar<RTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_beam_costheta, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_photons_avg_ip", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_photons_costheta", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_mass, &SIGCUT, &SIGCUT)});
     vars_signal_phase.insert({"true_pi0_mass", SpineVar<TTYPE,TTYPE>(&vars::ccpi0ana_phase::pi0_mass, &SIGCUT, &SIGCUT)});

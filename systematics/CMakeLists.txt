@@ -35,7 +35,7 @@ target_link_libraries(detsys PRIVATE ${ROOT_LIBRARIES} configuration tomlplusplu
 target_include_directories(detsys PRIVATE include/ ${ROOT_INCLUDE_DIRS} tomlplusplus/include)
 
 # Add the executable target
-add_executable(run_systematics src/main_dev.cc ${SYSINC})
+add_executable(run_systematics src/main.cc ${SYSINC})
 
 # Link the ROOT libraries to the target
 target_link_libraries(run_systematics ${ROOT_LIBRARIES} ${sbnanaobj_LIBRARY_DIRS}/libsbnanaobj_StandardRecord.so tomlplusplus::tomlplusplus configuration systematics detsys)

@@ -144,7 +144,10 @@ class SpineSpectra1D(SpineSpectra):
                 self._plotdata[self._categories[category]] = np.zeros(self._variable._nbins)
                 self._onebincount[self._categories[category]] = 0
             xr = self._variable._range if self._xrange is None else self._xrange
-            h = np.histogram(values, bins=self._variable._nbins, range=xr, weights=weights[category])
+            if self._variable._binning_scheme == 'equal_width':
+                h = np.histogram(values, bins=self._variable._nbins, range=xr, weights=weights[category])
+            if self._variable._binning_scheme == 'custom':
+                h = np.histogram(values, bins=self._variable._range, weights=weights[category])
             self._onebincount[self._categories[category]] += np.sum(weights[category])
             self._plotdata[self._categories[category]] += h[0]
             self._binedges[self._categories[category]] = h[1]
@@ -194,7 +197,11 @@ class SpineSpectra1D(SpineSpectra):
         """
         ax.set_xlabel(self._variable._xlabel if self._xtitle is None else self._xtitle)
         ax.set_ylabel('Candidates')
-        ax.set_xlim(*self._variable._range if self._xrange is None else self._xrange)
+        #ax.set_xlim(*self._variable._range if self._xrange is None else self._xrange)
+        if self._variable._binning_scheme == 'equal_width':
+            ax.set_xlim([self._variable._range[0], self._variable._range[1]] if self._xrange is None else self._xrange)
+        if self._variable._binning_scheme == 'custom':
+            ax.set_xlim([self._variable._range[0], self._variable._range[-1]])
         ax.set_title(self._title)
 
         if self._plotdata is not None:
@@ -227,7 +234,15 @@ class SpineSpectra1D(SpineSpectra):
             else:
                 reduce = lambda x : [x[i] for i in histogram_mask]
             
-            ax.hist(reduce(bincenters), weights=reduce(data), bins=self._variable._nbins, range=xr, label=reduce(labels), color=reduce(colors), **style.plot_kwargs)
+            if self._variable._binning_scheme == 'equal_width':
+                ax.hist(reduce(bincenters), weights=reduce(data), bins=self._variable._nbins, range=xr, label=reduce(labels), color=reduce(colors), **style.plot_kwargs)
+            if self._variable._binning_scheme == 'custom':
+                bottom = np.zeros(len(bincenters[0]))
+                # Loop over MC categories
+                for (d,l,c) in zip(reduce(data),reduce(labels),reduce(colors)):
+                    ax.bar(bincenters[0], d, width=binwidths[0], bottom=bottom, align='center', label=l, color=c)
+                    bottom+=d
+
             if draw_error:
                 systs = [s[draw_error] for s in self._systematics.values() if draw_error in s]
                 cov = np.sum(s.get_covariance(self._variable._key) for s in systs)
@@ -235,6 +250,10 @@ class SpineSpectra1D(SpineSpectra):
                 y = np.sum(reduce(data), axis=0)
                 xerr = [x / 2 for x in binwidths[0]]
                 yerr = np.sqrt(np.diag(cov))
+                
+                #if self._variable._key == 'reco_muon_beam_costheta':
+                #    print(cov)
+                
                 draw_error_boxes(ax, x, y, xerr, yerr, facecolor='gray', edgecolor='none', alpha=0.5, hatch='///')
 
             reduce = lambda x : [x[i] for i in scatter_mask]

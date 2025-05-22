@@ -86,7 +86,16 @@ def main(args):
     plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,1500], 15, 'eff') # tech note
     plot_diff_pur_eff(sig_df, pot, 'true_pi0_beam_costheta', var_cfg, [-1,1], 20, 'eff') # tech note
     '''
-    plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [225,3000], 15, 'eff') # tech note
+
+
+
+    #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [0.226,2.0], 12, 'eff', pd.read_csv('../../gundam/muon_momentum_mag_bins.txt')) # tech note
+    plot_diff_pur_eff(sig_df, pot, 'true_muon_beam_costheta', var_cfg, [-1,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_beam_costheta_bins.txt'))
+    #plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_momentum_mag_bins.txt'))
+    #plot_diff_pur_eff(sig_df, pot, 'true_pi0_beam_costheta', var_cfg, [-1,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_beam_costheta_bins.txt'))
+    
+
+
 
     #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [226,5000], 25, 'eff') # muon momentum NuMI
     #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [0,1500], 15, 'eff')
@@ -130,7 +139,7 @@ def calc_flat_efficiency(sig_df):
     selected_signal_events = len(sig_df[sig_df['all_cut'] == 1])
     return 100 * selected_signal_events / total_signal_events
 
-def plot_diff_pur_eff(df, pot, var, var_cfg, var_range, nbins, metric):
+def plot_diff_pur_eff(df, pot, var, var_cfg, var_range, nbins, metric, binning_df):
     bcs = []
     bxerr0s = []
     bxerr1s = []
@@ -144,8 +153,18 @@ def plot_diff_pur_eff(df, pot, var, var_cfg, var_range, nbins, metric):
     else:
         df = df[(df[var] > var_range[0]) & (df[var] < var_range[1])]
 
-    df['var_q'] = pd.qcut(df[var], q=nbins)
-    #df['var_q'] = pd.cut(df[var], np.linspace(var_range[0], var_range[1], nbins+1))
+    # Apply binning
+    '''
+    binning_df = pd.DataFrame(binning_df['bin'].to_list(), columns=['bin']) # prepare overflow                                           
+    df['var_q'] = pd.cut(df[var], binning_df['bin'])
+    nbins = len(binning_df) - 1
+    '''
+
+    #df['var_q'] = pd.qcut(df[var], q=nbins)
+    df['var_q'] = pd.cut(df[var], np.linspace(var_range[0], var_range[1], nbins+1))
+
+    print(df)
+    print(df['var_q'].unique())
 
     hedges = sorted([i.left for i in df.var_q.unique().tolist()])
     lastedge = max([i.right for i in df.var_q.unique().tolist()])
@@ -177,9 +196,9 @@ def plot_diff_pur_eff(df, pot, var, var_cfg, var_range, nbins, metric):
         byerr1s.append(gr.GetErrorYhigh(i))
 
     fig, ax1 = plt.subplots(figsize=(10,6))
-    #ax1.bar(x=hedges[:-1], height=counts, width=np.diff(hedges), align='edge', fc='C1', ec='black')
+    ax1.bar(x=hedges[:-1], height=counts, width=np.diff(hedges), align='edge', fc='C1', alpha=0.5, ec='none')
     #ax1.hist(df[var], range=(var_range[0], var_range[1]), bins=nbins, color='C1', edgecolor='black')
-    ax1.hist(df[var], range=(var_range[0], var_range[1]), bins=nbins, color='C1', alpha=0.5)
+    #ax1.hist(df[var], range=(var_range[0], var_range[1]), bins=nbins, color='C1', alpha=0.5)
     ax1.set_xlabel(var_cfg['variables'][var]['xlabel'])
     ax1.set_ylabel('Entries')
     ax2 = ax1.twinx()

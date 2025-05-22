@@ -1,9 +1,5 @@
-vector<string> GetGENIEMultisigmaKnobNames();
-
 void spine2gundam()
 {
-  
-  vector<string> genieMultisigmaNames = GetGENIEMultisigmaKnobNames();
  
   // Input
   string infile_string = "icarus_bnb_ccpi0_mc_onbeam_offbeam_vars_syst_delete.root";
@@ -40,6 +36,10 @@ void spine2gundam()
     .Redefine("valid_syst", [](bool b) { return static_cast<int>(b); }, {"valid_syst"})
     .Redefine("category", [](double d) { return static_cast<int>(d); }, {"category"})
     .Redefine("category", "if (category < 0) return 8; else return category;") // 8 is cosmic category specified in spine_anaplot_tools
+    .Redefine("reco_muon_momentum_mag", "reco_muon_momentum_mag / 1000") // MeV to GeV
+    .Redefine("true_muon_momentum_mag", "if (true_muon_momentum_mag < 0) return true_muon_momentum_mag; else return true_muon_momentum_mag / 1000")
+    .Redefine("reco_pi0_momentum_mag", "reco_pi0_momentum_mag / 1000")
+    .Redefine("true_pi0_momentum_mag", "if (true_pi0_momentum_mag < 0) return true_pi0_momentum_mag; else return true_pi0_momentum_mag / 1000")
     .Filter("(IsNu == 1 && valid_syst == 1) || IsNu != 1") // remove duplicates that appear after ./run_systematics...
     .Snapshot("SelectedEvents", outfile_mc_string.c_str());
   
@@ -50,6 +50,10 @@ void spine2gundam()
     .Redefine("valid_syst", [](bool b) { return static_cast<int>(b); }, {"valid_syst"})
     .Redefine("category", [](double d) { return static_cast<int>(d); }, {"category"})
     .Redefine("category", "if (category < 0) return 8; else return category;") // 8 is cosmic category specified in spine_anaplot_tools
+    .Redefine("reco_muon_momentum_mag", "reco_muon_momentum_mag / 1000") // MeV to GeV
+    .Redefine("true_muon_momentum_mag", "if (true_muon_momentum_mag < 0) return true_muon_momentum_mag; else return true_muon_momentum_mag / 1000")
+    .Redefine("reco_pi0_momentum_mag", "reco_pi0_momentum_mag / 1000")
+    .Redefine("true_pi0_momentum_mag", "if (true_pi0_momentum_mag < 0) return true_pi0_momentum_mag; else return true_pi0_momentum_mag / 1000")
     .Snapshot("SelectedEvents", outfile_data_string.c_str());
 
   auto rdf_signal_conv = rdf_signal
@@ -59,6 +63,8 @@ void spine2gundam()
     .Redefine("valid_syst", [](bool b) { return static_cast<int>(b); }, {"valid_syst"})
     .Redefine("category", [](double d) { return static_cast<int>(d); }, {"category"})
     .Redefine("category", "if (category < 0) return 8; else return category;")
+    .Redefine("true_muon_momentum_mag", "if (true_muon_momentum_mag < 0) return true_muon_momentum_mag; else return true_muon_momentum_mag / 1000")
+    .Redefine("true_pi0_momentum_mag", "if (true_pi0_momentum_mag < 0) return true_pi0_momentum_mag; else return true_pi0_momentum_mag / 1000")
     .Filter("(IsNu == 1 && valid_syst == 1) || IsNu != 1")
     .Snapshot("SignalEvents", outfile_signal_string.c_str());
 
@@ -86,36 +92,5 @@ void spine2gundam()
   outfile_data->cd();
   POT_onbeam_clone->Write();
   Livetime_onbeam_clone->Write();
-  
-}
-
-vector<string> GetGENIEMultisigmaKnobNames()
-{
-  return 
-    {
-        "ZExpA1CCQE",
-        "ZExpA2CCQE",
-	"ZExpA3CCQE",
-	"ZExpA4CCQE",
-	"VecFFCCQEshape",
-	"RPA_CCQE",
-	 "CoulombCCQE",
-	"NormCCMEC",
-	"NormNCMEC",
-	  //"DecayAngMEC",
-	"MaNCEL",
-	"EtaNCEL",
-	"MaCCRES",
-	"MvCCRES",
-	"MaNCRES",
-	"MvNCRES",
-	"NonRESBGvpCC1pi",
-	"NonRESBGvpCC2pi",
-	"NonRESBGvpNC1pi",
-	"NonRESBGvpNC2pi",
-	"NonRESBGvnCC1pi",
-	"NonRESBGvnCC2pi",
-	"NonRESBGvnNC1pi" 
-	  };
   
 }

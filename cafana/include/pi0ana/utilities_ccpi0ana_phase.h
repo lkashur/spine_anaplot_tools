@@ -102,8 +102,8 @@ namespace utilities_ccpi0ana_phase
 	    TVector3 momentum(p.momentum[0], p.momentum[1], p.momentum[2]);
 	    double momentum_mag(momentum.Mag());
 	    
-            if(PIDFUNC(p) == 0 && p.ke >= MIN_SUBLEADING_SHOWER_ENERGY) passes = true; // Photons
-            if(PIDFUNC(p) == 1 && p.ke >= MIN_SUBLEADING_SHOWER_ENERGY) passes = true; // Electrons
+            if(PIDFUNC(p) == 0 && CALOKEFUNC(p) >= MIN_SUBLEADING_SHOWER_ENERGY) passes = true; // Photons
+            if(PIDFUNC(p) == 1 && CALOKEFUNC(p) >= MIN_SUBLEADING_SHOWER_ENERGY) passes = true; // Electrons
             if(PIDFUNC(p) == 2 && momentum_mag >= MIN_MUON_MOMENTUM) passes = true; // Muons
 	    if(PIDFUNC(p) == 3 && momentum_mag >= MIN_PION_ENERGY) passes = true; // Pions
             if(PIDFUNC(p) == 4) passes = true; // Protons
@@ -160,9 +160,9 @@ namespace utilities_ccpi0ana_phase
 
 	        // Leading shower
 	        //if((PIDFUNC(p) == 0 || PIDFUNC(p) == 1) && p.ke > max_shower_ke0) // showers
-		if((PIDFUNC(p) == 0) && p.ke > max_shower_ke) // photons
+		if((PIDFUNC(p) == 0) && CALOKEFUNC(p) > max_shower_ke) // photons
 		{
-		    max_shower_ke = p.ke;
+		    max_shower_ke = CALOKEFUNC(p);
 		    leading_shower_index = i;
 		}
 	    } // end loop 1
@@ -424,7 +424,7 @@ namespace utilities_ccpi0ana_phase
 	  }
 	  pi0_beam_costheta = pi0_momentum.Unit().Dot(beamdir);
 	  
-	  s.muon_momentum_mag = muon_momentum_mag;
+	  s.muon_momentum_mag = muon_momentum_mag/1000; // GeV
 	  s.muon_beam_costheta = muon_beam_costheta;
 	  s.pi0_leading_photon_energy = pi0_leading_photon_energy;
 	  s.pi0_leading_photon_conv_dist = pi0_leading_photon_conv_dist;
@@ -432,7 +432,7 @@ namespace utilities_ccpi0ana_phase
 	  s.pi0_subleading_photon_conv_dist = pi0_subleading_photon_conv_dist;
 	  s.pi0_photons_costheta = pi0_photons_costheta;
 	  s.pi0_mass = pi0_mass;
-	  s.pi0_momentum_mag = pi0_momentum.Mag();
+	  s.pi0_momentum_mag = pi0_momentum.Mag()/1000; // GeV
 	  s.pi0_beam_costheta = pi0_beam_costheta;
 	} // end signal 
 	else
@@ -536,7 +536,7 @@ namespace utilities_ccpi0ana_phase
 	    {
 		// Don't use default momentum for photons
 		TVector3 _p(p.start_point[0] - vertex[0], p.start_point[1] - vertex[1], p.start_point[2] - vertex[2]);
-		_p = p.calo_ke * _p.Unit();
+		_p = CALOKEFUNC(p) * _p.Unit();
 		TVector3 pL = _p.Dot(beamdir) * beamdir;
 		TVector3 pT = _p - pL;		
 	    }
@@ -574,15 +574,15 @@ namespace utilities_ccpi0ana_phase
 		double _leading_shower_energy(0);
 		double _subleading_shower_energy(0);
 
-		if(p.ke > q.ke)
+		if(CALOKEFUNC(p) > CALOKEFUNC(q))
 		{
-		    _leading_shower_energy = p.ke;
-		    _subleading_shower_energy = q.ke;
+		    _leading_shower_energy = CALOKEFUNC(p);
+		    _subleading_shower_energy = CALOKEFUNC(q);
 		}
 		else
 		{
-		    _leading_shower_energy = q.ke;
-		    _subleading_shower_energy = p.ke;
+		    _leading_shower_energy = CALOKEFUNC(q);
+		    _subleading_shower_energy = CALOKEFUNC(p);
 		}
 		if(_leading_shower_energy < MIN_LEADING_SHOWER_ENERGY || _subleading_shower_energy < MIN_SUBLEADING_SHOWER_ENERGY) continue;
 		
@@ -593,7 +593,7 @@ namespace utilities_ccpi0ana_phase
 
 		// Calculate diphoton mass of each pair
 		double cos_opening_angle = sh0_start_dir.Dot(sh1_start_dir);
-		double mass = sqrt(2*p.calo_ke*q.calo_ke*(1-cos_opening_angle));
+		double mass = sqrt(2*CALOKEFUNC(p)*CALOKEFUNC(q)*(1-cos_opening_angle));
 
 		// Find "vertex" of each photon pair
 		/*
@@ -670,7 +670,6 @@ namespace utilities_ccpi0ana_phase
 		std::sort(photons_mass.begin(), photons_mass.end(), [](const std::pair<std::pair<size_t, size_t>, double> &a, const std::pair<std::pair<size_t, size_t>, double> &b) 
 		     { return abs(a.second - 134.9768) < abs(b.second - 134.9768);});
 
-
 	      } // end loop 2
 	  } // end loop 1
 
@@ -678,7 +677,7 @@ namespace utilities_ccpi0ana_phase
 	if(!photons_mass.empty())
 	  {
 	    std::pair<size_t, size_t> ph_pair_ids = photons_mass[0].first; // best pi0 mass agreement
-	    if(obj.particles[ph_pair_ids.first].calo_ke > obj.particles[ph_pair_ids.second].calo_ke)
+	    if(CALOKEFUNC(obj.particles[ph_pair_ids.first]) > CALOKEFUNC(obj.particles[ph_pair_ids.second]))
 	      {
 		leading_photon_index = ph_pair_ids.first;
 		subleading_photon_index = ph_pair_ids.second;
@@ -699,7 +698,7 @@ namespace utilities_ccpi0ana_phase
 	double muon_beam_costheta = muon_momentum.Unit().Dot(beamdir);
 
 	// Get leading photon info
-	double pi0_leading_photon_energy = obj.particles[leading_photon_index].calo_ke;
+	double pi0_leading_photon_energy = CALOKEFUNC(obj.particles[leading_photon_index]);
 	TVector3 pi0_leading_photon_start_point;
 	pi0_leading_photon_start_point.SetX(obj.particles[leading_photon_index].start_point[0]);
 	pi0_leading_photon_start_point.SetY(obj.particles[leading_photon_index].start_point[1]);
@@ -723,7 +722,7 @@ namespace utilities_ccpi0ana_phase
 	TVector3 pi0_leading_photon_momentum = pi0_leading_photon_energy * pi0_leading_photon_dir;
 
 	// Get subleading photon info
-	double pi0_subleading_photon_energy = obj.particles[subleading_photon_index].calo_ke;
+	double pi0_subleading_photon_energy = CALOKEFUNC(obj.particles[subleading_photon_index]);
 	TVector3 pi0_subleading_photon_start_point;
 	pi0_subleading_photon_start_point.SetX(obj.particles[subleading_photon_index].start_point[0]);
 	pi0_subleading_photon_start_point.SetY(obj.particles[subleading_photon_index].start_point[1]);
@@ -756,7 +755,7 @@ namespace utilities_ccpi0ana_phase
 
 	// Fill struct
 	s.transverse_momentum_mag = sqrt(pow(pT0, 2) + pow(pT1, 2) + pow(pT2, 2));
-	s.muon_momentum_mag = muon_momentum_mag;
+	s.muon_momentum_mag = muon_momentum_mag / 1000; // GeV
 	s.muon_beam_costheta = muon_beam_costheta;
 	s.pi0_leading_photon_energy = pi0_leading_photon_energy;
 	s.pi0_leading_photon_cosphi = pi0_leading_photon_cosphi;
@@ -769,7 +768,7 @@ namespace utilities_ccpi0ana_phase
 	s.pi0_photons_avg_ip = pi0_photons_avg_ip;
 	s.pi0_photons_costheta = pi0_photons_costheta;
 	s.pi0_mass = pi0_mass;
-	s.pi0_momentum_mag = pi0_momentum_mag;
+	s.pi0_momentum_mag = pi0_momentum_mag / 1000; // GeV
 	s.pi0_beam_costheta = pi0_beam_costheta;
 
 	return s;

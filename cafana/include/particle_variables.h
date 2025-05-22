@@ -320,6 +320,12 @@ namespace pvars
 	    return (1/1.2359) * p.calo_ke;
         }
 
+    template<class T>
+        double custom_calo_ke(const T & p)
+        {
+	  return (1/52.356) * (0.77) * (47.55) * (1/0.762) * p.calo_ke;
+        }
+
     /**
      * @brief Variable for particle MCS kinetic energy.
      * @details The kinetic energy as calculated upstream in SPINE

@@ -186,6 +186,7 @@ class Systematic:
             self._universe_weights = None
         # The handle is None, which is taken to be the case where we
         # calculate the statistical uncertainty.
+
         else:
             self._covariances = dict()
             for name, variable in self._variables.items():
@@ -194,6 +195,9 @@ class Systematic:
                 bin_indices = np.digitize(data, bin_edges) - 1
                 valid_indices = (bin_indices >= 0) & (bin_indices < len(bin_edges) - 1)
                 bin_indices = bin_indices[valid_indices]
+                
+                #if variable._key == 'reco_muon_beam_costheta':
+                #    print(bin_edges)
                 
                 histogram = np.zeros(len(bin_edges) - 1)
                 np.add.at(histogram, bin_indices, 1)
