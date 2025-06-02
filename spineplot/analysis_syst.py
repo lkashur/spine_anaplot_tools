@@ -2,6 +2,7 @@ import os
 import toml
 import ROOT
 import uproot
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import re
@@ -241,10 +242,12 @@ class Analysis:
         for s in self._samples.values():
             if s._name == 'mc_cos':
                 s._data = mc_dfs_data_attr
-                print(s._data)
+                #print(s._data)
                 for syst in s._systematics.values():
-                    syst.process(s, 'matches_energy == 1')
+                    syst.process(s, None)
+                    #syst.process(s, 'matches_energy == 1')
             s.set_weight(target=ordinate)
+        
 
         # Assess systematics
         regxp_stat = re.compile('statistical')
@@ -256,11 +259,17 @@ class Analysis:
         # Statistical MC uncertainty
         mc_cos_sample = [s for s in self._samples.values() if 'mc_cos' in s._name][0]
         mc_stat_syst = [syst for syst in mc_cos_sample._systematics.values() if regxp_stat.search(syst._name)][0]
+        print(f'FIND ME mc statistical error: {mc_stat_syst}')
         
+        # Statistical onbeam uncertainty
+        onbeam_sample = [s for s in self._samples.values() if 'onbeam' in s._name][0]
+        onbeam_stat_syst = [syst for syst in onbeam_sample._systematics.values() if regxp_stat.search(syst._name)][0]
+
         # Statistical offbeam uncertainty
         offbeam_sample = [s for s in self._samples.values() if 'offbeam' in s._name][0]
         offbeam_stat_syst = [syst for syst in offbeam_sample._systematics.values() if regxp_stat.search(syst._name)][0]
-        
+        print(f'FIND ME offbeam statistical error: {offbeam_stat_syst}')
+
         # Get flux, xsec, and det. syst. uncertainties
         mc_nu_sample = [s for s in self._samples.values() if 'mc_nu' in s._name][0]
         mc_nu_flux_systs = [syst for syst in mc_nu_sample._systematics.values() if regxp_flux.search(syst._name)]
@@ -290,7 +299,7 @@ class Analysis:
         
         all_systs = [mc_stat_syst, offbeam_stat_syst, mc_nu_flux_combined_syst, mc_nu_multisim_xsec_combined_syst, mc_nu_multisigma_xsec_combined_syst, mc_nu_det_combined_syst]
         total_syst = Systematic.combine(all_systs, 'total_syst', None)
-        print(total_syst)
+        #print(total_syst)
 
         #######################################
         ### Convert from ndarray to TMatrixTSym
@@ -299,7 +308,7 @@ class Analysis:
         ########
         ### xsec
         ########
-
+        
         # pi0 costheta
         multisim_xsec_reco_pi0_beam_costheta_cov = mc_nu_multisim_xsec_combined_syst._covariances['total_multisim_xsec_syst_reco_pi0_beam_costheta']
         multisim_xsec_reco_pi0_beam_costheta_cov_tmatrix = self.ndarray_to_tmatrixtsym(multisim_xsec_reco_pi0_beam_costheta_cov)
@@ -327,12 +336,12 @@ class Analysis:
         outf = ROOT.TFile('multisim_xsec_reco_muon_momentum_mag_cov.root', 'RECREATE')
         outf.WriteObject(multisim_xsec_reco_muon_momentum_mag_cov_tmatrix, 'multisim_xsec_reco_muon_momentum_mag_cov')
         outf.Close()
-
+        
         
         ########
         ### flux
         ########
-
+        
         # pi0 costheta
         flux_reco_pi0_beam_costheta_cov = mc_nu_flux_combined_syst._covariances['total_flux_syst_reco_pi0_beam_costheta']
         flux_reco_pi0_beam_costheta_cov_tmatrix = self.ndarray_to_tmatrixtsym(flux_reco_pi0_beam_costheta_cov)
@@ -360,7 +369,7 @@ class Analysis:
         outf = ROOT.TFile('flux_reco_muon_momentum_mag_cov.root', 'RECREATE')
         outf.WriteObject(flux_reco_muon_momentum_mag_cov_tmatrix, 'flux_reco_muon_momentum_mag_cov')
         outf.Close()
-
+        
 
 
     def run_interactively(self, figure) -> SpineFigure:

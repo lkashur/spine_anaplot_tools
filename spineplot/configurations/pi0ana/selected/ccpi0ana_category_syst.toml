@@ -67,7 +67,7 @@ trees = ['SelectedNu_PhaseCuts',]
 #systematics = ['variationTree', 'multisigmaTree']
 systematics = ['variationTree', 'multisimTree', 'multisigmaTree']
 #presel = 'matches_energy == 1'
-presel = 'matches_baseline == 1'
+#presel = 'matches_baseline == 1'
 
 [samples.mc_cos]
 key = 'mc'
@@ -106,13 +106,12 @@ category_types = ['histogram', 'histogram', 'histogram', 'histogram', 'histogram
 
 [variables.reco_muon_momentum_mag]
 key = 'reco_muon_momentum_mag'
-#range = [0, 3000]
-#nbins = 20
+#range = [0.0, 2.5]
+#nbins = 10
 #binning_scheme = 'equal_width'
 binning_scheme = 'custom'
-nbins = 10
-#range = [0.0, 150.0, 300.0, 450.0, 600.0, 750.0, 900.0, 1050.0, 1200.0, 1350.0, 1500.0, 2000.0, 3000.0]
-range = [0.0, 250.0, 500.0, 750.0, 1000.0, 1250.0, 1500.0, 1750.0, 2000.0, 2250.0, 2500.0]
+nbins = 8
+range = [0.0, 0.225, 0.375, 0.525, 0.700, 0.900, 1.250, 1.750, 2.800]
 xlabel = 'Reconstructed Muon Momentum [MeV/c]'
 
 [variables.reco_muon_beam_costheta]
@@ -122,9 +121,7 @@ key = 'reco_muon_beam_costheta'
 #binning_scheme = 'equal_width'
 binning_scheme = 'custom'
 nbins = 8
-#range = [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.50, 0.75, 1.0]
-range = [-1.0, -0.5, 0.0, 0.333, 0.5, 0.625, 0.75, 0.875, 1.0]
-#range = [-1.0, -0.5, -0.125, 0.25, 0.50, 0.65, 0.75, 0.90, 1.0]
+range = [-1.0, -0.60, -0.2, 0.1, 0.35, 0.55, 0.7, 0.85, 1.0]
 xlabel = 'Reconstructed $\cos(\theta_{\mu})$'
 
 [variables.reco_pi0_momentum_mag]
@@ -134,7 +131,7 @@ key = 'reco_pi0_momentum_mag'
 #binning_scheme = 'equal_width'
 binning_scheme = 'custom'
 nbins = 8
-range = [0, 100, 200, 300, 400, 500, 650, 800, 1200]
+range = [0.0, 0.100, 0.175, 0.250, 0.350, 0.450, 0.600, 0.800, 1.200]
 xlabel = 'Reconstructed $\pi^{0}$ Momentum [MeV/c]'
 
 #[variables.reco_pi0_leading_photon_energy]
@@ -332,7 +329,7 @@ style = 'basic'
 type = 'SpineSpectra1D'
 variable = 'reco_pi0_mass'
 #yrange = [0, 120]
-draw_kwargs = {'show_component_number' = true, 'show_component_percentage' = true, 'invert_stack_order' = true, 'draw_error' = 'stats_offbeam'}
+draw_kwargs = {'show_component_number' = true, 'show_component_percentage' = true, 'invert_stack_order' = true, 'draw_error' = 'all'}
 
 #[[figure]]
 #name = 'reco_visible_energy'
