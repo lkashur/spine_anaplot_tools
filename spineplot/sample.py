@@ -92,6 +92,8 @@ class Sample:
         if override_exposure is not None:
             self.override_exposure(override_exposure, exposure_type)
 
+        #selected_branches = ['reco_muon_momentum_mag', 'reco_muon_beam_costheta', 'reco_pi0_momentum_mag', 'reco_pi0_beam_costheta', 'reco_pi0_mass']
+        #self._data = pd.concat([self._file_handle[tree].arrays(selected_branches, library='pd') for tree in trees])
         self._data = pd.concat([self._file_handle[tree].arrays(library='pd') for tree in trees])
         if self._category_branch not in self._data.columns:
             self._data[self._category_branch] = 0
@@ -123,7 +125,7 @@ class Sample:
         # systematic uncertainties.
         if systematics is not None:    
             for sys in systematics:
-                systs = [k for k in self._file_handle[sys].keys() if k not in ['Run', 'Subrun', 'Evt']]
+                systs = [k for k in self._file_handle[sys].keys() if k not in ['Run', 'Subrun', 'Evt', 'nu_id', 'true_energy']]
                 self._systematics.update({syst: Systematic(syst, self._file_handle[sys][syst]) for syst in systs})
         
         # Add statistical uncertainty. This can always be added to the
@@ -252,10 +254,12 @@ class Sample:
             regxp = re.compile(recipe['pattern'])
             systematics = [v for k,v in self._systematics.items() if regxp.search(k)]
             
+            
             print(self._name)
             print(recipe)
             print(systematics)
             print('')
+            
 
             # If there are no systematics to combine, skip the recipe.
             if len(systematics) == 0:

@@ -195,12 +195,16 @@ class Systematic:
                 bin_indices = np.digitize(data, bin_edges) - 1
                 valid_indices = (bin_indices >= 0) & (bin_indices < len(bin_edges) - 1)
                 bin_indices = bin_indices[valid_indices]
-                
-                #if variable._key == 'reco_muon_beam_costheta':
-                #    print(bin_edges)
-                
+                                
                 histogram = np.zeros(len(bin_edges) - 1)
                 np.add.at(histogram, bin_indices, 1)
+            
+                '''
+                if sample._name == 'onbeam' and variable._name == 'reco_muon_momentum_mag':
+                    print(f'Bin Counts: {histogram}')
+                    print(f'Bin Statistical Uncertainties: {np.sqrt(histogram)}')
+                    print(f'Bin Fractional Statistical Uncertainties: {np.divide(np.sqrt(histogram), histogram)}')
+                '''
 
                 self._covariances[f'{self._name}_{name}'] = np.diag(histogram)
                 self._std = np.sqrt(histogram.sum())
