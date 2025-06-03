@@ -7,8 +7,8 @@
  * intended to be used in conjunction with the generic cuts defined in cuts.h.
  * @author lkashur@colostate.edu
 */
-#ifndef CUTS_PI0ANA_PHASE_H
-#define CUTS_PI0ANA_PHASE_H
+#ifndef CUTS_CCPI0ANA_PHASE_H
+#define CUTS_CCPI0ANA_PHASE_H
 #include <vector>
 #include <numeric>
 #include <cmath>
@@ -250,7 +250,8 @@ namespace cuts::ccpi0ana_phase
      * @note This cut is intended to be used for the ccpi0ana analysis. 
      */
     template<class T>
-      bool all_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && base_topology_cut<T>(obj) && leading_shower_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+      //bool all_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && base_topology_cut<T>(obj) && leading_shower_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+      bool all_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && base_topology_cut<T>(obj) && leading_shower_cut<T>(obj);}
     
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.

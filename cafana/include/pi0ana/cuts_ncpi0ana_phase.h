@@ -3,7 +3,7 @@
  * @brief Header file for definitions of analysis cuts specific to the muonana
  * analysis.
  * @details This file contains definitions of analysis cuts which can be used
- * to select interactions specific to the ncpi0ana analysis. The cuts are
+ * to select interactions specific to the pi0ana analysis. The cuts are
  * intended to be used in conjunction with the generic cuts defined in cuts.h.
  * @author lkashur@colostate.edu
 */
@@ -43,21 +43,58 @@ namespace cuts::ncpi0ana_phase
   //}
   
     /**
-     * @brief Apply a 0mu0pi2gamma topological (final state) cut.
-     * @details The interaction must have a topology matching 0mu0pi2gamma as defined by
+     * @brief Apply a 1mu0pi2gamma topological (final state) cut.
+     * @details The interaction must have a topology matching 1mu0pi2gamma as defined by
      * the conditions in the @ref count_primaries() function.
      * @tparam T the type of interaction (true or reco).
      * @param obj the interaction to select on.
-     * @return true if the interaction has a 0mu0pi2gamma topology.
+     * @return true if the interaction has a 1mu0pi2gamma topology.
      * @note This cut is intended to be used for the ncpi0ana analysis.
      */
     template<class T>
-        bool topological_0mu0pi2gamma_cut(const T & obj)
+        bool topological_1mu0pi2gamma_cut(const T & obj)
         {
 	    std::vector<uint32_t> c(utilities_ncpi0ana_phase::count_primaries(obj));
 	    reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
-	    return c[0] >= 2 && c[0] < 4 && c[2] == 0 && c[3] == 0 && s.pi0_momentum_mag >= MIN_PI0_MOMENTUM;
+            return (utilities_ncpi0ana_phase::reco_shower_criteria(obj) && s.pi0_momentum_mag >= MIN_PI0_MOMENTUM && c[2] == 1 && c[3] == 0);
+        }
+
+    template<class T>
+        bool base_topology_cut(const T & obj)
+        {
+	    std::vector<uint32_t> c(utilities_ncpi0ana_phase::count_primaries(obj));
+	    return c[2] == 0 && c[3] == 0 && c[0] >= 2 && c[0] < 4;
 	}
+
+    template<class T>
+      bool leading_shower_cut(const T & obj)
+      {
+	// default
+	bool passes(false);
+
+	size_t leading_shower_index(0);
+	double max_shower_ke(-99999);
+
+	// First loop to find leading shower
+	for(size_t i(0); i < obj.particles.size(); ++i)
+	  {
+	    const auto & p = obj.particles[i];
+
+	    // Primary particles                                                                                                                                                                       
+	    if(!p.is_primary) continue;
+
+	    // Leading shower
+	    //if((PIDFUNC(p) == 0 || PIDFUNC(p) == 1) && p.ke > max_shower_ke0) // showers
+	    if((PIDFUNC(p) == 0) && p.ke > max_shower_ke) // photons                                                                                                                                   
+	      {
+		max_shower_ke = p.ke;
+		leading_shower_index = i;
+	      }
+	  }                                                                                                                                                                            
+
+	if(max_shower_ke >= MIN_LEADING_SHOWER_ENERGY) passes = true;
+	return passes;
+      }
 
     template<class T>
         bool zero_charged_pions_cut(const T & obj)
@@ -65,6 +102,102 @@ namespace cuts::ncpi0ana_phase
 	    std::vector<uint32_t> c(utilities_ncpi0ana_phase::count_primaries(obj));
 	    return c[3] == 0;
 	}
+
+    template<class T>
+        bool no_hadronic_activity_cut(const T & obj)
+        {
+	    bool passes(true);
+	    TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
+	    // Loop over particle
+	    for(size_t i(0); i < obj.particles.size(); ++i)
+	    {
+	        const auto & p = obj.particles[i];
+		
+		// Primaries
+		if(!p.is_primary) continue;
+
+		// Tracks (muons, pions, protons)
+		if(p.pid < 2 || p.pid > 4) continue;
+		
+		// Get track end point (furthest from interaction vertex)
+		TVector3 end_ptA(p.start_point[0], p.start_point[1], p.start_point[2]);
+		TVector3 end_ptB(p.end_point[0], p.end_point[1], p.end_point[2]);
+		TVector3 end_pt0;
+		if((vertex - end_ptA).Mag() < (vertex - end_ptB).Mag())
+		  end_pt0 = end_ptB;
+		else
+		  end_pt0 = end_ptA;
+
+		// Second loop over nonprimaries
+		for(size_t j(0); j < obj.particles.size(); ++j)
+		{
+		    const auto & q = obj.particles[j];
+		    if(j == i) continue;
+
+		    if(q.is_primary) continue;
+		    if(q.pid < 2 || q.pid > 4) continue;
+
+		    // Get track start point (closest to primary track end point)
+		    TVector3 end_ptC(q.start_point[0], q.start_point[1], q.start_point[2]);
+		    TVector3 end_ptD(q.end_point[0], q.end_point[1], q.end_point[2]);
+		    TVector3 start_pt1;
+		    if((end_pt0 - end_ptC).Mag() < (end_pt0 - end_ptD).Mag())
+		      start_pt1 = end_ptC;
+		    else
+		      start_pt1 = end_ptD;
+		    
+		    // Check if first track end point is near second track start point
+		    if((end_pt0 - start_pt1).Mag() < 1)
+		      passes = false;
+
+		} // end non primary track loop
+
+	    } // end primary track loop
+
+	    return passes;
+        }
+
+    template<class T>
+        bool no_hadronic_michel_cut(const T & obj)
+        {
+	    bool passes(true);
+	    for(size_t i(0); i < obj.particles.size(); ++i)
+	    {
+	        TVector3 vertex(obj.vertex[0], obj.vertex[1], obj.vertex[2]);
+	      
+	        const auto & p = obj.particles[i];
+	        // primariy tracks
+		if(!p.is_primary) continue;
+		if(p.pid < 3 || p.pid > 4) continue;
+
+		// Get hadron end point (furthest from interaction vertex)
+                TVector3 end_ptA(p.start_point[0], p.start_point[1], p.start_point[2]);
+                TVector3 end_ptB(p.end_point[0], p.end_point[1], p.end_point[2]);
+                TVector3 end_pt0;
+                if((vertex - end_ptA).Mag() < (vertex - end_ptB).Mag())
+                  end_pt0 = end_ptB;
+                else
+                  end_pt0 = end_ptA;
+
+		for(size_t j(0); j < obj.particles.size(); ++j)
+	        {
+		    if(j == 1) continue;
+		    const auto & q = obj.particles[j];
+		    if(q.is_primary) continue;
+		    if(q.shape == 2)
+		    {
+		        // Is michel start point near hadronic endpoint
+		        TVector3 michel_start(q.start_point[0], q.start_point[1], q.start_point[2]);
+			if((michel_start - end_pt0).Mag() < 5)
+			  passes = false;
+		    }
+		} // end nonprimary loop
+	      
+	    } // end primary loop
+
+	    return passes;
+        }
+
 
     template<class T>
         bool one_muon_cut(const T & obj)
@@ -117,7 +250,7 @@ namespace cuts::ncpi0ana_phase
      * @note This cut is intended to be used for the ncpi0ana analysis. 
      */
     template<class T>
-        bool all_0mu0pi2gamma_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && topological_0mu0pi2gamma_cut<T>(obj) && pi0_mass_cut<T>(obj);}
+      bool all_cut(const T & obj) {return fiducial_cut<T>(obj) && flash_cut<T>(obj) && base_topology_cut<T>(obj) && leading_shower_cut<T>(obj) && pi0_mass_cut<T>(obj);}
     
     /**
      * @brief Apply a cut to select the 1mu0pi1pi0 signal.
@@ -144,7 +277,7 @@ namespace cuts::ncpi0ana_phase
      * and non-1mu0pi1pi0 topological cut.
      * @note This cut is intended to be used for the ncpi0ana analysis.
      */
-    bool other_nu_0mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
+    bool other_nu_1mu0pi1pi0(const caf::SRInteractionTruthDLPProxy & obj)
         {
 	  truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
 	  return !(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc) && s.is_neutrino;

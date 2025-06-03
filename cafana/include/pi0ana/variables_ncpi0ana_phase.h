@@ -1,9 +1,9 @@
 /**
  * @file vars_ncpi0ana_phase.h
  * @brief Header file for definitions of analysis variables specific to the
- * pi0ana analysis.
+ * ncpi0ana analysis.
  * @details This file contains definitions of analysis variables which can be
- * used to extract information from interactions specific to the pi0ana
+ * used to extract information from interactions specific to the ncpi0ana
  * analysis. Each variable is implemented as a function which takes an
  * interaction object as an argument and returns a double. These are the
  * building blocks for producing high-level plots of the selected interactions.
@@ -23,9 +23,9 @@
 
 /**
  * @namespace vars::ncpi0ana_phase
- * @brief Namespace for organizing variables specific to the pi0ana analysis.
+ * @brief Namespace for organizing variables specific to the ncpi0ana analysis.
  * @details This namespace is intended to be used for organizing variables which
- * act on interactions specific to the pi0ana analysis. Each variable is
+ * act on interactions specific to the ncpi0ana analysis. Each variable is
  * implemented as a function which takes an interaction object as an argument
  * and returns a double. The function should be templated on the type of
  * interaction object if the variable is intended to be used on both true and
@@ -41,20 +41,21 @@ namespace vars::ncpi0ana_phase
      * @details This variable provides a basic categorization of interactions
      * using only signal, neutrino background, and cosmic background as the 
      * three categories.
-     * 0: Signal (contained and fiducial)
-     * 1: Signal (not contained or not fiducial)
+     * 0: Signal (fiducial)
+     * 1: Signal (fiducial)
      * 2: Other nu
      * 3: Cosmic
      * @param obj the interaction to apply the variable on.
      * @return the enumerated category of the interaction.
      */
+  /*
     double category(const caf::SRInteractionTruthDLPProxy & obj)
     {
       // Cosmic background
       double cat(3);
 
       // Signal   
-      if(cuts::ncpi0ana_phase::signal_0mu0pi1pi0(obj))
+      if(cuts::ncpi0ana_phase::signal_1mu0pi1pi0(obj))
       {
 	if(cuts::fiducial_cut(obj))
 	{
@@ -63,15 +64,16 @@ namespace vars::ncpi0ana_phase
 	else cat = 1;
       }
       // Neutrino Background              
-      else if(cuts::ncpi0ana_phase::other_nu_0mu0pi1pi0(obj))
+      else if(cuts::ncpi0ana_phase::other_nu_1mu0pi1pi0(obj))
       {
 	cat = 2;
       }
       return cat;
     }
+  */
 
     /**
-     * @brief GUNDAM variable for enumerating interaction categories.
+     * @brief GUNDAM variable for enumerating interaction categories.                                                                                          
      * @details This variable provides a basic categorization of interactions
      * using only signal, neutrino background, and cosmic background as the
      * three categories.
@@ -79,31 +81,32 @@ namespace vars::ncpi0ana_phase
      * 2: Signal (OOPS)
      * 3: Other nu
      * 4: Cosmic
-     * @param obj the interaction to apply the variable on. 
+     * @param obj the interaction to apply the variable on.
      * @return the enumerated category of the interaction. 
      */
     double is_signal_mc(const caf::SRInteractionTruthDLPProxy & obj)
     {
       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
 
-      // Cosmic
+      // Cosmic                                                                                                              
       uint16_t cat(4);
 
-      // Nu
+      // Nu                                                                                                                         
       if(s.is_neutrino)
         {
-          // Signal
-          if(s.num_primary_muons_thresh == 0 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && !s.is_cc && s.is_fiducial) cat = 1;
+	  // Signal
+	  if(s.num_primary_muons_thresh == 1 && s.num_primary_pions_thresh == 0 && s.num_primary_pi0s_thresh == 1 && s.is_cc && s.is_fiducial) cat = 1;
 
-          // Signal (OOPS)
-          else if( (s.num_primary_muons == 0 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_fiducial) && (s.num_primary_muons_thresh != 0 || s.num_primary_pions_thresh != 0 ||s.num_primary_pi0s_thresh != 1) ) cat = 2;
+	  // Signal (OOPS)
+	  else if( (s.num_primary_muons == 1 && s.num_primary_pions == 0 && s.num_primary_pi0s == 1 && s.is_cc && s.is_fiducial) && (s.num_primary_muons_thresh != 1 || s.num_primary_pions_thresh != 0 || s.num_primary_pi0s_thresh != 1) ) cat = 2;
 
-          // Other nu
-          else cat = 3;
+	  // Other nu
+	  else cat = 3;
         }
 
       return cat;
     }
+
 
     /**
      * @brief GUNDAM variable for enumerating interaction categories.
@@ -119,31 +122,32 @@ namespace vars::ncpi0ana_phase
       return cat;
     }
 
+
     /**
      * @brief Variable for enumerating interaction categories.
      * @details This variable provides a basic categorization of interactions
      * using only signal, neutrino background, and cosmic background as the
      * three categories.
-     * 0: 0mu0pi1pi0 (in-phase, fiducial)
-     * 1: 0mu0pi1pi0 (OOPS, fiducial)
-     * 2: 0mu0pi1pi0 (OOFV)
-     * 3: 0muNpi1pi0
-     * 4: 0muNpi0pi0
-     * 5: 0muNpi0
-     * 6: CC 1pi0
+     * 0: 1mu0pi1pi0 (in-phase, fiducial)
+     * 1: 1mu0pi1pi0 (OOPS, fiducial)
+     * 2: 1mu0pi1pi0 (OOFV)
+     * 3: 1muNpi1pi0
+     * 4: 1muNpi0pi0
+     * 5: 1muNpi0
+     * 6: NC 1pi0
      * 7: Other nu
      * 8: Cosmic
      * @param obj the interaction to apply the variable on.
      * @return the enumerated category of the interaction.
      */
-    double category_topology(const caf::SRInteractionTruthDLPProxy & obj)
+    double category(const caf::SRInteractionTruthDLPProxy & obj)
     {
       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
 
-      // Cosmic                                                                                                                                                                                          
+      // Cosmic            
       uint16_t cat(8);
 
-      // Neutrino                                                                                                                                                                                        
+      // Neutrino    
       if(s.is_neutrino)
         {
           // 0mu0pi1pi0 (in-phase, fiducial)
@@ -165,7 +169,6 @@ namespace vars::ncpi0ana_phase
         }
       return cat;
     }
-
 
     /**
      * @brief Variable for enumerating cut type.
@@ -198,6 +201,68 @@ namespace vars::ncpi0ana_phase
             double cat(1);
             return cat;
 	}
+
+    template<class T>
+        double is_not_nu(const T & obj)
+        {
+	  double cat(0);
+	  return cat;
+	}
+
+    template<class T>
+        double is_nu(const T & obj)
+        {
+            double cat(1);
+            return cat;
+	}
+
+
+
+    /**
+     * @brief Variable for leading muon momentum magnitude.
+     * @details Variable for momentum of the leading muon
+     * candidate [MeV/c].
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the muon momentum magnitude.
+     */
+    template<class T> 
+        double muon_momentum_mag(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			       return s.muon_momentum_mag;
+			   }
+	    else
+            {
+	        reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+		return s.muon_momentum_mag;
+            }
+        }
+
+    /**
+     * @brief Variable for leading muon angle with beam.
+     * @details Variable for the cosine of the angle between
+     * the interaction's leading muon and the beam.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the leading muon's angle w.r.t. beam.
+     */
+    template<class T>
+        double muon_beam_costheta(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+                           {
+			       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			       return s.muon_beam_costheta;
+                           }
+	    else
+	    {
+	      reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+	      return s.muon_beam_costheta;
+	    }
+        }
 
     /**
      * @brief Variable for pi0 leading photon energy.
@@ -246,6 +311,46 @@ namespace vars::ncpi0ana_phase
       }
 
     /**
+     * @brief Variable for angle between pi0 leading photon cluster direction and vertex direction.
+     * @details Variable for angle between pi0 leading photon cluster direction, calculated as the normalized
+     * mean direction of the cluster, and the the pi0 leading photon vertex direction, calculated from the
+     * vector between the interaction vertex and shower start point.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the angle between the pi0 leading photon cluster direction and vertex direction. 
+     */
+    template<class T>
+      double pi0_leading_photon_cosphi(const T & obj)
+      {
+	if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+		       {
+			 truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			 return -5;
+			 //return s.pi0_leading_photon_cosphi;
+		       }
+	else
+	  {
+	    reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+	    return s.pi0_leading_photon_cosphi;
+	  }
+      }
+
+    template<class T>
+        double pi0_leading_photon_ip(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			       return -5;
+			   }
+	    else
+	    {
+	        reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+		return s.pi0_leading_photon_ip;
+	    }
+	}
+
+    /**
      * @brief Variable for pi0 subleading photon energy.
      * @details Variable for pi0 subleading photon energy
      * [MeV], as calculated with p.calo_ke attribute.
@@ -291,6 +396,47 @@ namespace vars::ncpi0ana_phase
           }
       }
 
+    template<class T>
+      double pi0_subleading_photon_ip(const T & obj)
+      {
+	if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+		       {
+			 truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			 return -5;
+		       }
+	else
+	  {
+	    reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+	    return s.pi0_subleading_photon_ip;
+	  }
+      }
+
+
+    /**
+     * @brief Variable for angle between pi0 subleading photon cluster direction and vertex direction.
+     * @details Variable for angle between pi0 subleading photon cluster direction, calculated as the normalized
+     * mean direction of the cluster, and the the pi0 subleading photon vertex direction, calculated from the 
+     * vector between the interaction vertex and shower start point.
+     * @tparam T the type of interaction (true or reco).
+     * @param obj the interaction to apply the variable on.
+     * @return the angle between the pi0 subleading photon cluster direction and vertex direction.
+     */
+    template<class T>
+        double pi0_subleading_photon_cosphi(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			       return -5;
+			       //return s.pi0_subleading_photon_cosphi;
+			   }
+	    else
+	    {
+	      reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+	      return s.pi0_subleading_photon_cosphi;
+	    }
+        }
+
     /**
      * @brief Variable for neutral pion momentum magnitude.
      * @details Variable for momentum of the neutral pion
@@ -313,6 +459,21 @@ namespace vars::ncpi0ana_phase
 		return s.pi0_momentum_mag;
 	    } 
         }
+
+    template<class T>
+        double pi0_photons_avg_ip(const T & obj)
+        {
+	    if constexpr (std::is_same_v<T, caf::SRInteractionTruthDLPProxy>)
+			   {
+			       truth_inter_phase s = utilities_ncpi0ana_phase::truth_interaction_info(obj);
+			       return -5;
+			   }
+            else
+	    {
+                reco_inter_phase s = utilities_ncpi0ana_phase::reco_interaction_info(obj);
+                return s.pi0_photons_avg_ip;
+	    }
+	}
 
     /**
      * @brief Variable for neutral pion angle with beam.
@@ -339,7 +500,7 @@ namespace vars::ncpi0ana_phase
 
     /**
      * @brief Variable for neutral pion (photons) opening angle.
-     * @details Variable for the openign angle between neutral pion
+     * @details Variable for the opening angle between neutral pion
      * photons, as calculated using the interaction vertex and shower
      * start points.
      * @tparam T the type of interaction (true or reco).
