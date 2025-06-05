@@ -1,14 +1,17 @@
 [input]
 path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam_vars.root'
-caflist = 'input_files_extendedcv.txt'
+#weights = '/pnfs/icarus/persistent/users/mueller/mixed/simulation/nominal/*.flat.root'
+weights = '/pnfs/icarus/persistent/users/mueller/mixed/simulation/cvext/input000*.flat.root'
+use_additional_hash = true
 
 [output]
-path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam_vars_syst.root'
+#path = '/pnfs/icarus/scratch/users/lkashur/icarus_bnb_ccpi0_mc_onbeam_offbeam_vars_syst_forgundam.root'
+path = 'icarus_bnb_ccpi0_mc_onbeam_offbeam_vars_sel_syst_forgundam.root'
 histogram_destination = 'variations/'
 
 [[sysvar]]
 name = 'reco_muon_beam_costheta'
-bins = [12, -1, 1]
+bins = [12.0, -1.01, 1.01]
 
 [variations]
 keys = ['cv', 'var00', 'var01', 'var02', 'var03m', 'var03p', 'var05', 'var06', 'var07', 'var09m', 'var09p', 'var10m', 'var10p']
@@ -16,7 +19,7 @@ origin = 'events/'
 tree = 'SelectedNu_PhaseCuts'
 result_destination = 'detsys_results/'
 variable = 'reco_muon_beam_costheta'
-bins = [12, -1, 1]
+bins = [12.0, -1.01, 1.01]
 nuniverses = 10000
 
 [[tree]]
@@ -32,12 +35,12 @@ destination = 'events/mc/'
 name = 'SelectedCos_PhaseCuts'
 action = 'copy'
 
-[[tree]]
-origin = 'events/mc/Signal_PhaseCuts'
-destination = 'events/mc/'
-name = 'Signal_PhaseCuts'
-action = 'add_weights'
-table_types = ['multisim', 'multisigma', 'variation']
+#[[tree]]
+#origin = 'events/mc/Signal_PhaseCuts'
+#destination = 'events/mc/'
+#name = 'Signal_PhaseCuts'
+#action = 'add_weights'
+#table_types = ['multisim', 'multisigma', 'variation']
 
 [[tree]]
 origin = 'events/onbeam/SelectedNu_PhaseCuts'
@@ -145,7 +148,7 @@ name_short = 'detvar_bnb_intnoise'
 type = 'variation'
 index = -1
 nsigma = [-3, -2, -1, 0, 1, 2, 3]
-scale = [-3, -2, -1, 1, 1, 2, 3]
+scale = [3, 2, 1, 1, 1, 2, 3]
 ordinate = 'cv'
 points = ['var09m', 'var09m', 'var09m', 'cv', 'var09p', 'var09p', 'var09p']
 
