@@ -31,26 +31,43 @@ def main(args):
     sel_mc_df = pd.concat([sel_mc_nu_df, sel_mc_cos_df])
 
     # offbeam
-    #livetime_offbeam = rf['events/offbeam/Livetime'].to_numpy()[0][0]
-    #sel_offbeam_cos_tree = rf['events/offbeam/SelectedCos_PhaseCuts']
+    '''
+    livetime_offbeam = rf['events/offbeam/Livetime'].to_numpy()[0][0]
+    sel_offbeam_cos_tree = rf['events/offbeam/SelectedCos_PhaseCuts']
+    sel_offbeam_cos_df = sel_offbeam_cos_tree.arrays(library='pd')
+    '''
 
     # onbeam
-    #livetime_onbeam = rf['events/onbeam/Livetime'].to_numpy()[0][0]
-    #pot_onbeam = rf['events/onbeam/POT'].to_numpy()[0][0]
+
+    livetime_onbeam = rf['events/onbeam/Livetime'].to_numpy()[0][0]
+    pot_onbeam = rf['events/onbeam/POT'].to_numpy()[0][0]
+    #sel_onbeam_tree = rf['events/onbeam/SelectedNu_PhaseCuts']
+    #sel_onbeam_df = sel_onbeam_tree.arrays(library='pd')
+    
 
     # Purity
-    '''
+    
     pur_mc_tree = rf['events/mc/Purity_PhaseCuts']
     pur_mc_df = pur_mc_tree.arrays(library="pd")
+    pot_mc = rf['events/mc/POT'].to_numpy()[0][0]
+    pur_mc_df['weight'] = [pot_onbeam/pot_mc] * len(pur_mc_df)
+    pur_mc_df['is_offbeam'] = [False] * len(pur_mc_df)
 
     pur_offbeam_tree = rf['events/offbeam/Purity_PhaseCuts']
     pur_offbeam_df = pur_offbeam_tree.arrays(library='pd')
-    '''
+    livetime_offbeam = rf['events/offbeam/Livetime'].to_numpy()[0][0]
+    pur_offbeam_df['weight'] = [livetime_onbeam/livetime_offbeam] * len(pur_offbeam_df)
+    pur_offbeam_df['is_offbeam'] = [True] * len(pur_offbeam_df)
+
+    pur_df = pd.concat([pur_mc_df, pur_offbeam_df])
+    
     
     # Efficiency
     sig_tree = rf['events/mc/Signal_PhaseCuts']
     sig_df = sig_tree.arrays(library="pd")
+    #print(sig_df)
     sig_df = sig_df[sig_df.category == 0] # only fiducialized signal events
+    #print(sig_df)
 
     # Confusion
     '''
@@ -63,12 +80,12 @@ def main(args):
     '''
     
     # Purity
-    purity = calc_flat_purity(sel_mc_df)
-    print(f'Purity: {round(purity,2)}%')
+    #purity = calc_flat_purity(sel_mc_df)
+    #print(f'Purity: {round(purity,2)}%')
 
     # Efficiency
-    efficiency = calc_flat_efficiency(sig_df)
-    print(f'Efficiency: {round(efficiency,2)}%')
+    #efficiency = calc_flat_efficiency(sig_df)
+    #print(f'Efficiency: {round(efficiency,2)}%')
 
     # As a function of each cut...
     cuts = {'Flash Cut':['flash_cut == 1'], 
@@ -76,7 +93,7 @@ def main(args):
             "Base Topology Cut":['flash_cut == 1','fiducial_cut == 1','base_topology_cut == 1'],
             "Leading Shower Cut":['flash_cut == 1','fiducial_cut == 1','base_topology_cut == 1','leading_shower_cut == 1'],
             "pi0 Mass Cut":['flash_cut == 1','fiducial_cut == 1','base_topology_cut == 1','leading_shower_cut == 1','pi0_mass_cut == 1']}
-    #calc_purity_by_cut(pur_mc_df, cuts)
+    calc_purity_by_cut(pur_mc_df, livetime_onbeam, livetime_offbeam, cuts)
     #calc_efficiency_by_cut(sig_df, cuts)
     
     # Calculate efficiency as function of...
@@ -90,7 +107,7 @@ def main(args):
 
 
     #plot_diff_pur_eff(sig_df, pot, 'true_muon_momentum_mag', var_cfg, [0.226,2.0], 12, 'eff', pd.read_csv('../../gundam/muon_momentum_mag_bins.txt')) # tech note
-    plot_diff_pur_eff(sig_df, pot, 'true_muon_beam_costheta', var_cfg, [-1,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_beam_costheta_bins.txt'))
+    #plot_diff_pur_eff(sig_df, pot, 'true_muon_beam_costheta', var_cfg, [-1,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_beam_costheta_bins.txt'))
     #plot_diff_pur_eff(sig_df, pot, 'true_pi0_momentum_mag', var_cfg, [0,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_momentum_mag_bins.txt'))
     #plot_diff_pur_eff(sig_df, pot, 'true_pi0_beam_costheta', var_cfg, [-1,1.0], 12, 'eff', pd.read_csv('../../gundam/pi0_beam_costheta_bins.txt'))
     
@@ -217,8 +234,8 @@ def plot_diff_pur_eff(df, pot, var, var_cfg, var_range, nbins, metric, binning_d
     add_plot_labels(ax1,pot, adj_y=0.030, title=plottile)
     plt.savefig(metric + '_vs_' + var + '.png')
 
-def calc_purity_by_cut(pur_mc_df, cuts):
-    no_cut_purity = len(pur_mc_df[pur_mc_df.category == 0]) / len(pur_mc_df)
+def calc_purity_by_cut(pur_df, livetime_onbeam, livetime_offbeam, cuts):
+    no_cut_purity = len(pur_df[pur_df.category == 0]) / ( len(pur_df[~pur_df.is_offbeam]) + (livetime_onbeam/livetime_offbeam)*len(pur_df[pur_df.is_offbeam]) )
     print(f'No Cut Purity: {round(100*no_cut_purity, 2)}%')
     for key, value in cuts.items():
         cond_string = str()
@@ -226,8 +243,9 @@ def calc_purity_by_cut(pur_mc_df, cuts):
             cond_string += c
             if i != len(value) - 1: cond_string += ' & '
 
-        sel_by_cut = pur_mc_df.query(cond_string)
-        cut_purity = len(sel_by_cut[sel_by_cut.category == 0]) / len(sel_by_cut)
+        sel_by_cut = pur_df.query(cond_string)
+        #cut_purity = len(sel_by_cut[sel_by_cut.category == 0]) / len(sel_by_cut)
+        cut_purity = len(sel_by_cut[sel_by_cut.category == 0]) / ( len(sel_by_cut[~sel_by_cut.is_offbeam]) + (livetime_onbeam/livetime_offbeam)*len(sel_by_cut[sel_by_cut.is_offbeam]) )
         print(f'{key} Purity: {round(100*cut_purity, 2)}%')
         
 def calc_efficiency_by_cut(sig_df, cuts):
