@@ -155,7 +155,7 @@ class SpineSpectra1D(SpineSpectra):
     def draw(self, ax, style, show_component_number=False,
              show_component_percentage=False, invert_stack_order=False,
              fit_type=None, logx=False, logy=False,
-             draw_error=None) -> None:
+             draw_error=None, normalize=False) -> None:
         """
         Plots the data for the SpineSpectra1D object.
 
@@ -190,6 +190,9 @@ class SpineSpectra1D(SpineSpectra):
         draw_error : str, optional
             Indicates the name of the Systematic object to use for
             drawing the error boxes. The default is None.
+        normalize : bool
+            Whether or not to (area) normalize the figure.
+            The default is False.
 
         Returns
         -------
@@ -197,6 +200,7 @@ class SpineSpectra1D(SpineSpectra):
         """
         ax.set_xlabel(self._variable._xlabel if self._xtitle is None else self._xtitle)
         ax.set_ylabel('Candidates')
+        if normalize : ax.set_ylabel('Normalized Candidates')
         #ax.set_xlim(*self._variable._range if self._xrange is None else self._xrange)
         if self._variable._binning_scheme == 'equal_width':
             ax.set_xlim([self._variable._range[0], self._variable._range[1]] if self._xrange is None else self._xrange)
@@ -233,21 +237,30 @@ class SpineSpectra1D(SpineSpectra):
                 reduce = lambda x : [x[i] for i in histogram_mask[::-1]]
             else:
                 reduce = lambda x : [x[i] for i in histogram_mask]
-            
-            if self._variable._binning_scheme == 'equal_width':
-                ax.hist(reduce(bincenters), weights=reduce(data), bins=self._variable._nbins, range=xr, label=reduce(labels), color=reduce(colors), **style.plot_kwargs)
-            if self._variable._binning_scheme == 'custom':
-                bottom = np.zeros(len(bincenters[0]))
-                # Loop over MC categories
-                for (d,l,c) in zip(reduce(data),reduce(labels),reduce(colors)):
-                    ax.bar(bincenters[0], d, width=binwidths[0], bottom=bottom, align='center', label=l, color=c)
-                    bottom+=d
 
+
+            allcat_bin_counts = np.sum(reduce(data), axis=0)
+            norm_scaling = 1/np.sum(allcat_bin_counts * binwidths[0]) if normalize else 1
+            if self._variable._binning_scheme == 'equal_width':
+                #ax.hist(reduce(bincenters), weights=reduce(data)*norm_scaling, bins=self._variable._nbins, range=xr, label=reduce(labels), color=reduce(colors), **style.plot_kwargs)
+                ax.hist(reduce(bincenters), weights=[[element * norm_scaling for element in sublist] for sublist in reduce(data)], bins=self._variable._nbins, range=xr, label=reduce(labels), color=reduce(colors), **style.plot_kwargs)
+            if self._variable._binning_scheme == 'custom':
+                allcat_bin_counts = np.zeros(len(bincenters[0]))
+                # Loop over MC categories
+                bottom = np.zeros(len(bincenters[0]))
+                for (d,l,c) in zip(reduce(data),reduce(labels),reduce(colors)):
+                    ax.bar(bincenters[0], d*norm_scaling, width=binwidths[0], bottom=bottom, align='center', label=l, color=c)
+                    bottom+=d*norm_scaling
+                
             if draw_error:
                 systs = [s[draw_error] for s in self._systematics.values() if draw_error in s]
                 cov = np.sum(s.get_covariance(self._variable._key) for s in systs)
                 x = reduce(bincenters)[0]
                 y = np.sum(reduce(data), axis=0)
+                if normalize:
+                    frac_cov = cov / np.outer(y, y)
+                    y = y*norm_scaling
+                    cov = np.outer(y, y) * frac_cov
                 xerr = [x / 2 for x in binwidths[0]]
                 yerr = np.sqrt(np.diag(cov))
                 
@@ -257,8 +270,17 @@ class SpineSpectra1D(SpineSpectra):
                 draw_error_boxes(ax, x, y, xerr, yerr, facecolor='gray', edgecolor='none', alpha=0.5, hatch='///')
 
             reduce = lambda x : [x[i] for i in scatter_mask]
-            for i, label in enumerate(reduce(labels)):
-                ax.errorbar(bincenters[scatter_mask[i]], data[scatter_mask[i]], yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
+            for i, label in enumerate(reduce(labels)):  
+                darray = data[scatter_mask[i]]
+                stat_cov = np.diag(darray)
+                stat_err = np.sqrt(np.diagonal(stat_cov))
+                if normalize:
+                    frac_stat_cov = stat_cov / np.outer(darray, darray)
+                    darray = darray / np.sum(darray * binwidths[scatter_mask[i]])
+                    stat_cov = np.outer(darray, darray) * frac_stat_cov
+                stat_err  = np.sqrt(np.diag(stat_cov))
+                #ax.errorbar(bincenters[scatter_mask[i]], darray, yerr=np.sqrt(data[scatter_mask[i]]), fmt='o', label=label, color=colors[scatter_mask[i]])
+                ax.errorbar(bincenters[scatter_mask[i]], darray, yerr=stat_err, fmt='o', label=label, color=colors[scatter_mask[i]])
         
         if invert_stack_order:
             h, l = ax.get_legend_handles_labels()
