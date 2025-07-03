@@ -273,7 +273,7 @@ namespace utilities_ncpi0ana_phase
 	    }
 
 	    // Protons
-	    if(PIDFUNC(p) == 4)
+	    if(PIDFUNC(p)) == 3)
 	    {
 	      primary_proton_count++;
 	      if(p.ke >= MIN_PROTON_ENERGY) primary_proton_count_thresh++;
@@ -363,7 +363,7 @@ namespace utilities_ncpi0ana_phase
 	nonprimary_pi0_count = nonprimary_pi0_map.size();
 
 	// Obtain info about signal particles, if they exist
-	if(primary_muon_count_thresh == 0 && primary_pion_count_thresh == 0 && primary_pi0_count_thresh == 1 && obj.current_type == 1 && cuts::fiducial_cut<T>(obj))
+	if(primary_muon_count_thresh == 0 && primary_pion_count_thresh == 0 && primary_pi0_count_thresh == 1 && primary_proton_count_thresh == 0 && obj.current_type == 1 && cuts::fiducial_cut<T>(obj))
 	{      
 	  // Get leading muon info
 	  //const auto & muon = obj.particles[leading_muon_index];
